@@ -1,0 +1,6 @@
+{
+  "name": "Itinerario y Reservas de Viaje",
+  "description": "Aplicación para gestionar itinerarios de viaje, vuelos, reservas, actividades y notificaciones por WhatsApp.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
