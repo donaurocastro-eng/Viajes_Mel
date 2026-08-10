@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Trip, Flight, Reservation, Activity, WhatsAppLog, WhatsAppConfig, SupabaseConfig, FlightStatus } from './types';
+import { Trip, Flight, Reservation, Activity, WhatsAppLog, WhatsAppConfig, SupabaseConfig, FlightStatus, BoardingPassAttachment } from './types';
 import { initialTrips, initialFlights, initialReservations, initialActivities, initialWhatsAppLogs } from './data/mockData';
 import { Navbar } from './components/Navbar';
 import { TripHeader } from './components/TripHeader';
@@ -178,6 +178,35 @@ export default function App() {
 
   const handleDeleteFlight = (id: string) => {
     setFlights((prev) => prev.filter((f) => f.id !== id));
+  };
+
+  const handleUploadBoardingPass = (flightId: string, pass: BoardingPassAttachment) => {
+    setFlights((prev) =>
+      prev.map((f) => {
+        if (f.id === flightId) {
+          const currentPasses = f.boardingPasses || [];
+          return {
+            ...f,
+            boardingPasses: [pass, ...currentPasses],
+          };
+        }
+        return f;
+      })
+    );
+  };
+
+  const handleDeleteBoardingPass = (flightId: string, passId: string) => {
+    setFlights((prev) =>
+      prev.map((f) => {
+        if (f.id === flightId) {
+          return {
+            ...f,
+            boardingPasses: (f.boardingPasses || []).filter((p) => p.id !== passId),
+          };
+        }
+        return f;
+      })
+    );
   };
 
   const handleAddReservation = (newRes: Reservation) => {
@@ -416,6 +445,8 @@ export default function App() {
                 onAddFlight={() => setIsAddFlightOpen(true)}
                 onNotifyGateChangeWhatsApp={handleNotifyGateChange}
                 onNotifyDelayWhatsApp={handleNotifyDelay}
+                onUploadBoardingPass={handleUploadBoardingPass}
+                onDeleteBoardingPass={handleDeleteBoardingPass}
               />
             )}
 

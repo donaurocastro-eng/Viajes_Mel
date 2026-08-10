@@ -43,7 +43,18 @@ export const initialFlights: Flight[] = [
     status: 'programado',
     confirmationCode: 'BQDIQK',
     price: 552,
-    notes: 'Reserva BQDIQK (Cod. O7TX21). Salida de Honduras. Escala de 2h 15m en Houston.'
+    notes: 'Reserva BQDIQK (Cod. O7TX21). Salida de Honduras. Escala de 2h 15m en Houston.',
+    boardingPasses: [
+      {
+        id: 'bp-hn-1-a',
+        fileName: 'Pase_Abordaje_United_UA527_Donauro.pdf',
+        fileType: 'pdf',
+        fileDataUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+        passengerName: 'Donauro Emmanuel Castro',
+        seat: '15C',
+        uploadedAt: new Date().toISOString()
+      }
+    ]
   },
   {
     id: 'flight-hn-2',

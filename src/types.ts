@@ -27,6 +27,16 @@ export interface QrTicket {
   qrCodeData: string;
 }
 
+export interface BoardingPassAttachment {
+  id: string;
+  fileName: string;
+  fileType: 'image' | 'pdf';
+  fileDataUrl: string;
+  passengerName?: string;
+  seat?: string;
+  uploadedAt: string;
+}
+
 export interface Flight {
   id: string;
   tripId: string;
@@ -47,6 +57,7 @@ export interface Flight {
   notes?: string;
   transportType?: 'flight' | 'train' | 'bus';
   qrTickets?: QrTicket[];
+  boardingPasses?: BoardingPassAttachment[];
 }
 
 export type ReservationType = 'hotel' | 'car_rental' | 'restaurant' | 'train' | 'activity_pass' | 'other';
