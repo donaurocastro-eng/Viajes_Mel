@@ -1,6 +1,6 @@
 import React from 'react';
 import { Trip } from '../types';
-import { Plane, MessageSquare, Database, Sparkles, Plus, MapPin, Calendar, Smartphone } from 'lucide-react';
+import { Plane, Sparkles, Plus, MapPin, Calendar, LayoutGrid, Settings, Smartphone } from 'lucide-react';
 
 interface NavbarProps {
   trips: Trip[];
@@ -8,8 +8,6 @@ interface NavbarProps {
   onSelectTrip: (trip: Trip) => void;
   onOpenNewTripModal: () => void;
   onOpenAiPlanner: () => void;
-  onOpenWhatsAppModal: () => void;
-  onOpenSupabaseModal: () => void;
   activeTab: string;
   setActiveTab: (tab: string) => void;
   isSupabaseConnected: boolean;
@@ -22,8 +20,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   onSelectTrip,
   onOpenNewTripModal,
   onOpenAiPlanner,
-  onOpenWhatsAppModal,
-  onOpenSupabaseModal,
   activeTab,
   setActiveTab,
   isSupabaseConnected,
@@ -35,8 +31,11 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="flex items-center justify-between h-16">
           
           {/* Logo & Brand */}
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 via-teal-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+          <div
+            onClick={() => setActiveTab('trips_menu')}
+            className="flex items-center space-x-3 cursor-pointer group"
+          >
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 via-teal-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform">
               <Plane className="w-5 h-5 text-white transform -rotate-45" />
             </div>
             <div>
@@ -44,12 +43,12 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <span className="font-bold text-lg tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
                   ViajeFlow
                 </span>
-                <span className="text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                  Supabase & WhatsApp API
+                <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 font-mono">
+                  {activeTrip?.code || 'VAC-001'}
                 </span>
               </div>
               <p className="text-xs text-slate-400 font-medium hidden sm:block">
-                Itinerarios, Vuelos y Notificaciones Automáticas
+                Gestor de Viajes con Nomenclatura y Notificaciones
               </p>
             </div>
           </div>
@@ -61,13 +60,16 @@ export const Navbar: React.FC<NavbarProps> = ({
               value={activeTrip?.id || ''}
               onChange={(e) => {
                 const selected = trips.find((t) => t.id === e.target.value);
-                if (selected) onSelectTrip(selected);
+                if (selected) {
+                  onSelectTrip(selected);
+                  if (activeTab === 'trips_menu') setActiveTab('itinerary');
+                }
               }}
               className="bg-transparent text-sm font-medium text-slate-200 focus:outline-none px-2 py-1 pr-6 cursor-pointer"
             >
               {trips.map((t) => (
                 <option key={t.id} value={t.id} className="bg-slate-900 text-white">
-                  {t.title} ({t.destination})
+                  [{t.code || 'VAC'}] {t.title}
                 </option>
               ))}
             </select>
@@ -80,7 +82,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           </div>
 
-          {/* Integration Status Badges & Quick Action Buttons */}
+          {/* Quick Action Buttons */}
           <div className="flex items-center space-x-2">
             
             {/* AI Generator Button */}
@@ -92,34 +94,18 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span className="hidden sm:inline">Generar con IA</span>
             </button>
 
-            {/* WhatsApp Integration Center */}
+            {/* Unified Settings Button */}
             <button
-              onClick={onOpenWhatsAppModal}
-              className="relative flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 transition-colors"
-              title="Panel y Simulador de WhatsApp"
-            >
-              <MessageSquare className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="hidden sm:inline">WhatsApp API</span>
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              {whatsAppLogsCount > 0 && (
-                <span className="ml-1 bg-emerald-500 text-slate-950 font-extrabold text-[10px] px-1.5 rounded-full">
-                  {whatsAppLogsCount}
-                </span>
-              )}
-            </button>
-
-            {/* Supabase & Vercel Sync */}
-            <button
-              onClick={onOpenSupabaseModal}
-              className={`flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border transition-colors ${
-                isSupabaseConnected
-                  ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300'
-                  : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700'
+              onClick={() => setActiveTab('settings')}
+              className={`flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all ${
+                activeTab === 'settings'
+                  ? 'bg-purple-600 text-white border-purple-500 shadow-md shadow-purple-600/30'
+                  : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-200'
               }`}
-              title="Configurar Supabase y Vercel"
+              title="Configuración de WhatsApp, Supabase y Vercel"
             >
-              <Database className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="hidden md:inline">Supabase & Vercel</span>
+              <Settings className="w-3.5 h-3.5 text-purple-400" />
+              <span className="hidden sm:inline">Configuración</span>
               <span
                 className={`w-2 h-2 rounded-full ${
                   isSupabaseConnected ? 'bg-emerald-400' : 'bg-amber-400'
@@ -131,34 +117,78 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* Main Navigation Tabs */}
-        <nav className="flex space-x-1 sm:space-x-4 overflow-x-auto py-2 border-t border-slate-800 scrollbar-none text-xs sm:text-sm font-medium text-slate-400">
-          {[
-            { id: 'itinerary', label: 'Itinerario Diario', icon: Calendar },
-            { id: 'flights', label: 'Vuelos y Puertas', icon: Plane },
-            { id: 'reservations', label: 'Reservas e HOTELES', icon: MapPin },
-            { id: 'activities', label: 'Actividades y Equipaje', icon: Sparkles },
-            { id: 'whatsapp', label: 'Centro WhatsApp', icon: Smartphone },
-          ].map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg whitespace-nowrap transition-all ${
-                  isActive
-                    ? 'bg-emerald-500/15 text-emerald-400 font-semibold border border-emerald-500/30'
-                    : 'hover:text-slate-200 hover:bg-slate-800/50'
-                }`}
-              >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-emerald-400' : 'text-slate-400'}`} />
-                <span>{tab.label}</span>
-              </button>
-            );
-          })}
+        <nav className="flex items-center justify-between overflow-x-auto py-2 border-t border-slate-800 scrollbar-none text-xs sm:text-sm font-medium text-slate-400">
+          <div className="flex items-center space-x-1 sm:space-x-3">
+            {/* Always available: Trips Menu */}
+            <button
+              onClick={() => setActiveTab('trips_menu')}
+              className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg whitespace-nowrap transition-all ${
+                activeTab === 'trips_menu'
+                  ? 'bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/40 shadow-sm'
+                  : 'hover:text-slate-200 hover:bg-slate-800/50'
+              }`}
+            >
+              <LayoutGrid className={`w-4 h-4 ${activeTab === 'trips_menu' ? 'text-emerald-400' : 'text-slate-400'}`} />
+              <span>Menú de Viajes</span>
+            </button>
+
+            {/* Trip Specific Tabs: Only shown when an active trip exists */}
+            {activeTrip && (
+              <>
+                <span className="text-slate-700 hidden sm:inline">|</span>
+                {[
+                  { id: 'itinerary', label: 'Itinerario Diario', icon: Calendar },
+                  { id: 'flights', label: 'Vuelos y Puertas', icon: Plane },
+                  { id: 'reservations', label: 'Reservas e HOTELES', icon: MapPin },
+                  { id: 'activities', label: 'Actividades y Equipaje', icon: Sparkles },
+                ].map((tab) => {
+                  const Icon = tab.icon;
+                  const isActive = activeTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg whitespace-nowrap transition-all ${
+                        isActive
+                          ? 'bg-emerald-500/15 text-emerald-400 font-semibold border border-emerald-500/30'
+                          : 'hover:text-slate-200 hover:bg-slate-800/50'
+                      }`}
+                    >
+                      <Icon className={`w-4 h-4 ${isActive ? 'text-emerald-400' : 'text-slate-400'}`} />
+                      <span>{tab.label}</span>
+                    </button>
+                  );
+                })}
+              </>
+            )}
+
+            <span className="text-slate-700 hidden sm:inline">|</span>
+
+            {/* Settings Tab */}
+            <button
+              onClick={() => setActiveTab('settings')}
+              className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg whitespace-nowrap transition-all ${
+                activeTab === 'settings'
+                  ? 'bg-purple-500/20 text-purple-300 font-bold border border-purple-500/40 shadow-sm'
+                  : 'hover:text-slate-200 hover:bg-slate-800/50'
+              }`}
+            >
+              <Settings className={`w-4 h-4 ${activeTab === 'settings' ? 'text-purple-400' : 'text-slate-400'}`} />
+              <span>Configuración</span>
+            </button>
+          </div>
+
+          {/* Helper hint when on Trips Menu */}
+          {activeTab === 'trips_menu' && activeTrip && (
+            <div className="hidden lg:flex items-center space-x-2 text-xs text-slate-400 bg-slate-950/60 px-3 py-1 rounded-full border border-slate-800">
+              <span className="w-2 h-2 rounded-full bg-emerald-400" />
+              <span>Viaje activo: <strong className="text-slate-200 font-mono">[{activeTrip.code}] {activeTrip.title}</strong></span>
+            </div>
+          )}
         </nav>
 
       </div>
     </header>
   );
 };
+

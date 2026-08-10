@@ -2,10 +2,14 @@ export type TripStatus = 'planning' | 'upcoming' | 'ongoing' | 'completed';
 
 export interface Trip {
   id: string;
+  code: string; // Ej: VAC-001, ASIA-2026
   title: string;
   destination: string;
   startDate: string;
   endDate: string;
+  travelersCount: number; // Ej: 4
+  travelersNames?: string[]; // Ej: ['Donauro Emmanuel Castro', 'Robinson Josué Castro', ...]
+  countries?: string[]; // Ej: ['Japón 🇯🇵', 'Corea del Sur 🇰🇷', 'Tailandia 🇹🇭', 'EE.UU. 🇺🇸']
   coverImage?: string;
   status: TripStatus;
   budgetTotal: number;
@@ -15,6 +19,13 @@ export interface Trip {
 }
 
 export type FlightStatus = 'programado' | 'embarcando' | 'en_vuelo' | 'retrasado' | 'aterrizado' | 'cancelado';
+
+export interface QrTicket {
+  passengerName: string;
+  seat: string;
+  car?: string;
+  qrCodeData: string;
+}
 
 export interface Flight {
   id: string;
@@ -34,6 +45,8 @@ export interface Flight {
   confirmationCode?: string;
   price?: number;
   notes?: string;
+  transportType?: 'flight' | 'train' | 'bus';
+  qrTickets?: QrTicket[];
 }
 
 export type ReservationType = 'hotel' | 'car_rental' | 'restaurant' | 'train' | 'activity_pass' | 'other';

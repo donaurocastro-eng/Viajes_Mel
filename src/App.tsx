@@ -3,11 +3,13 @@ import { Trip, Flight, Reservation, Activity, WhatsAppLog, WhatsAppConfig, Supab
 import { initialTrips, initialFlights, initialReservations, initialActivities, initialWhatsAppLogs } from './data/mockData';
 import { Navbar } from './components/Navbar';
 import { TripHeader } from './components/TripHeader';
+import { TripsMenuView } from './components/TripsMenuView';
 import { ItineraryView } from './components/ItineraryView';
 import { FlightsView } from './components/FlightsView';
 import { ReservationsView } from './components/ReservationsView';
 import { ActivitiesView } from './components/ActivitiesView';
 import { WhatsAppCenter } from './components/WhatsAppCenter';
+import { SettingsView } from './components/SettingsView';
 import { SupabaseVercelConfig } from './components/SupabaseVercelConfig';
 import { AiTripPlannerModal } from './components/AiTripPlannerModal';
 import { NewTripModal, AddFlightModal, AddReservationModal, AddActivityModal } from './components/Modals';
@@ -28,18 +30,36 @@ export default function App() {
   const [trips, setTrips] = useState<Trip[]>(() => {
     try {
       const saved = localStorage.getItem('viajeflow_trips_v1');
-      return saved ? JSON.parse(saved) : initialTrips;
+      if (saved) {
+        const parsed: Trip[] = JSON.parse(saved);
+        const cleaned = parsed.filter(t => t.id !== 'trip-1' && !t.title.toLowerCase().includes('aventura europea') && !t.title.toLowerCase().includes('escape tropical'));
+        const hasAsia = cleaned.some(t => t.id === 'trip-asia-2026');
+        if (!hasAsia) {
+          return [...initialTrips.filter(it => it.id === 'trip-asia-2026'), ...cleaned];
+        }
+        return cleaned.length > 0 ? cleaned : initialTrips;
+      }
+      return initialTrips;
     } catch {
       return initialTrips;
     }
   });
 
-  const [activeTripId, setActiveTripId] = useState<string>(() => trips[0]?.id || 'trip-1');
+  const [activeTripId, setActiveTripId] = useState<string>(() => {
+    const asia = trips.find(t => t.id === 'trip-asia-2026');
+    return asia ? asia.id : (trips[0]?.id || 'trip-asia-2026');
+  });
 
   const [flights, setFlights] = useState<Flight[]>(() => {
     try {
       const saved = localStorage.getItem('viajeflow_flights_v1');
-      return saved ? JSON.parse(saved) : initialFlights;
+      if (saved) {
+        const parsed: Flight[] = JSON.parse(saved);
+        const existingIds = new Set(parsed.map(f => f.id));
+        const missingAsia = initialFlights.filter(f => f.tripId === 'trip-asia-2026' && !existingIds.has(f.id));
+        return [...missingAsia, ...parsed];
+      }
+      return initialFlights;
     } catch {
       return initialFlights;
     }
@@ -48,7 +68,13 @@ export default function App() {
   const [reservations, setReservations] = useState<Reservation[]>(() => {
     try {
       const saved = localStorage.getItem('viajeflow_reservations_v1');
-      return saved ? JSON.parse(saved) : initialReservations;
+      if (saved) {
+        const parsed: Reservation[] = JSON.parse(saved);
+        const existingIds = new Set(parsed.map(r => r.id));
+        const missingAsia = initialReservations.filter(r => r.tripId === 'trip-asia-2026' && !existingIds.has(r.id));
+        return [...missingAsia, ...parsed];
+      }
+      return initialReservations;
     } catch {
       return initialReservations;
     }
@@ -57,7 +83,13 @@ export default function App() {
   const [activities, setActivities] = useState<Activity[]>(() => {
     try {
       const saved = localStorage.getItem('viajeflow_activities_v1');
-      return saved ? JSON.parse(saved) : initialActivities;
+      if (saved) {
+        const parsed: Activity[] = JSON.parse(saved);
+        const existingIds = new Set(parsed.map(a => a.id));
+        const missingAsia = initialActivities.filter(a => a.tripId === 'trip-asia-2026' && !existingIds.has(a.id));
+        return [...missingAsia, ...parsed];
+      }
+      return initialActivities;
     } catch {
       return initialActivities;
     }
@@ -299,8 +331,6 @@ export default function App() {
         onSelectTrip={(t) => setActiveTripId(t.id)}
         onOpenNewTripModal={() => setIsNewTripOpen(true)}
         onOpenAiPlanner={() => setIsAiPlannerOpen(true)}
-        onOpenWhatsAppModal={() => setActiveTab('whatsapp')}
-        onOpenSupabaseModal={() => setIsSupabaseModalOpen(true)}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         isSupabaseConnected={supabaseConfig.isConnected}
@@ -310,82 +340,124 @@ export default function App() {
       {/* Main Container */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         
-        {/* Active Trip Header */}
-        {activeTrip && (
-          <TripHeader
-            trip={activeTrip}
+        {/* Trips Menu Catalog View */}
+        {activeTab === 'trips_menu' && (
+          <TripsMenuView
+            trips={trips}
+            activeTripId={activeTripId}
             flights={flights}
             reservations={reservations}
             activities={activities}
-            onAddFlight={() => setIsAddFlightOpen(true)}
-            onAddReservation={() => setIsAddReservationOpen(true)}
-            onAddActivity={() => setIsAddActivityOpen(true)}
-            onOpenAiPlanner={() => setIsAiPlannerOpen(true)}
-            onSendDailyBriefingWhatsApp={handleSendDailyBriefingWhatsApp}
-          />
-        )}
-
-        {/* View Tabs */}
-        {activeTab === 'itinerary' && (
-          <ItineraryView
-            trip={activeTrip}
-            activities={activities}
-            onToggleActivity={handleToggleActivity}
-            onDeleteActivity={handleDeleteActivity}
-            onAddActivity={() => setIsAddActivityOpen(true)}
-            onNotifyWhatsApp={handleNotifyActivity}
-          />
-        )}
-
-        {activeTab === 'flights' && (
-          <FlightsView
-            trip={activeTrip}
-            flights={flights}
-            onUpdateFlightStatus={handleUpdateFlightStatus}
-            onDeleteFlight={handleDeleteFlight}
-            onAddFlight={() => setIsAddFlightOpen(true)}
-            onNotifyGateChangeWhatsApp={handleNotifyGateChange}
-            onNotifyDelayWhatsApp={handleNotifyDelay}
-          />
-        )}
-
-        {activeTab === 'reservations' && (
-          <ReservationsView
-            trip={activeTrip}
-            reservations={reservations}
-            onDeleteReservation={handleDeleteReservation}
-            onAddReservation={() => setIsAddReservationOpen(true)}
-            onNotifyWhatsApp={(res) => {
-              const msg = formatReservationConfirmationAlert(res.type, res.title, res.confirmationCode, res.checkIn, res.address);
-              dispatchWhatsAppMessage(msg, 'booking_confirmation');
+            onSelectTrip={(t) => {
+              setActiveTripId(t.id);
+              setActiveTab('itinerary');
             }}
+            onOpenNewTripModal={() => setIsNewTripOpen(true)}
+            onOpenAiPlanner={() => setIsAiPlannerOpen(true)}
           />
         )}
 
-        {activeTab === 'activities' && (
-          <ActivitiesView
+        {/* Unified Settings View (WhatsApp, Supabase & Vercel) */}
+        {activeTab === 'settings' && activeTrip && (
+          <SettingsView
             trip={activeTrip}
-            activities={activities}
-            onToggleActivity={handleToggleActivity}
-            onDeleteActivity={handleDeleteActivity}
-            onAddActivity={() => setIsAddActivityOpen(true)}
-            onNotifyWhatsApp={handleNotifyActivity}
-          />
-        )}
-
-        {activeTab === 'whatsapp' && (
-          <WhatsAppCenter
-            trip={activeTrip}
-            logs={whatsAppLogs}
-            config={whatsAppConfig}
-            onSaveConfig={(cfg) => {
+            whatsAppLogs={whatsAppLogs}
+            whatsAppConfig={whatsAppConfig}
+            supabaseConfig={supabaseConfig}
+            onSaveWhatsAppConfig={(cfg) => {
               setWhatsAppConfig(cfg);
               saveWhatsAppConfig(cfg);
             }}
-            onSendCustomMessage={(msg, rec) => dispatchWhatsAppMessage(msg, 'custom')}
-            onClearLogs={() => setWhatsAppLogs([])}
-            onTriggerQuickAlert={handleTriggerQuickAlert}
+            onSendCustomWhatsAppMessage={(msg, rec) => dispatchWhatsAppMessage(msg, 'custom')}
+            onClearWhatsAppLogs={() => setWhatsAppLogs([])}
+            onTriggerQuickWhatsAppAlert={handleTriggerQuickAlert}
+            onUpdateSupabaseConfig={(cfg) => setSupabaseConfig(cfg)}
+            onSyncLocalToSupabase={handleSyncLocalToSupabase}
           />
+        )}
+
+        {/* Trip Management Tabs (Itinerary, Flights, Reservations, Activities, WhatsApp) */}
+        {activeTab !== 'trips_menu' && activeTab !== 'settings' && (
+          <>
+            {/* Active Trip Header */}
+            {activeTrip && (
+              <TripHeader
+                trip={activeTrip}
+                flights={flights}
+                reservations={reservations}
+                activities={activities}
+                onAddFlight={() => setIsAddFlightOpen(true)}
+                onAddReservation={() => setIsAddReservationOpen(true)}
+                onAddActivity={() => setIsAddActivityOpen(true)}
+                onOpenAiPlanner={() => setIsAiPlannerOpen(true)}
+                onSendDailyBriefingWhatsApp={handleSendDailyBriefingWhatsApp}
+                onBackToMenu={() => setActiveTab('trips_menu')}
+              />
+            )}
+
+            {/* View Tabs */}
+            {activeTab === 'itinerary' && (
+              <ItineraryView
+                trip={activeTrip}
+                activities={activities}
+                onToggleActivity={handleToggleActivity}
+                onDeleteActivity={handleDeleteActivity}
+                onAddActivity={() => setIsAddActivityOpen(true)}
+                onNotifyWhatsApp={handleNotifyActivity}
+              />
+            )}
+
+            {activeTab === 'flights' && (
+              <FlightsView
+                trip={activeTrip}
+                flights={flights}
+                onUpdateFlightStatus={handleUpdateFlightStatus}
+                onDeleteFlight={handleDeleteFlight}
+                onAddFlight={() => setIsAddFlightOpen(true)}
+                onNotifyGateChangeWhatsApp={handleNotifyGateChange}
+                onNotifyDelayWhatsApp={handleNotifyDelay}
+              />
+            )}
+
+            {activeTab === 'reservations' && (
+              <ReservationsView
+                trip={activeTrip}
+                reservations={reservations}
+                onDeleteReservation={handleDeleteReservation}
+                onAddReservation={() => setIsAddReservationOpen(true)}
+                onNotifyWhatsApp={(res) => {
+                  const msg = formatReservationConfirmationAlert(res.type, res.title, res.confirmationCode, res.checkIn, res.address);
+                  dispatchWhatsAppMessage(msg, 'booking_confirmation');
+                }}
+              />
+            )}
+
+            {activeTab === 'activities' && (
+              <ActivitiesView
+                trip={activeTrip}
+                activities={activities}
+                onToggleActivity={handleToggleActivity}
+                onDeleteActivity={handleDeleteActivity}
+                onAddActivity={() => setIsAddActivityOpen(true)}
+                onNotifyWhatsApp={handleNotifyActivity}
+              />
+            )}
+
+            {activeTab === 'whatsapp' && (
+              <WhatsAppCenter
+                trip={activeTrip}
+                logs={whatsAppLogs}
+                config={whatsAppConfig}
+                onSaveConfig={(cfg) => {
+                  setWhatsAppConfig(cfg);
+                  saveWhatsAppConfig(cfg);
+                }}
+                onSendCustomMessage={(msg, rec) => dispatchWhatsAppMessage(msg, 'custom')}
+                onClearLogs={() => setWhatsAppLogs([])}
+                onTriggerQuickAlert={handleTriggerQuickAlert}
+              />
+            )}
+          </>
         )}
 
       </main>

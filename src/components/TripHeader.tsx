@@ -12,6 +12,7 @@ interface TripHeaderProps {
   onAddActivity: () => void;
   onOpenAiPlanner: () => void;
   onSendDailyBriefingWhatsApp: () => void;
+  onBackToMenu?: () => void;
 }
 
 export const TripHeader: React.FC<TripHeaderProps> = ({
@@ -24,6 +25,7 @@ export const TripHeader: React.FC<TripHeaderProps> = ({
   onAddActivity,
   onOpenAiPlanner,
   onSendDailyBriefingWhatsApp,
+  onBackToMenu,
 }) => {
   // Calculate expenses breakdown
   const flightCosts = flights.reduce((acc, f) => acc + (f.price || 0), 0);
@@ -45,11 +47,25 @@ export const TripHeader: React.FC<TripHeaderProps> = ({
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent" />
         
-        {/* Status Badge */}
-        <div className="absolute top-4 right-4 flex items-center space-x-2">
-          <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-slate-900/80 backdrop-blur-md border border-slate-700 text-emerald-400">
-            {trip.status === 'planning' ? 'En Planificación' : trip.status === 'upcoming' ? 'Próximo Viaje' : trip.status === 'ongoing' ? 'En Curso' : 'Completado'}
-          </span>
+        {/* Top Action Bar over Cover Image */}
+        <div className="absolute top-4 left-4 right-4 flex items-center justify-between gap-2">
+          {onBackToMenu && (
+            <button
+              onClick={onBackToMenu}
+              className="flex items-center space-x-2 px-3.5 py-1.5 rounded-xl bg-slate-950/90 backdrop-blur-md border border-slate-700 hover:border-emerald-500 text-slate-200 hover:text-white text-xs font-bold transition-all shadow-lg"
+            >
+              <span>← Menú de Viajes</span>
+            </button>
+          )}
+
+          <div className="flex items-center space-x-2 ml-auto">
+            <span className="px-3 py-1 rounded-xl bg-slate-950/90 backdrop-blur-md border border-amber-500/60 font-mono text-cyan-300 text-xs font-extrabold shadow-lg">
+              Código: {trip.code || 'VAC-001'}
+            </span>
+            <span className="px-3 py-1 rounded-xl text-xs font-bold uppercase tracking-wider bg-slate-900/80 backdrop-blur-md border border-slate-700 text-emerald-400">
+              {trip.status === 'planning' ? 'En Planificación' : trip.status === 'upcoming' ? 'Próximo Viaje' : trip.status === 'ongoing' ? 'En Curso' : 'Completado'}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -70,14 +86,21 @@ export const TripHeader: React.FC<TripHeaderProps> = ({
               {trip.description}
             </p>
 
-            <div className="flex flex-wrap items-center gap-4 text-xs sm:text-sm text-slate-300 pt-2">
+            {/* Travelers List */}
+            {trip.travelersNames && trip.travelersNames.length > 0 && (
+              <p className="text-xs text-purple-300 font-medium bg-slate-950/60 px-3 py-1.5 rounded-xl border border-purple-500/30 inline-block">
+                👥 <strong>Viajeros ({trip.travelersCount || trip.travelersNames.length}):</strong> {trip.travelersNames.join(', ')}
+              </p>
+            )}
+
+            <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-slate-300 pt-2">
               <div className="flex items-center space-x-1.5 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700">
                 <Calendar className="w-4 h-4 text-emerald-400" />
                 <span>{trip.startDate} al {trip.endDate}</span>
               </div>
               <div className="flex items-center space-x-1.5 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700">
                 <Plane className="w-4 h-4 text-cyan-400" />
-                <span>{flights.length} Vuelos</span>
+                <span>{flights.length} Trayectos</span>
               </div>
               <div className="flex items-center space-x-1.5 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700">
                 <Hotel className="w-4 h-4 text-amber-400" />

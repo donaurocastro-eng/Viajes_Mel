@@ -8,24 +8,40 @@ interface NewTripModalProps {
 }
 
 export const NewTripModal: React.FC<NewTripModalProps> = ({ onAddTrip, onClose }) => {
+  const [code, setCode] = useState(`VAC-00${Math.floor(Math.random() * 90 + 10)}`);
   const [title, setTitle] = useState('');
   const [destination, setDestination] = useState('');
   const [startDate, setStartDate] = useState('2026-10-01');
   const [endDate, setEndDate] = useState('2026-10-10');
+  const [travelersCount, setTravelersCount] = useState<number>(2);
+  const [travelersInput, setTravelersInput] = useState<string>('');
+  const [countriesInput, setCountriesInput] = useState<string>('');
   const [budgetTotal, setBudgetTotal] = useState(2500);
-  const [currency, setCurrency] = useState('EUR');
+  const [currency, setCurrency] = useState('USD');
   const [description, setDescription] = useState('');
   const [coverImage, setCoverImage] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title || !destination) return;
+    
+    const parsedTravelers = travelersInput
+      ? travelersInput.split(',').map((t) => t.trim()).filter(Boolean)
+      : [];
+    const parsedCountries = countriesInput
+      ? countriesInput.split(',').map((c) => c.trim()).filter(Boolean)
+      : [];
+
     const newTrip: Trip = {
       id: 'trip-' + Date.now(),
+      code: code.trim().toUpperCase() || 'VAC-00' + Math.floor(Math.random() * 10),
       title,
       destination,
       startDate,
       endDate,
+      travelersCount: travelersCount || (parsedTravelers.length > 0 ? parsedTravelers.length : 1),
+      travelersNames: parsedTravelers.length > 0 ? parsedTravelers : undefined,
+      countries: parsedCountries.length > 0 ? parsedCountries : undefined,
       budgetTotal,
       currency,
       description,
@@ -41,33 +57,86 @@ export const NewTripModal: React.FC<NewTripModalProps> = ({ onAddTrip, onClose }
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
       <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-lg p-6 text-white space-y-4 shadow-2xl">
         <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-          <h3 className="font-bold text-lg text-white">Crear Nuevo Viaje</h3>
+          <h3 className="font-bold text-lg text-white">Crear Nuevo Viaje con Nomenclatura</h3>
           <button onClick={onClose} className="text-slate-400 hover:text-white">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-3 text-xs">
+          <div className="grid grid-cols-3 gap-3">
+            <div className="col-span-1">
+              <label className="block font-semibold text-amber-400 mb-1">Código de Viaje:</label>
+              <input
+                type="text"
+                required
+                placeholder="Ej: VAC-001"
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                className="w-full bg-slate-950 border border-amber-500/40 font-mono text-cyan-300 font-bold rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-400"
+              />
+            </div>
+
+            <div className="col-span-2">
+              <label className="block font-semibold text-slate-300 mb-1">Nombre del Viaje:</label>
+              <input
+                type="text"
+                required
+                placeholder="Ej: Viaje Vacaciones Asia / Europa"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-3">
+            <div className="col-span-2">
+              <label className="block font-semibold text-slate-300 mb-1">Destino Principal / Países:</label>
+              <input
+                type="text"
+                required
+                placeholder="Ej: Japón, Corea del Sur, Tailandia"
+                value={destination}
+                onChange={(e) => setDestination(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500"
+              />
+            </div>
+
+            <div className="col-span-1">
+              <label className="block font-semibold text-slate-300 mb-1">Nº Viajeros:</label>
+              <input
+                type="number"
+                min="1"
+                value={travelersCount}
+                onChange={(e) => setTravelersCount(Number(e.target.value))}
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500"
+              />
+            </div>
+          </div>
+
           <div>
-            <label className="block font-semibold text-slate-300 mb-1">Nombre del Viaje:</label>
+            <label className="block font-semibold text-slate-300 mb-1">
+              Nombres de los Viajeros (Separados por coma):
+            </label>
             <input
               type="text"
-              required
-              placeholder="Ej: Vacaciones en Roma y Florencia"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Ej: Donauro Castro, Robinson Castro, Domingo Castro, Nohemy Israel"
+              value={travelersInput}
+              onChange={(e) => setTravelersInput(e.target.value)}
               className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500"
             />
           </div>
 
           <div>
-            <label className="block font-semibold text-slate-300 mb-1">Destino Principal:</label>
+            <label className="block font-semibold text-slate-300 mb-1">
+              Países / Banderas (Separados por coma, Opcional):
+            </label>
             <input
               type="text"
-              required
-              placeholder="Ej: Italia"
-              value={destination}
-              onChange={(e) => setDestination(e.target.value)}
+              placeholder="Ej: Japón 🇯🇵, Corea del Sur 🇰🇷, Tailandia 🇹🇭"
+              value={countriesInput}
+              onChange={(e) => setCountriesInput(e.target.value)}
               className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500"
             />
           </div>
@@ -110,8 +179,9 @@ export const NewTripModal: React.FC<NewTripModalProps> = ({ onAddTrip, onClose }
                 onChange={(e) => setCurrency(e.target.value)}
                 className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500"
               >
-                <option value="EUR">EUR (€)</option>
                 <option value="USD">USD ($)</option>
+                <option value="EUR">EUR (€)</option>
+                <option value="HNL">HNL (L)</option>
                 <option value="MXN">MXN ($)</option>
               </select>
             </div>
