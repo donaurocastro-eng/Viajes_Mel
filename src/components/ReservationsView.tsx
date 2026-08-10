@@ -18,8 +18,23 @@ export const ReservationsView: React.FC<ReservationsViewProps> = ({
   onNotifyWhatsApp,
 }) => {
   const [copiedId, setCopiedId] = React.useState<string | null>(null);
+  const [selectedResIds, setSelectedResIds] = React.useState<string[]>([]);
 
   const tripReservations = reservations.filter((r) => r.tripId === trip.id);
+
+  const toggleResSelection = (id: string) => {
+    setSelectedResIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleSelectAllReservations = () => {
+    if (selectedResIds.length === tripReservations.length) {
+      setSelectedResIds([]);
+    } else {
+      setSelectedResIds(tripReservations.map((r) => r.id));
+    }
+  };
 
   const formatReservationForSharing = (res: Reservation) => {
     const typeLabel =
@@ -47,15 +62,21 @@ ${res.checkOut ? `📅 *Check-Out:* ${res.checkOut}\n` : ''}${res.address ? `�
     window.open(url, '_blank');
   };
 
-  const handleShareAllWhatsAppDirect = () => {
-    if (tripReservations.length === 0) return;
-    let summary = `🏨 *RESERVAS Y HOTELES DEL VIAJE*
+  const handleShareSelectedWhatsAppDirect = () => {
+    const itemsToShare =
+      selectedResIds.length > 0
+        ? tripReservations.filter((r) => selectedResIds.includes(r.id))
+        : tripReservations;
+
+    if (itemsToShare.length === 0) return;
+
+    let summary = `🏨 *RESERVAS Y HOTELES (${itemsToShare.length} ${itemsToShare.length === 1 ? 'reserva' : 'reservas'})*
 📌 *${trip.title}* [Código: ${trip.code || 'VAC'}]
 👥 *Viajeros:* ${trip.travelersNames?.join(', ') || 'Grupo de Viaje'}
 
 `;
 
-    tripReservations.forEach((r, idx) => {
+    itemsToShare.forEach((r, idx) => {
       summary += `*#${idx + 1} ${r.title}* (${r.provider})
 • Código: ${r.confirmationCode}
 • Entrada: ${r.checkIn}${r.checkOut ? ` | Salida: ${r.checkOut}` : ''}
@@ -104,13 +125,28 @@ ${r.address ? `• Ubicación: ${r.address}\n` : ''}
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          {tripReservations.length > 0 && (
+            <button
+              onClick={handleSelectAllReservations}
+              className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-semibold transition-all"
+            >
+              {selectedResIds.length === tripReservations.length
+                ? 'Desmarcar Todos'
+                : `Seleccionar Todos (${tripReservations.length})`}
+            </button>
+          )}
+
           <button
-            onClick={handleShareAllWhatsAppDirect}
+            onClick={handleShareSelectedWhatsAppDirect}
             className="flex items-center space-x-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black rounded-xl text-xs shadow-lg shadow-emerald-600/20 transition-all shrink-0"
-            title="Abre WhatsApp Web / App para enviar todos los hoteles y reservas a tus familiares directamente"
+            title="Abre WhatsApp Web / App para enviar los hoteles y reservas seleccionados"
           >
             <MessageSquare className="w-4 h-4 fill-slate-950" />
-            <span>Enviar Hoteles por WhatsApp 📲</span>
+            <span>
+              {selectedResIds.length > 0
+                ? `Enviar Seleccionados (${selectedResIds.length}) por WhatsApp 📲`
+                : `Enviar Todos (${tripReservations.length}) por WhatsApp 📲`}
+            </span>
           </button>
 
           <button
@@ -144,15 +180,27 @@ ${r.address ? `• Ubicación: ${r.address}\n` : ''}
       {/* Reservation Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {tripReservations.map((res) => {
+          const isSelected = selectedResIds.includes(res.id);
           return (
             <div
               key={res.id}
-              className="bg-slate-900 rounded-2xl border border-slate-800 p-6 space-y-4 shadow-xl hover:border-slate-700 transition-all flex flex-col justify-between"
+              className={`bg-slate-900 rounded-2xl border p-6 space-y-4 shadow-xl transition-all flex flex-col justify-between ${
+                isSelected
+                  ? 'border-emerald-500/80 ring-2 ring-emerald-500/30'
+                  : 'border-slate-800 hover:border-slate-700'
+              }`}
             >
               <div className="space-y-3">
                 {/* Type & Status Bar */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => toggleResSelection(res.id)}
+                      className="w-4 h-4 rounded border-slate-700 text-emerald-500 focus:ring-emerald-500 cursor-pointer accent-emerald-500 mr-1"
+                      title="Seleccionar para enviar por WhatsApp"
+                    />
                     <div className="p-2 rounded-xl bg-slate-800 border border-slate-700">
                       {getTypeIcon(res.type)}
                     </div>

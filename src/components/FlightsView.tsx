@@ -32,6 +32,21 @@ export const FlightsView: React.FC<FlightsViewProps> = ({
   const [editingDelayId, setEditingDelayId] = useState<string | null>(null);
   const [newTimeInput, setNewTimeInput] = useState<string>('');
   const [copiedTextId, setCopiedTextId] = useState<string | null>(null);
+  const [selectedFlightIds, setSelectedFlightIds] = useState<string[]>([]);
+
+  const toggleFlightSelection = (id: string) => {
+    setSelectedFlightIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleSelectAllFlights = () => {
+    if (selectedFlightIds.length === tripTransport.length) {
+      setSelectedFlightIds([]);
+    } else {
+      setSelectedFlightIds(tripTransport.map((f) => f.id));
+    }
+  };
 
   const formatFlightForSharing = (item: Flight) => {
     const isTrain = item.transportType === 'train';
@@ -51,15 +66,21 @@ ${item.confirmationCode ? `🔑 *Reserva/PNR:* ${item.confirmationCode}\n` : ''}
     window.open(url, '_blank');
   };
 
-  const handleShareAllWhatsAppDirect = () => {
-    if (tripTransport.length === 0) return;
-    let summary = `✈️ *ITINERARIO DE VUELOS Y TRENES*
+  const handleShareSelectedWhatsAppDirect = () => {
+    const itemsToShare =
+      selectedFlightIds.length > 0
+        ? tripTransport.filter((f) => selectedFlightIds.includes(f.id))
+        : tripTransport;
+
+    if (itemsToShare.length === 0) return;
+
+    let summary = `✈️ *ITINERARIO DE VUELOS Y TRENES (${itemsToShare.length} ${itemsToShare.length === 1 ? 'trayecto' : 'trayectos'})*
 📌 *${trip.title}* [Código: ${trip.code || 'VAC'}]
 👥 *Viajeros:* ${trip.travelersNames?.join(', ') || 'Grupo de Viaje'}
 
 `;
 
-    tripTransport.forEach((f, idx) => {
+    itemsToShare.forEach((f, idx) => {
       const isTrain = f.transportType === 'train';
       summary += `*#${idx + 1} ${isTrain ? '🚅' : '✈️'} ${f.airline} ${f.flightNumber}*
 • Origen: ${f.departureAirport} (${formatDateLabel(f.departureTime)} ${formatTimeOnly(f.departureTime)})
@@ -153,13 +174,28 @@ ${item.confirmationCode ? `🔑 *Reserva/PNR:* ${item.confirmationCode}\n` : ''}
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
+            {tripTransport.length > 0 && (
+              <button
+                onClick={handleSelectAllFlights}
+                className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-semibold transition-all"
+              >
+                {selectedFlightIds.length === tripTransport.length
+                  ? 'Desmarcar Todos'
+                  : `Seleccionar Todos (${tripTransport.length})`}
+              </button>
+            )}
+
             <button
-              onClick={handleShareAllWhatsAppDirect}
+              onClick={handleShareSelectedWhatsAppDirect}
               className="flex items-center space-x-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black rounded-xl text-xs shadow-lg shadow-emerald-600/20 transition-all shrink-0"
-              title="Abre WhatsApp Web / App para enviar todos los vuelos a tus familiares sin necesidad de API"
+              title="Abre WhatsApp Web / App para enviar los trayectos seleccionados"
             >
               <MessageSquare className="w-4 h-4 fill-slate-950" />
-              <span>Enviar Vuelos por WhatsApp 📲</span>
+              <span>
+                {selectedFlightIds.length > 0
+                  ? `Enviar Seleccionados (${selectedFlightIds.length}) por WhatsApp 📲`
+                  : `Enviar Todos (${tripTransport.length}) por WhatsApp 📲`}
+              </span>
             </button>
 
             <button
@@ -241,7 +277,9 @@ ${item.confirmationCode ? `🔑 *Reserva/PNR:* ${item.confirmationCode}\n` : ''}
             <div
               key={item.id}
               className={`rounded-2xl border overflow-hidden shadow-xl transition-all ${
-                isTrain
+                selectedFlightIds.includes(item.id)
+                  ? 'bg-slate-900 border-emerald-500/80 ring-2 ring-emerald-500/30'
+                  : isTrain
                   ? 'bg-slate-900 border-purple-500/30 hover:border-purple-500/50'
                   : 'bg-slate-900 border-slate-800 hover:border-slate-700'
               }`}
@@ -253,6 +291,14 @@ ${item.confirmationCode ? `🔑 *Reserva/PNR:* ${item.confirmationCode}\n` : ''}
                 }`}
               >
                 <div className="flex items-center space-x-3">
+                  <input
+                    type="checkbox"
+                    checked={selectedFlightIds.includes(item.id)}
+                    onChange={() => toggleFlightSelection(item.id)}
+                    className="w-4 h-4 rounded border-slate-700 text-emerald-500 focus:ring-emerald-500 cursor-pointer accent-emerald-500"
+                    title="Seleccionar para enviar por WhatsApp"
+                  />
+
                   <div className={`p-1.5 rounded-lg ${isTrain ? 'bg-purple-500/20 text-purple-300' : 'bg-cyan-500/20 text-cyan-300'}`}>
                     {isTrain ? <Train className="w-4 h-4" /> : <Plane className="w-4 h-4" />}
                   </div>
