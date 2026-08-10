@@ -21,6 +21,53 @@ export const ReservationsView: React.FC<ReservationsViewProps> = ({
 
   const tripReservations = reservations.filter((r) => r.tripId === trip.id);
 
+  const formatReservationForSharing = (res: Reservation) => {
+    const typeLabel =
+      res.type === 'hotel'
+        ? '🏨 HOTEL / ALOJAMIENTO'
+        : res.type === 'car_rental'
+        ? '🚗 RENTA DE AUTO'
+        : res.type === 'restaurant'
+        ? '🍽️ RESTAURANTE'
+        : '🚅 TREN / TRANSPORTE';
+
+    return `${typeLabel}
+📌 Viaje: ${trip.title} [${trip.code || 'VAC'}]
+🏨 *${res.title}* (${res.provider})
+
+🔑 *Código de Reserva:* ${res.confirmationCode}
+🗓️ *Check-In:* ${res.checkIn}
+${res.checkOut ? `📅 *Check-Out:* ${res.checkOut}\n` : ''}${res.address ? `📍 *Dirección:* ${res.address}\n` : ''}${res.price ? `💰 *Precio:* ${res.price} ${trip.currency}\n` : ''}${res.notes ? `📝 *Notas:* ${res.notes}\n` : ''}
+📲 Compartido con ViajeFlow`;
+  };
+
+  const handleShareWhatsAppDirect = (res: Reservation) => {
+    const text = formatReservationForSharing(res);
+    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
+  };
+
+  const handleShareAllWhatsAppDirect = () => {
+    if (tripReservations.length === 0) return;
+    let summary = `🏨 *RESERVAS Y HOTELES DEL VIAJE*
+📌 *${trip.title}* [Código: ${trip.code || 'VAC'}]
+👥 *Viajeros:* ${trip.travelersNames?.join(', ') || 'Grupo de Viaje'}
+
+`;
+
+    tripReservations.forEach((r, idx) => {
+      summary += `*#${idx + 1} ${r.title}* (${r.provider})
+• Código: ${r.confirmationCode}
+• Entrada: ${r.checkIn}${r.checkOut ? ` | Salida: ${r.checkOut}` : ''}
+${r.address ? `• Ubicación: ${r.address}\n` : ''}
+`;
+    });
+
+    summary += `📲 Compartido directamente desde ViajeFlow`;
+    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(summary)}`;
+    window.open(url, '_blank');
+  };
+
   const getTypeIcon = (type: Reservation['type']) => {
     switch (type) {
       case 'hotel':
@@ -45,7 +92,7 @@ export const ReservationsView: React.FC<ReservationsViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between bg-slate-900/80 p-4 rounded-xl border border-slate-800">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
         <div>
           <h2 className="text-xl font-bold text-white flex items-center space-x-2">
             <Hotel className="w-5 h-5 text-amber-400" />
@@ -56,13 +103,24 @@ export const ReservationsView: React.FC<ReservationsViewProps> = ({
           </p>
         </div>
 
-        <button
-          onClick={onAddReservation}
-          className="flex items-center space-x-1.5 px-3 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-xs font-semibold shadow-md transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Añadir Reserva</span>
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={handleShareAllWhatsAppDirect}
+            className="flex items-center space-x-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black rounded-xl text-xs shadow-lg shadow-emerald-600/20 transition-all shrink-0"
+            title="Abre WhatsApp Web / App para enviar todos los hoteles y reservas a tus familiares directamente"
+          >
+            <MessageSquare className="w-4 h-4 fill-slate-950" />
+            <span>Enviar Hoteles por WhatsApp 📲</span>
+          </button>
+
+          <button
+            onClick={onAddReservation}
+            className="flex items-center space-x-1.5 px-3.5 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-semibold shadow-md transition-colors shrink-0"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Añadir Reserva</span>
+          </button>
+        </div>
       </div>
 
       {/* Empty State */}
@@ -178,13 +236,14 @@ export const ReservationsView: React.FC<ReservationsViewProps> = ({
 
                 <div className="flex items-center space-x-2">
                   <button
-                    onClick={() => onNotifyWhatsApp(res)}
-                    className="flex items-center space-x-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 transition-colors"
-                    title="Enviar confirmación a WhatsApp"
+                    onClick={() => handleShareWhatsAppDirect(res)}
+                    className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-200 border border-emerald-500/40 transition-colors shadow-sm"
+                    title="Enviar detalles de esta reserva directamente por WhatsApp"
                   >
                     <MessageSquare className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Notificar WA</span>
+                    <span>WhatsApp 📲</span>
                   </button>
+
                   <button
                     onClick={() => onDeleteReservation(res.id)}
                     className="p-1.5 text-slate-500 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition-colors"
