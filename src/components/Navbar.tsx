@@ -1,6 +1,6 @@
 import React from 'react';
 import { Trip } from '../types';
-import { Plane, Sparkles, Plus, MapPin, Calendar, LayoutGrid, Settings, Smartphone, Globe, Bus } from 'lucide-react';
+import { Plane, Sparkles, Plus, MapPin, Calendar, LayoutGrid, Settings, Smartphone, Globe, Bus, DollarSign, Calculator } from 'lucide-react';
 
 interface NavbarProps {
   trips: Trip[];
@@ -8,6 +8,7 @@ interface NavbarProps {
   onSelectTrip: (trip: Trip) => void;
   onOpenNewTripModal: () => void;
   onOpenAiPlanner: () => void;
+  onOpenCurrencyConverter?: () => void;
   activeTab: string;
   setActiveTab: (tab: string) => void;
   isSupabaseConnected: boolean;
@@ -20,6 +21,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onSelectTrip,
   onOpenNewTripModal,
   onOpenAiPlanner,
+  onOpenCurrencyConverter,
   activeTab,
   setActiveTab,
   isSupabaseConnected,
@@ -85,6 +87,18 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Quick Action Buttons */}
           <div className="flex items-center space-x-2">
             
+            {/* Currency Converter Quick Button */}
+            {onOpenCurrencyConverter && (
+              <button
+                onClick={onOpenCurrencyConverter}
+                className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-emerald-950/70 hover:bg-emerald-900/80 text-emerald-300 border border-emerald-500/40 shadow-sm transition-all transform hover:scale-[1.02]"
+                title="Calculadora y Conversor de Divisas en vivo (USD, JPY, KRW, THB)"
+              >
+                <Calculator className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="hidden sm:inline">Conversor Divisas 💱</span>
+              </button>
+            )}
+
             {/* AI Generator Button */}
             <button
               onClick={onOpenAiPlanner}
@@ -140,6 +154,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   { id: 'itinerary', label: 'Itinerario Diario', icon: Calendar },
                   { id: 'flights', label: 'Vuelos y Puertas', icon: Plane },
                   { id: 'transfers', label: 'Trayectos y Conexiones 🚌', icon: Bus },
+                  { id: 'expenses', label: 'Control de Gastos 💵', icon: DollarSign },
                   { id: 'route_map', label: 'Mapa de Ruta Live 🗺️', icon: Globe },
                   { id: 'reservations', label: 'Reservas e HOTELES', icon: MapPin },
                   { id: 'activities', label: 'Actividades y Equipaje', icon: Sparkles },

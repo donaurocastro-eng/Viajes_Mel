@@ -185,7 +185,7 @@ export const TransfersView: React.FC<TransfersViewProps> = ({
             <h2 className="text-lg font-extrabold text-white flex items-center space-x-2">
               <span>Trayectos y Conexiones Terrestres</span>
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                {tripTransfers.length} RUTAS PASO A PASO
+                GUÍA DE RUTAS PASO A PASO
               </span>
             </h2>
             <p className="text-xs text-slate-400">
@@ -201,6 +201,19 @@ export const TransfersView: React.FC<TransfersViewProps> = ({
           <Plus className="w-4 h-4" />
           <span>Agregar Nuevo Trayecto</span>
         </button>
+      </div>
+
+      {/* Confirmation Callout Banner */}
+      <div className="bg-slate-950 p-3.5 rounded-2xl border border-amber-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+        <div className="flex items-center space-x-3 text-emerald-200">
+          <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+          <p>
+            <strong className="text-white font-bold">Estado de Pagos:</strong> Los vuelos, los 4 hoteles y el <strong className="text-white">Tren Shinkansen Nozomi</strong> (Osaka ➔ Tokio - 4p) están <span className="text-emerald-300 font-bold underline">100% INCLUIDOS Y PAGADOS</span>.
+          </p>
+        </div>
+        <div className="bg-amber-500/10 border border-amber-500/30 px-3 py-1.5 rounded-xl text-amber-300 font-semibold shrink-0">
+          ⚠️ Traslados Aeropuerto ↔ Hotel: NO incluidos en paquete (Se pagan en el destino vía Metro/Tren/Taxi)
+        </div>
       </div>
 
       {/* Controls & Search */}

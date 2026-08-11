@@ -121,7 +121,7 @@ export const NewTripModal: React.FC<NewTripModalProps> = ({ onAddTrip, onClose }
             </label>
             <input
               type="text"
-              placeholder="Ej: Donauro Castro, Robinson Castro, Domingo Castro, Nohemy Israel"
+              placeholder="Ej: Robinson Castro, Robinson Josue Castro, Donauro Emmanuel Castro, Maria Nohemy Israel"
               value={travelersInput}
               onChange={(e) => setTravelersInput(e.target.value)}
               className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500"

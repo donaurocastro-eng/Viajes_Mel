@@ -42,7 +42,7 @@ const EXCHANGE_RATES: Record<string, { rate: number; symbol: string; name: strin
   JPY: { rate: 155, symbol: '¥', name: 'Yen Japonés', flag: '🇯🇵' },
   KRW: { rate: 1350, symbol: '₩', name: 'Won Surcoreano', flag: '🇰🇷' },
   THB: { rate: 36, symbol: '฿', name: 'Baht Tailandés', flag: '🇹🇭' },
-  HNL: { rate: 24.8, symbol: 'L.', name: 'Lempira Hondureño', flag: '🇭🇳' },
+  HNL: { rate: 26.9449, symbol: 'L.', name: 'Lempira Hondureño', flag: '🇭🇳' },
   EUR: { rate: 0.92, symbol: '€', name: 'Euro', flag: '🇪🇺' },
 };
 
@@ -373,11 +373,11 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
                     <div className="flex items-center space-x-2">
                       <h3 className="text-sm font-extrabold text-white">Paquete San Antonio (SAT)</h3>
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                        x4 VIAJEROS
+                        ✅ VUELOS + HOTELES + SHINKANSEN PAGADOS
                       </span>
                     </div>
                     <p className="text-xs text-slate-300">
-                      Vuelos ida y regreso San Antonio + Hoteles + Traslados
+                      Vuelos ida/vuelta SAT + 4 Hoteles + Tren Shinkansen Nozomi (Shin-Osaka ➔ Tokio - 4p). <span className="text-amber-300 font-semibold">⚠️ Traslados aeropuerto ↔ hotel no incluidos (se pagan en sitio).</span>
                     </p>
                   </div>
                 </div>
@@ -396,15 +396,15 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
                   <span className="font-bold text-white">$2,676.69</span>
                 </div>
                 <div className="bg-slate-950/60 p-2 rounded-xl border border-slate-800">
-                  <span className="text-[9px] text-slate-400 block">Robinson</span>
+                  <span className="text-[9px] text-slate-400 block">Robinson Josue</span>
                   <span className="font-bold text-white">$2,676.69</span>
                 </div>
                 <div className="bg-slate-950/60 p-2 rounded-xl border border-slate-800">
-                  <span className="text-[9px] text-slate-400 block">Viajero 3</span>
+                  <span className="text-[9px] text-slate-400 block">Robinson Castro</span>
                   <span className="font-bold text-white">$2,676.69</span>
                 </div>
                 <div className="bg-slate-950/60 p-2 rounded-xl border border-slate-800">
-                  <span className="text-[9px] text-slate-400 block">Viajero 4</span>
+                  <span className="text-[9px] text-slate-400 block">Maria Nohemy</span>
                   <span className="font-bold text-white">$2,676.69</span>
                 </div>
               </div>
@@ -444,7 +444,7 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
                   <span className="font-bold text-emerald-400">$552.81 USD</span>
                 </div>
                 <div className="bg-slate-950/60 p-2 rounded-xl border border-slate-800 flex items-center justify-between">
-                  <span className="text-slate-400 font-semibold">👩‍💼 Nohemí:</span>
+                  <span className="text-slate-400 font-semibold">👩‍💼 Maria Nohemy Israel:</span>
                   <span className="font-bold text-emerald-400">$552.81 USD</span>
                 </div>
               </div>
@@ -676,6 +676,132 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
             </div>
           </div>
 
+          {/* Hotel & Transfer Paid Confirmation Callout */}
+          <div className="bg-slate-950 p-3.5 rounded-2xl border border-amber-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+            <div className="flex items-center space-x-3 text-emerald-200">
+              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+              <p>
+                <strong className="text-white font-bold">Estado de Pagos:</strong> Vuelos internacionales, los 4 Hoteles y Tren Shinkansen Nozomi están <span className="text-emerald-300 font-bold underline">100% INCLUIDOS Y PAGADOS EN EL PAQUETE ($10,706.76 USD)</span>.
+              </p>
+            </div>
+            <div className="bg-amber-500/10 border border-amber-500/30 px-3 py-1.5 rounded-xl text-amber-300 font-semibold shrink-0">
+              ⚠️ Traslados Aeropuerto ↔ Hotel: No incluidos (Se pagan en sitio)
+            </div>
+          </div>
+
+          {/* Consolidated Balance Summary Per Person */}
+          <div className="bg-slate-950/80 p-4 rounded-2xl border border-amber-500/30 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Sparkles className="w-4 h-4 text-amber-400" />
+                <h4 className="text-xs font-black uppercase text-amber-300 tracking-wider">
+                  💳 Resumen de Balance / Gastos por Persona (Hasta el Momento)
+                </h4>
+              </div>
+              <span className="text-[10px] font-mono text-slate-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-800">
+                Línea de Base Actualizada
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+              {/* Donauro */}
+              <div className="bg-slate-900 p-3 rounded-xl border border-emerald-500/30 space-y-2">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-1.5">
+                  <span className="font-extrabold text-white">Donauro Emmanuel</span>
+                  <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded font-mono">
+                    Viajero 1
+                  </span>
+                </div>
+                <div className="space-y-1 text-[11px]">
+                  <div className="flex justify-between text-slate-300">
+                    <span>Asia (Cuota 4p):</span>
+                    <span className="font-bold text-amber-300">$2,764.38 USD</span>
+                  </div>
+                  <div className="flex justify-between text-slate-300">
+                    <span>Vuelo Honduras (50%):</span>
+                    <span className="font-bold text-cyan-300">$552.81 USD</span>
+                  </div>
+                  <div className="flex justify-between border-t border-slate-800 pt-1 text-white font-extrabold">
+                    <span>Total de Cuota:</span>
+                    <span className="text-emerald-400">$3,317.19 USD</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Robinson Josue */}
+              <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 space-y-2">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-1.5">
+                  <span className="font-extrabold text-white">Robinson Josue</span>
+                  <span className="text-[10px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded font-mono">
+                    Viajero 2
+                  </span>
+                </div>
+                <div className="space-y-1 text-[11px]">
+                  <div className="flex justify-between text-slate-300">
+                    <span>Asia (Cuota 4p):</span>
+                    <span className="font-bold text-amber-300">$2,764.38 USD</span>
+                  </div>
+                  <div className="flex justify-between text-slate-500">
+                    <span>Vuelo Honduras:</span>
+                    <span>N/A</span>
+                  </div>
+                  <div className="flex justify-between border-t border-slate-800 pt-1 text-white font-extrabold">
+                    <span>Total de Cuota:</span>
+                    <span className="text-amber-300">$2,764.38 USD</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Robinson Castro */}
+              <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 space-y-2">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-1.5">
+                  <span className="font-extrabold text-white">Robinson Castro</span>
+                  <span className="text-[10px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded font-mono">
+                    Viajero 3
+                  </span>
+                </div>
+                <div className="space-y-1 text-[11px]">
+                  <div className="flex justify-between text-slate-300">
+                    <span>Asia (Cuota 4p):</span>
+                    <span className="font-bold text-amber-300">$2,764.38 USD</span>
+                  </div>
+                  <div className="flex justify-between text-slate-500">
+                    <span>Vuelo Honduras:</span>
+                    <span>N/A</span>
+                  </div>
+                  <div className="flex justify-between border-t border-slate-800 pt-1 text-white font-extrabold">
+                    <span>Total de Cuota:</span>
+                    <span className="text-amber-300">$2,764.38 USD</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Maria Nohemy */}
+              <div className="bg-slate-900 p-3 rounded-xl border border-cyan-500/30 space-y-2">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-1.5">
+                  <span className="font-extrabold text-white">Maria Nohemy Israel</span>
+                  <span className="text-[10px] bg-cyan-500/20 text-cyan-300 px-1.5 py-0.5 rounded font-mono">
+                    Viajero 4
+                  </span>
+                </div>
+                <div className="space-y-1 text-[11px]">
+                  <div className="flex justify-between text-slate-300">
+                    <span>Asia (Cuota 4p):</span>
+                    <span className="font-bold text-amber-300">$2,764.38 USD</span>
+                  </div>
+                  <div className="flex justify-between text-slate-300">
+                    <span>Vuelo Honduras (50%):</span>
+                    <span className="font-bold text-cyan-300">$552.81 USD</span>
+                  </div>
+                  <div className="flex justify-between border-t border-slate-800 pt-1 text-white font-extrabold">
+                    <span>Total de Cuota:</span>
+                    <span className="text-cyan-300">$3,317.19 USD</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Section 1: Asia Trip 4 Travelers */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
@@ -683,16 +809,16 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
                 🌏 Grupo Principal Asia 2026 (4 Personas)
               </h4>
               <span className="text-[11px] font-mono text-slate-400">
-                Paquete SAT ($10,706.76 USD) + Shinkansen ($384.50 USD) + Entradas
+                Paquete SAT ($10,706.76 USD con Shinkansen) + Entradas + Recargas IC
               </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {[
-                { name: 'Donauro Emmanuel Castro', role: 'Viajero 1', paid: 10706.76 + 129.03 + 118.51, share: (10706.76 + 384.50 + 103.22 + 129.03 + 118.51) / 4 },
-                { name: 'Robinson Josué Castro', role: 'Viajero 2', paid: 384.50 + 103.22, share: (10706.76 + 384.50 + 103.22 + 129.03 + 118.51) / 4 },
-                { name: 'Viajero 3', role: 'Viajero 3', paid: 0, share: (10706.76 + 384.50 + 103.22 + 129.03 + 118.51) / 4 },
-                { name: 'Viajero 4', role: 'Viajero 4', paid: 0, share: (10706.76 + 384.50 + 103.22 + 129.03 + 118.51) / 4 },
+                { name: 'Donauro Emmanuel Castro', role: 'Viajero 1', paid: 10706.76 + 129.03 + 118.51, share: (10706.76 + 103.22 + 129.03 + 118.51) / 4 },
+                { name: 'Robinson Josue Castro', role: 'Viajero 2', paid: 103.22, share: (10706.76 + 103.22 + 129.03 + 118.51) / 4 },
+                { name: 'Robinson Castro', role: 'Viajero 3', paid: 0, share: (10706.76 + 103.22 + 129.03 + 118.51) / 4 },
+                { name: 'Maria Nohemy Israel', role: 'Viajero 4', paid: 0, share: (10706.76 + 103.22 + 129.03 + 118.51) / 4 },
               ].map((v) => {
                 const netBalance = v.paid - v.share;
 
@@ -729,7 +855,7 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
             </div>
           </div>
 
-          {/* Section 2: Honduras to San Antonio Flight Split (Donauro & Nohemí) */}
+          {/* Section 2: Honduras to San Antonio Flight Split (Donauro & Maria Nohemy) */}
           <div className="space-y-3 pt-4 border-t border-slate-800">
             <div className="flex items-center justify-between">
               <h4 className="text-xs font-black uppercase text-cyan-400 tracking-wider">
@@ -762,7 +888,7 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
 
               <div className="bg-slate-950 p-4 rounded-2xl border border-cyan-500/30 space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="font-extrabold text-white text-sm">Nohemí</span>
+                  <span className="font-extrabold text-white text-sm">Maria Nohemy Israel</span>
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300">
                     PASAJERA 50%
                   </span>

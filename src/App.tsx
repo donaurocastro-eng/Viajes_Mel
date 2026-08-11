@@ -15,6 +15,7 @@ import { WhatsAppCenter } from './components/WhatsAppCenter';
 import { SettingsView } from './components/SettingsView';
 import { SupabaseVercelConfig } from './components/SupabaseVercelConfig';
 import { AiTripPlannerModal } from './components/AiTripPlannerModal';
+import { CurrencyConverterModal } from './components/CurrencyConverterModal';
 import { NewTripModal, AddFlightModal, AddReservationModal, AddActivityModal } from './components/Modals';
 import {
   getSavedWhatsAppConfig,
@@ -148,6 +149,7 @@ export default function App() {
   const [isAddActivityOpen, setIsAddActivityOpen] = useState(false);
   const [isAiPlannerOpen, setIsAiPlannerOpen] = useState(false);
   const [isSupabaseModalOpen, setIsSupabaseModalOpen] = useState(false);
+  const [isCurrencyConverterOpen, setIsCurrencyConverterOpen] = useState(false);
 
   // Toast alert banner for WhatsApp notifications
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -428,6 +430,7 @@ export default function App() {
         onSelectTrip={(t) => setActiveTripId(t.id)}
         onOpenNewTripModal={() => setIsNewTripOpen(true)}
         onOpenAiPlanner={() => setIsAiPlannerOpen(true)}
+        onOpenCurrencyConverter={() => setIsCurrencyConverterOpen(true)}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         isSupabaseConnected={supabaseConfig.isConnected}
@@ -445,9 +448,9 @@ export default function App() {
             flights={flights}
             reservations={reservations}
             activities={activities}
-            onSelectTrip={(t) => {
+            onSelectTrip={(t, tab = 'itinerary') => {
               setActiveTripId(t.id);
-              setActiveTab('itinerary');
+              setActiveTab(tab);
             }}
             onOpenNewTripModal={() => setIsNewTripOpen(true)}
             onOpenAiPlanner={() => setIsAiPlannerOpen(true)}
@@ -649,6 +652,11 @@ export default function App() {
           onClose={() => setIsSupabaseModalOpen(false)}
         />
       )}
+
+      <CurrencyConverterModal
+        isOpen={isCurrencyConverterOpen}
+        onClose={() => setIsCurrencyConverterOpen(false)}
+      />
 
     </div>
   );

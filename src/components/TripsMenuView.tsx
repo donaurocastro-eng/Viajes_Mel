@@ -8,7 +8,7 @@ interface TripsMenuViewProps {
   flights: Flight[];
   reservations: Reservation[];
   activities: Activity[];
-  onSelectTrip: (trip: Trip) => void;
+  onSelectTrip: (trip: Trip, tab?: string) => void;
   onOpenNewTripModal: () => void;
   onOpenAiPlanner: () => void;
 }
@@ -267,7 +267,7 @@ export const TripsMenuView: React.FC<TripsMenuViewProps> = ({
                   </div>
 
                   {/* Trip Item Stats Counter */}
-                  <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
                     <div className="bg-slate-950/50 p-2 rounded-xl border border-slate-800">
                       <p className="text-sm font-extrabold text-cyan-400">{stats.flightsCount}</p>
                       <p className="text-[10px] text-slate-400 uppercase font-semibold">Vuelos / Trenes</p>
@@ -280,26 +280,50 @@ export const TripsMenuView: React.FC<TripsMenuViewProps> = ({
                       <p className="text-sm font-extrabold text-amber-400">{stats.activitiesCount}</p>
                       <p className="text-[10px] text-slate-400 uppercase font-semibold">Actividades</p>
                     </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onSelectTrip(trip, 'expenses');
+                      }}
+                      className="bg-emerald-950/40 hover:bg-emerald-900/50 p-2 rounded-xl border border-emerald-500/30 transition-all text-left"
+                    >
+                      <p className="text-sm font-extrabold text-emerald-400">${trip.budgetTotal ? trip.budgetTotal.toLocaleString() : '0'}</p>
+                      <p className="text-[10px] text-emerald-300 font-bold flex items-center gap-1">
+                        <span>💵 Gastos</span>
+                        <ArrowRight className="w-2.5 h-2.5" />
+                      </p>
+                    </button>
                   </div>
                 </div>
 
-                {/* Footer Action Button */}
-                <div className="pt-4 border-t border-slate-800 flex items-center justify-between">
+                {/* Footer Action Buttons */}
+                <div className="pt-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2">
                   <span className="text-xs text-slate-500 font-medium">
-                    Nomenclatura: <strong className="text-slate-300 font-mono">{trip.code}</strong>
+                    Código: <strong className="text-slate-300 font-mono">{trip.code}</strong>
                   </span>
 
-                  <button
-                    onClick={() => onSelectTrip(trip)}
-                    className={`flex items-center space-x-2 px-4 py-2.5 rounded-xl font-bold text-xs transition-all transform hover:scale-[1.02] ${
-                      isActive
-                        ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-lg shadow-emerald-500/20'
-                        : 'bg-slate-800 hover:bg-slate-700 text-white border border-slate-700'
-                    }`}
-                  >
-                    <span>{isActive ? 'Gestionar Este Viaje' : 'Seleccionar e Ingresar'}</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => onSelectTrip(trip, 'expenses')}
+                      className="flex items-center space-x-1.5 px-3 py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 font-bold text-xs transition-all"
+                      title="Ver y administrar el presupuesto y gastos de este viaje"
+                    >
+                      <DollarSign className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Control de Gastos 💵</span>
+                    </button>
+
+                    <button
+                      onClick={() => onSelectTrip(trip, 'itinerary')}
+                      className={`flex items-center space-x-2 px-4 py-2 rounded-xl font-bold text-xs transition-all transform hover:scale-[1.02] ${
+                        isActive
+                          ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-lg shadow-emerald-500/20'
+                          : 'bg-slate-800 hover:bg-slate-700 text-white border border-slate-700'
+                      }`}
+                    >
+                      <span>{isActive ? 'Gestionar Viaje' : 'Seleccionar e Ingresar'}</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

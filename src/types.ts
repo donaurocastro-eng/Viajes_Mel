@@ -8,7 +8,7 @@ export interface Trip {
   startDate: string;
   endDate: string;
   travelersCount: number; // Ej: 4
-  travelersNames?: string[]; // Ej: ['Donauro Emmanuel Castro', 'Robinson Josué Castro', ...]
+  travelersNames?: string[]; // Ej: ['Robinson Castro', 'Robinson Josue Castro', 'Donauro Emmanuel Castro', 'Maria Nohemy Israel']
   countries?: string[]; // Ej: ['Japón 🇯🇵', 'Corea del Sur 🇰🇷', 'Tailandia 🇹🇭', 'EE.UU. 🇺🇸']
   coverImage?: string;
   status: TripStatus;

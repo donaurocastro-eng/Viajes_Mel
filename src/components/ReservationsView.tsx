@@ -118,9 +118,12 @@ ${r.address ? `• Ubicación: ${r.address}\n` : ''}
           <h2 className="text-xl font-bold text-white flex items-center space-x-2">
             <Hotel className="w-5 h-5 text-amber-400" />
             <span>Reservas y Alojamiento</span>
+            <span className="text-[11px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2.5 py-0.5 rounded-full">
+              ✅ 100% PAGADOS
+            </span>
           </h2>
           <p className="text-xs text-slate-400">
-            Hoteles, rentas de autos, trenes y restaurantes confirmados
+            Todos los hoteles y alojamientos ya están 100% pagados y confirmados
           </p>
         </div>
 
@@ -209,8 +212,8 @@ ${r.address ? `• Ubicación: ${r.address}\n` : ''}
                     </span>
                   </div>
 
-                  <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                    Confirmado
+                  <span className="text-xs font-black px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center space-x-1">
+                    <span>✅ 100% PAGADO</span>
                   </span>
                 </div>
 
@@ -278,9 +281,14 @@ ${r.address ? `• Ubicación: ${r.address}\n` : ''}
 
               {/* Bottom Actions */}
               <div className="pt-3 border-t border-slate-800 flex items-center justify-between">
-                <span className="text-xs font-bold text-emerald-400">
-                  {res.price ? `${res.price} ${trip.currency}` : 'Precio N/A'}
-                </span>
+                <div>
+                  <span className="text-xs font-black text-emerald-400 block">
+                    {res.price ? `$${res.price} ${trip.currency}` : 'Precio Incluido'}
+                  </span>
+                  <span className="text-[10px] text-emerald-300/80 font-semibold block">
+                    ✅ 100% Pagado de antemano
+                  </span>
+                </div>
 
                 <div className="flex items-center space-x-2">
                   <button

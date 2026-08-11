@@ -11,9 +11,9 @@ export const initialTrips: Trip[] = [
     travelersCount: 4,
     travelersNames: [
       'Donauro Emmanuel Castro',
-      'Robinson Josué Castro',
-      'Domingo Robinson Castro',
-      'Nohemy María Israel'
+      'Robinson Josue Castro',
+      'Robinson Castro',
+      'Maria Nohemy Israel'
     ],
     countries: ['Honduras 🇭🇳', 'EE.UU. 🇺🇸', 'Japón 🇯🇵', 'Corea del Sur 🇰🇷', 'Tailandia 🇹🇭'],
     coverImage: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=80',
@@ -96,9 +96,9 @@ export const initialFlights: Flight[] = [
     notes: 'Voucher TripMasters #9008993. Escala en San Francisco (SFO).',
     qrTickets: [
       { passengerName: 'Donauro Emmanuel Castro', seat: '18A', car: 'Economy', qrCodeData: 'UA0790-SAT-SFO-0167443186390' },
-      { passengerName: 'Robinson Josué Castro', seat: '18B', car: 'Economy', qrCodeData: 'UA0790-SAT-SFO-0167443186386' },
-      { passengerName: 'Domingo Robinson Castro', seat: '18C', car: 'Economy', qrCodeData: 'UA0790-SAT-SFO-0167443186388' },
-      { passengerName: 'Nohemy María Israel', seat: '18D', car: 'Economy', qrCodeData: 'UA0790-SAT-SFO-0167443186392' }
+      { passengerName: 'Robinson Josue Castro', seat: '18B', car: 'Economy', qrCodeData: 'UA0790-SAT-SFO-0167443186386' },
+      { passengerName: 'Robinson Castro', seat: '18C', car: 'Economy', qrCodeData: 'UA0790-SAT-SFO-0167443186388' },
+      { passengerName: 'Maria Nohemy Israel', seat: '18D', car: 'Economy', qrCodeData: 'UA0790-SAT-SFO-0167443186392' }
     ]
   },
   {
@@ -122,9 +122,9 @@ export const initialFlights: Flight[] = [
     notes: 'Vuelo transpacífico a Osaka (KIX). Llega lunes 24 de agosto a las 2:50 p.m.',
     qrTickets: [
       { passengerName: 'Donauro Emmanuel Castro', seat: '35A', car: 'Economy', qrCodeData: 'UA0035-SFO-KIX-0167443186390' },
-      { passengerName: 'Robinson Josué Castro', seat: '35B', car: 'Economy', qrCodeData: 'UA0035-SFO-KIX-0167443186386' },
-      { passengerName: 'Domingo Robinson Castro', seat: '35C', car: 'Economy', qrCodeData: 'UA0035-SFO-KIX-0167443186388' },
-      { passengerName: 'Nohemy María Israel', seat: '35D', car: 'Economy', qrCodeData: 'UA0035-SFO-KIX-0167443186392' }
+      { passengerName: 'Robinson Josue Castro', seat: '35B', car: 'Economy', qrCodeData: 'UA0035-SFO-KIX-0167443186386' },
+      { passengerName: 'Robinson Castro', seat: '35C', car: 'Economy', qrCodeData: 'UA0035-SFO-KIX-0167443186388' },
+      { passengerName: 'Maria Nohemy Israel', seat: '35D', car: 'Economy', qrCodeData: 'UA0035-SFO-KIX-0167443186392' }
     ]
   },
   {
@@ -154,19 +154,19 @@ export const initialFlights: Flight[] = [
         qrCodeData: 'E919 CCC7 C019 0B17 4ECF 73EE B013 4887'
       },
       {
-        passengerName: 'Robinson Josué Castro',
+        passengerName: 'Robinson Josue Castro',
         seat: '10-B',
         car: 'Coche 5',
         qrCodeData: 'E404 D1DA E104 D014 8E4D 7090 B259 6AEA'
       },
       {
-        passengerName: 'Domingo Robinson Castro',
+        passengerName: 'Robinson Castro',
         seat: '10-A',
         car: 'Coche 5',
         qrCodeData: 'EE0E DBD0 D10E FD01 3E98 778F 5FF8 D5A8'
       },
       {
-        passengerName: 'Nohemy María Israel',
+        passengerName: 'Maria Nohemy Israel',
         seat: '10-C',
         car: 'Coche 5',
         qrCodeData: 'EAFA 2F24 10FA 4FEB B648 9741 4E52 BAE1'
@@ -194,9 +194,9 @@ export const initialFlights: Flight[] = [
     notes: 'Voucher TripMasters #9008999. Vuelo de Japón a Corea del Sur.',
     qrTickets: [
       { passengerName: 'Donauro Emmanuel Castro', seat: '14A', car: 'Economy', qrCodeData: 'JEJU-BB11PU-DONAURO-14A' },
-      { passengerName: 'Robinson Josué Castro', seat: '14B', car: 'Economy', qrCodeData: 'JEJU-BB11PU-ROBINSON-14B' },
-      { passengerName: 'Domingo Robinson Castro', seat: '14C', car: 'Economy', qrCodeData: 'JEJU-BB11PU-DOMINGO-14C' },
-      { passengerName: 'Nohemy María Israel', seat: '14D', car: 'Economy', qrCodeData: 'JEJU-BB11PU-NOHEMY-14D' }
+      { passengerName: 'Robinson Josue Castro', seat: '14B', car: 'Economy', qrCodeData: 'JEJU-BB11PU-ROBINSON-14B' },
+      { passengerName: 'Robinson Castro', seat: '14C', car: 'Economy', qrCodeData: 'JEJU-BB11PU-DOMINGO-14C' },
+      { passengerName: 'Maria Nohemy Israel', seat: '14D', car: 'Economy', qrCodeData: 'JEJU-BB11PU-NOHEMY-14D' }
     ]
   },
   {
@@ -220,9 +220,9 @@ export const initialFlights: Flight[] = [
     notes: 'Tren Expreso directo (43 minutos sin paradas) hasta la Estación de Seúl. Escanear código QR en el torniquete de acceso.',
     qrTickets: [
       { passengerName: 'Donauro Emmanuel Castro', seat: '4A', car: 'Coche 3', qrCodeData: 'AREX-EXPRESS-ICN-SEOUL-DONAURO-4A' },
-      { passengerName: 'Robinson Josué Castro', seat: '4B', car: 'Coche 3', qrCodeData: 'AREX-EXPRESS-ICN-SEOUL-ROBINSON-4B' },
-      { passengerName: 'Domingo Robinson Castro', seat: '4C', car: 'Coche 3', qrCodeData: 'AREX-EXPRESS-ICN-SEOUL-DOMINGO-4C' },
-      { passengerName: 'Nohemy María Israel', seat: '4D', car: 'Coche 3', qrCodeData: 'AREX-EXPRESS-ICN-SEOUL-NOHEMY-4D' }
+      { passengerName: 'Robinson Josue Castro', seat: '4B', car: 'Coche 3', qrCodeData: 'AREX-EXPRESS-ICN-SEOUL-ROBINSON-4B' },
+      { passengerName: 'Robinson Castro', seat: '4C', car: 'Coche 3', qrCodeData: 'AREX-EXPRESS-ICN-SEOUL-DOMINGO-4C' },
+      { passengerName: 'Maria Nohemy Israel', seat: '4D', car: 'Coche 3', qrCodeData: 'AREX-EXPRESS-ICN-SEOUL-NOHEMY-4D' }
     ]
   },
   {
@@ -246,9 +246,9 @@ export const initialFlights: Flight[] = [
     notes: 'Voucher TripMasters #9009002. Vuelo de Corea a Tailandia. Equipaje: 20kg.',
     qrTickets: [
       { passengerName: 'Donauro Emmanuel Castro', seat: '12A', car: 'Economy', qrCodeData: 'VIETJET-B5UUP3-DONAURO-12A' },
-      { passengerName: 'Robinson Josué Castro', seat: '12B', car: 'Economy', qrCodeData: 'VIETJET-B5UUP3-ROBINSON-12B' },
-      { passengerName: 'Domingo Robinson Castro', seat: '12C', car: 'Economy', qrCodeData: 'VIETJET-B5UUP3-DOMINGO-12C' },
-      { passengerName: 'Nohemy María Israel', seat: '12D', car: 'Economy', qrCodeData: 'VIETJET-B5UUP3-NOHEMY-12D' }
+      { passengerName: 'Robinson Josue Castro', seat: '12B', car: 'Economy', qrCodeData: 'VIETJET-B5UUP3-ROBINSON-12B' },
+      { passengerName: 'Robinson Castro', seat: '12C', car: 'Economy', qrCodeData: 'VIETJET-B5UUP3-DOMINGO-12C' },
+      { passengerName: 'Maria Nohemy Israel', seat: '12D', car: 'Economy', qrCodeData: 'VIETJET-B5UUP3-NOHEMY-12D' }
     ]
   },
   {
@@ -272,9 +272,9 @@ export const initialFlights: Flight[] = [
     notes: 'Vuelo de regreso Tramo 1: Bangkok a Tokio Narita.',
     qrTickets: [
       { passengerName: 'Donauro Emmanuel Castro', seat: '41F', car: 'Economy', qrCodeData: 'ANA-OZL5K3-DONAURO-41F' },
-      { passengerName: 'Robinson Josué Castro', seat: '41D', car: 'Economy', qrCodeData: 'ANA-OZL5K3-ROBINSON-41D' },
-      { passengerName: 'Domingo Robinson Castro', seat: '41G', car: 'Economy', qrCodeData: 'ANA-OZL5K3-DOMINGO-41G' },
-      { passengerName: 'Nohemy María Israel', seat: '42D', car: 'Economy', qrCodeData: 'ANA-OZL5K3-NOHEMY-42D' }
+      { passengerName: 'Robinson Josue Castro', seat: '41D', car: 'Economy', qrCodeData: 'ANA-OZL5K3-ROBINSON-41D' },
+      { passengerName: 'Robinson Castro', seat: '41G', car: 'Economy', qrCodeData: 'ANA-OZL5K3-DOMINGO-41G' },
+      { passengerName: 'Maria Nohemy Israel', seat: '42D', car: 'Economy', qrCodeData: 'ANA-OZL5K3-NOHEMY-42D' }
     ]
   },
   {
@@ -298,9 +298,9 @@ export const initialFlights: Flight[] = [
     notes: 'Vuelo transpacífico de regreso Tokio a San Francisco. Llega el mismo martes 8 de sep a las 10:35 a.m.',
     qrTickets: [
       { passengerName: 'Donauro Emmanuel Castro', seat: '36A', car: 'Economy', qrCodeData: 'UA0838-OZL5K3-DONAURO-36A' },
-      { passengerName: 'Robinson Josué Castro', seat: '36B', car: 'Economy', qrCodeData: 'UA0838-OZL5K3-ROBINSON-36B' },
-      { passengerName: 'Domingo Robinson Castro', seat: '36C', car: 'Economy', qrCodeData: 'UA0838-OZL5K3-DOMINGO-36C' },
-      { passengerName: 'Nohemy María Israel', seat: '36D', car: 'Economy', qrCodeData: 'UA0838-OZL5K3-NOHEMY-36D' }
+      { passengerName: 'Robinson Josue Castro', seat: '36B', car: 'Economy', qrCodeData: 'UA0838-OZL5K3-ROBINSON-36B' },
+      { passengerName: 'Robinson Castro', seat: '36C', car: 'Economy', qrCodeData: 'UA0838-OZL5K3-DOMINGO-36C' },
+      { passengerName: 'Maria Nohemy Israel', seat: '36D', car: 'Economy', qrCodeData: 'UA0838-OZL5K3-NOHEMY-36D' }
     ]
   },
   {
@@ -324,9 +324,9 @@ export const initialFlights: Flight[] = [
     notes: 'Conexión SFO a San Antonio SAT. Llega a las 9:59 p.m.',
     qrTickets: [
       { passengerName: 'Donauro Emmanuel Castro', seat: '20A', car: 'Economy', qrCodeData: 'UA2281-OZL5K3-DONAURO-20A' },
-      { passengerName: 'Robinson Josué Castro', seat: '20B', car: 'Economy', qrCodeData: 'UA2281-OZL5K3-ROBINSON-20B' },
-      { passengerName: 'Domingo Robinson Castro', seat: '20C', car: 'Economy', qrCodeData: 'UA2281-OZL5K3-DOMINGO-20C' },
-      { passengerName: 'Nohemy María Israel', seat: '20D', car: 'Economy', qrCodeData: 'UA2281-OZL5K3-NOHEMY-20D' }
+      { passengerName: 'Robinson Josue Castro', seat: '20B', car: 'Economy', qrCodeData: 'UA2281-OZL5K3-ROBINSON-20B' },
+      { passengerName: 'Robinson Castro', seat: '20C', car: 'Economy', qrCodeData: 'UA2281-OZL5K3-DOMINGO-20C' },
+      { passengerName: 'Maria Nohemy Israel', seat: '20D', car: 'Economy', qrCodeData: 'UA2281-OZL5K3-NOHEMY-20D' }
     ]
   },
   {
@@ -350,9 +350,9 @@ export const initialFlights: Flight[] = [
     notes: 'Reserva BQDIQK (Cod. 072622). Tramo 1 de regreso a Honduras desde San Antonio.',
     qrTickets: [
       { passengerName: 'Donauro Emmanuel Castro', seat: '12A', car: 'Economy', qrCodeData: 'UA1322-BQDIQK-DONAURO-12A' },
-      { passengerName: 'Robinson Josué Castro', seat: '12B', car: 'Economy', qrCodeData: 'UA1322-BQDIQK-ROBINSON-12B' },
-      { passengerName: 'Domingo Robinson Castro', seat: '12C', car: 'Economy', qrCodeData: 'UA1322-BQDIQK-DOMINGO-12C' },
-      { passengerName: 'Nohemy María Israel', seat: '12D', car: 'Economy', qrCodeData: 'UA1322-BQDIQK-NOHEMY-12D' }
+      { passengerName: 'Robinson Josue Castro', seat: '12B', car: 'Economy', qrCodeData: 'UA1322-BQDIQK-ROBINSON-12B' },
+      { passengerName: 'Robinson Castro', seat: '12C', car: 'Economy', qrCodeData: 'UA1322-BQDIQK-DOMINGO-12C' },
+      { passengerName: 'Maria Nohemy Israel', seat: '12D', car: 'Economy', qrCodeData: 'UA1322-BQDIQK-NOHEMY-12D' }
     ]
   },
   {
@@ -376,9 +376,9 @@ export const initialFlights: Flight[] = [
     notes: 'Llegada a Comayagua, Honduras a las 11:28 a.m. Final del Gran Tour.',
     qrTickets: [
       { passengerName: 'Donauro Emmanuel Castro', seat: '12A', car: 'Economy', qrCodeData: 'UA518-BQDIQK-DONAURO-12A' },
-      { passengerName: 'Robinson Josué Castro', seat: '12B', car: 'Economy', qrCodeData: 'UA518-BQDIQK-ROBINSON-12B' },
-      { passengerName: 'Domingo Robinson Castro', seat: '12C', car: 'Economy', qrCodeData: 'UA518-BQDIQK-DOMINGO-12C' },
-      { passengerName: 'Nohemy María Israel', seat: '12D', car: 'Economy', qrCodeData: 'UA518-BQDIQK-NOHEMY-12D' }
+      { passengerName: 'Robinson Josue Castro', seat: '12B', car: 'Economy', qrCodeData: 'UA518-BQDIQK-ROBINSON-12B' },
+      { passengerName: 'Robinson Castro', seat: '12C', car: 'Economy', qrCodeData: 'UA518-BQDIQK-DOMINGO-12C' },
+      { passengerName: 'Maria Nohemy Israel', seat: '12D', car: 'Economy', qrCodeData: 'UA518-BQDIQK-NOHEMY-12D' }
     ]
   }
 ];
@@ -1004,8 +1004,8 @@ export const initialActivities: Activity[] = [
     id: 'act-kr-d12-5',
     tripId: 'trip-asia-2026',
     date: '2026-09-03',
-    title: 'Compras y Street Food en Myeongdong Night Market',
-    description: 'Metro Línea 2 de Jamsil a Euljiro 1-ga o Línea 4 directo a Estación Myeongdong. Zona cosmopolita.',
+    title: 'Cena BBQ Coreana & Street Food en Myeongdong (Opcional - No Pagado)',
+    description: 'Paseo gastronómico con opción a cena BBQ Coreana tradicional. Actividad opcional programada; no está pagada de antemano (se abona directo en el restaurante).',
     category: 'food',
     startTime: '17:40',
     endTime: '19:30',
@@ -1681,16 +1681,16 @@ export const initialExpenses: Expense[] = [
   {
     id: 'exp-sat-pkg',
     tripId: 'trip-asia-2026',
-    title: 'Paquete Principal de Viaje desde San Antonio (SAT) - Vuelos, Hoteles y Traslados',
+    title: 'Paquete Principal San Antonio (SAT) - Vuelos Internacionales, Hoteles y Tren Shinkansen',
     amountUSD: 10706.76,
     originalAmount: 10706.76,
     originalCurrency: 'USD',
     category: 'flight',
     date: '2026-03-01',
     paidBy: 'Donauro Emmanuel Castro',
-    splitWith: ['Robinson Josué Castro', 'Viajero 3', 'Viajero 4'],
+    splitWith: ['Robinson Josue Castro', 'Robinson Castro', 'Maria Nohemy Israel'],
     paymentMethod: 'credit_card',
-    notes: 'Paquete todo incluido saliendo y regresando a San Antonio. División exacta entre 4 personas: $2,676.69 USD por persona.',
+    notes: 'Paquete pagado con origen/destino San Antonio ($10,706.76 USD). Incluye vuelos internacionales, los 4 hoteles y el Tren Shinkansen Nozomi (Shin-Osaka -> Tokio para 4 personas). NO incluye traslados aeropuerto ↔ hotel (se pagan en sitio). División entre 4: $2,676.69 USD por persona.',
     location: 'San Antonio (SAT) / Asia'
   },
   {
@@ -1703,24 +1703,24 @@ export const initialExpenses: Expense[] = [
     category: 'flight',
     date: '2026-03-11',
     paidBy: 'Donauro Emmanuel Castro',
-    splitWith: ['Nohemí'],
+    splitWith: ['Maria Nohemy Israel'],
     paymentMethod: 'credit_card',
-    notes: 'Vuelo de conexión San Pedro Sula a San Antonio ($1,105.62 USD total). Dividido 50/50: $552.81 USD Donauro y $552.81 USD Nohemí.',
+    notes: 'Vuelo de conexión San Pedro Sula a San Antonio ($1,105.62 USD total). Dividido 50/50: $552.81 USD Donauro Emmanuel Castro y $552.81 USD Maria Nohemy Israel.',
     location: 'Honduras / San Antonio (SAT)'
   },
   {
     id: 'exp-asia-3',
     tripId: 'trip-asia-2026',
     title: 'Tren Shinkansen Nozomi (Shin-Osaka -> Tokio - 4 Pasajeros)',
-    amountUSD: 384.50,
-    originalAmount: 59600,
+    amountUSD: 0,
+    originalAmount: 0,
     originalCurrency: 'JPY',
     category: 'transport',
     date: '2026-03-18',
-    paidBy: 'Robinson Josué Castro',
-    splitWith: ['Donauro Emmanuel Castro', 'Viajero 3', 'Viajero 4'],
+    paidBy: 'Paquete SAT ($10,706.76 USD)',
+    splitWith: ['Donauro Emmanuel Castro', 'Robinson Josue Castro', 'Robinson Castro', 'Maria Nohemy Israel'],
     paymentMethod: 'credit_card',
-    notes: 'Boletos QR descargados con asientos asignados para el grupo de 4 ($384.50 USD / 59,600 JPY total = $96.13 USD por persona).',
+    notes: '✅ INCLUIDO DENTRO DEL PAQUETE PRINCIPAL DE $10,706.76 USD. Boletos con asientos asignados para el grupo de 4 pasajeros (Sin costo adicional fuera del paquete).',
     location: 'Estación Shin-Osaka'
   },
   {
@@ -1732,8 +1732,8 @@ export const initialExpenses: Expense[] = [
     originalCurrency: 'JPY',
     category: 'activities',
     date: '2026-03-19',
-    paidBy: 'Robinson Josué Castro',
-    splitWith: ['Donauro Emmanuel Castro', 'Viajero 3', 'Viajero 4'],
+    paidBy: 'Robinson Josue Castro',
+    splitWith: ['Donauro Emmanuel Castro', 'Robinson Castro', 'Maria Nohemy Israel'],
     paymentMethod: 'credit_card',
     notes: 'Pases de acceso reservados para el grupo de 4.',
     location: 'Shibuya & Toyosu, Tokio'
@@ -1748,7 +1748,7 @@ export const initialExpenses: Expense[] = [
     category: 'transport',
     date: '2026-03-16',
     paidBy: 'Donauro Emmanuel Castro',
-    splitWith: ['Robinson Josué Castro', 'Viajero 3', 'Viajero 4'],
+    splitWith: ['Robinson Josue Castro', 'Robinson Castro', 'Maria Nohemy Israel'],
     paymentMethod: 'cash',
     notes: 'Cargado en efectivo Yenes para desplazamientos locales.',
     location: 'Tokio, Japón'
@@ -1756,16 +1756,16 @@ export const initialExpenses: Expense[] = [
   {
     id: 'exp-asia-8',
     tripId: 'trip-asia-2026',
-    title: 'Cena BBQ Coreana Tradicional & Comida de Calle Myeongdong',
+    title: 'Cena BBQ Coreana Tradicional & Street Food Myeongdong (Opcional)',
     amountUSD: 118.51,
     originalAmount: 160000,
     originalCurrency: 'KRW',
     category: 'food',
-    date: '2026-03-23',
-    paidBy: 'Donauro Emmanuel Castro',
-    splitWith: ['Robinson Josué Castro', 'Viajero 3', 'Viajero 4'],
+    date: '2026-09-03',
+    paidBy: 'Por Pagar en Sitio (Opcional)',
+    splitWith: ['Robinson Josue Castro', 'Donauro Emmanuel Castro', 'Robinson Castro', 'Maria Nohemy Israel'],
     paymentMethod: 'cash',
-    notes: 'Cena para el grupo de 4 en Seúl.',
+    notes: '📌 [PROGRAMADO - PENDIENTE DE PAGO] Presupuesto estimado de 160,000 KRW ($118.51 USD total para 4 personas). Es una actividad opcional no pagada de antemano.',
     location: 'Myeongdong, Seúl'
   }
 ];
