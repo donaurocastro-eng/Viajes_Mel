@@ -1,4 +1,4 @@
-import { Trip, Flight, Reservation, Activity, WhatsAppLog } from '../types';
+import { Trip, Flight, Reservation, Activity, WhatsAppLog, GroundTransfer, Expense } from '../types';
 
 export const initialTrips: Trip[] = [
   {
@@ -1238,3 +1238,535 @@ export const initialWhatsAppLogs: WhatsAppLog[] = [
     isRealApi: false
   }
 ];
+
+export const initialGroundTransfers: GroundTransfer[] = [
+  {
+    id: 'gt-jp-1',
+    tripId: 'trip-asia-2026',
+    title: 'De Aeropuerto Internacional de Kansai (KIX) a Hotel voco Osaka Central',
+    fromLocation: 'Aeropuerto Internacional de Kansai (KIX Terminal 1)',
+    toLocation: 'voco Osaka Central, 1 Chome-7-1 Kyomachibori, Nishi Ward, Osaka',
+    estimatedDuration: '1h 25 min',
+    transportModes: ['bus', 'train', 'subway', 'walk'],
+    notes: 'Ruta recomendada con autobús Limousine de aeropuerto y transbordo a líneas Nankai y Yotsubashi.',
+    steps: [
+      {
+        id: 'gt-jp-1-s1',
+        stepNumber: 1,
+        instruction: 'Toma el autobús "Kansai-Airport Limousine Bus" (Airport Shuttle Bus) en Terminal 1.',
+        mode: 'bus',
+        durationOrDistance: '24 min (2 paradas)',
+        lineOrService: 'Servicio prestado por リムジンバス',
+        notes: 'Parada de bajada: Izumisano Eki mae.'
+      },
+      {
+        id: 'gt-jp-1-s2',
+        stepNumber: 2,
+        instruction: 'Camina desde la parada Izumisano Eki mae hacia la estación Izumisano.',
+        mode: 'walk',
+        durationOrDistance: '2 min (~110 m)',
+        notes: 'Atención con el equipaje al cruzar.'
+      },
+      {
+        id: 'gt-jp-1-s3',
+        stepNumber: 3,
+        instruction: 'Aborda el tren Nankai Line Local (dirección Nankai-Namba) en Izumisano Station.',
+        mode: 'train',
+        durationOrDistance: '52 min (27 paradas)',
+        lineOrService: 'ID de parada NK30 - Nankai Electric Railway',
+        notes: 'Desciende en Namba Station.'
+      },
+      {
+        id: 'gt-jp-1-s4',
+        stepNumber: 4,
+        instruction: 'Transbordo a pie de Namba Station (Nankai) a Namba Station (Metro de Osaka).',
+        mode: 'walk',
+        durationOrDistance: '10 min (~500 m)',
+        notes: 'Entra por la salida 32, toma las escaleras, pasa por el torniquete.'
+      },
+      {
+        id: 'gt-jp-1-s5',
+        stepNumber: 5,
+        instruction: 'Aborda el Metro Yotsubashi Line Local (dirección Nishi-Umeda) hasta Higobashi Station.',
+        mode: 'subway',
+        durationOrDistance: '5 min (3 paradas)',
+        lineOrService: 'Metro de Osaka - Andén 2 (ID Y15)',
+        notes: 'Desciende en Higobashi Station.'
+      },
+      {
+        id: 'gt-jp-1-s6',
+        stepNumber: 6,
+        instruction: 'Camina desde Higobashi Station salida South Ticket Gate (Salida 7) hacia voco Osaka Central.',
+        mode: 'walk',
+        durationOrDistance: '8 min (~450 m)',
+        lineOrService: 'Dirígete por 大阪市道南北線 y 京町通',
+        notes: '¡El destino está a la izquierda!'
+      }
+    ]
+  },
+  {
+    id: 'gt-jp-2',
+    tripId: 'trip-asia-2026',
+    title: 'De voco Osaka Central a Estación Shin-Osaka',
+    fromLocation: 'voco Osaka Central, Kyomachibori, Osaka',
+    toLocation: 'Shin-Ōsaka Station, Osaka, Japón',
+    estimatedDuration: '25 min',
+    transportModes: ['walk', 'subway'],
+    notes: 'Salida de madrugada (05:05 AM) para abordar el Shinkansen hacia Tokio.',
+    steps: [
+      {
+        id: 'gt-jp-2-s1',
+        stepNumber: 1,
+        instruction: 'Sal de voco Osaka Central a las 05:05 AM. Dirígete hacia 大阪市道南北線 y gira a la izquierda en 東上橋筋.',
+        mode: 'walk',
+        durationOrDistance: '10 min (~750 m)',
+        notes: 'Entra por la salida 13 de Yodoyabashi Station, pasa por el torniquete.'
+      },
+      {
+        id: 'gt-jp-2-s2',
+        stepNumber: 2,
+        instruction: 'Llegada a Yodoyabashi Station (05:15 AM). Aborda el Metro Midosuji Line Local (dirección Minoh-kayano).',
+        mode: 'subway',
+        durationOrDistance: '9 min (4 paradas)',
+        lineOrService: 'Metro de Osaka - Andén 2',
+        notes: 'Desciende en Shin-Osaka Station a las 05:24 AM.'
+      }
+    ]
+  },
+  {
+    id: 'gt-jp-3',
+    tripId: 'trip-asia-2026',
+    title: 'TREN SHINKANSEN: De Shin-Osaka a Estación de Tokio (Con Boletos QR)',
+    fromLocation: 'Shin-Ōsaka Station, Osaka',
+    toLocation: 'Estación de Tokio, Marunouchi, Chiyoda City, Tokyo',
+    estimatedDuration: '2h 55 min',
+    transportModes: ['train', 'shinkansen'],
+    notes: 'Trayecto de alta velocidad en Shinkansen Nozomi. Incluye boletos QR con asientos asignados en Coche 5 (10-B, 10-A, 9-A).',
+    qrTickets: [
+      {
+        passengerName: 'Pasajero 1',
+        seat: '10-B',
+        car: 'Car.5',
+        qrCodeData: 'E404 D1DA E104 D014 8E4D 7090 B259 6AEA'
+      },
+      {
+        passengerName: 'Pasajero 2',
+        seat: '10-A',
+        car: 'Car.5',
+        qrCodeData: 'EE0E DBD0 D10E FD01 3E98 778F 5FF8 D5A8'
+      },
+      {
+        passengerName: 'Pasajero 3',
+        seat: '9-A',
+        car: 'Car.5',
+        qrCodeData: 'E919 CCC7 C019 0B17 4ECF 73EE B013 4887'
+      }
+    ],
+    steps: [
+      {
+        id: 'gt-jp-3-s1',
+        stepNumber: 1,
+        instruction: 'Aborda el tren Tokaido-Sanyo Line Local Kyoto (05:04 AM) en Shin-Osaka Station (Andén 6, JR-A46).',
+        mode: 'train',
+        durationOrDistance: '42 min (15 paradas)',
+        lineOrService: 'West Japan Railway Company',
+        notes: 'Arribo a Estación de Kioto a las 05:46 AM.'
+      },
+      {
+        id: 'gt-jp-3-s2',
+        stepNumber: 2,
+        instruction: 'Transbordo a pie en Estación de Kioto. Toma las escaleras al andén de Shinkansen.',
+        mode: 'walk',
+        durationOrDistance: '3 min',
+        notes: 'Verifica tu vagón (Car. 5).'
+      },
+      {
+        id: 'gt-jp-3-s3',
+        stepNumber: 3,
+        instruction: 'Aborda el Tokaido Shinkansen Nozomi 548 (Nozomi Tokyo) a las 06:03 AM en Estación de Kioto (Andén 11).',
+        mode: 'shinkansen',
+        durationOrDistance: '2h 09 min (4 paradas)',
+        lineOrService: 'Central Japan Railway - Train Nozomi 548',
+        notes: 'Escaneo de código QR en torniquete. Arribo puntual a Estación de Tokio a las 08:12 AM.'
+      }
+    ]
+  },
+  {
+    id: 'gt-jp-4',
+    tripId: 'trip-asia-2026',
+    title: 'De Estación de Tokio a Hotel The Royal Park Canvas - Ginza Corridor',
+    fromLocation: 'Estación de Tokio, 1 Chome Marunouchi, Chiyoda City, Tokyo',
+    toLocation: 'The Royal Park Canvas - Ginza Corridor, 6 Chome-2-11 Ginza, Chuo City, Tokyo',
+    estimatedDuration: '14 min (Caminando)',
+    transportModes: ['walk'],
+    notes: 'Paseo peatonal por la zona comercial de Ginza y la avenida Ginza Corridor.',
+    steps: [
+      {
+        id: 'gt-jp-4-s1',
+        stepNumber: 1,
+        instruction: 'Dirígete hacia el noroeste desde Estación de Tokio y gira a la izquierda.',
+        mode: 'walk',
+        durationOrDistance: '4 min'
+      },
+      {
+        id: 'gt-jp-4-s2',
+        stepNumber: 2,
+        instruction: 'Gira a la derecha hacia 補助97号線 y continúa a la izquierda.',
+        mode: 'walk',
+        durationOrDistance: '3 min'
+      },
+      {
+        id: 'gt-jp-4-s3',
+        stepNumber: 3,
+        instruction: 'Pasa por ドトールコーヒーショップ (Doutor Coffee) 有楽町店 a la derecha.',
+        mode: 'walk',
+        durationOrDistance: '4 min'
+      },
+      {
+        id: 'gt-jp-4-s4',
+        stepNumber: 4,
+        instruction: 'Gira a la derecha hacia 銀座コリドー通り (Ginza Corridor) y 交詢社通り. El hotel estará a la izquierda.',
+        mode: 'walk',
+        durationOrDistance: '3 min',
+        notes: 'Llegada a The Royal Park Canvas - Ginza Corridor.'
+      }
+    ]
+  },
+  {
+    id: 'gt-jp-5',
+    tripId: 'trip-asia-2026',
+    title: 'De Hotel Ginza Corridor a Aeropuerto Internacional de Narita (NRT)',
+    fromLocation: 'The Royal Park Canvas - Ginza Corridor, Ginza, Tokyo',
+    toLocation: 'Aeropuerto Internacional de Narita (Terminal 3), Chiba',
+    estimatedDuration: '1h 25 min',
+    transportModes: ['walk', 'train', 'bus'],
+    notes: 'Conexión eficiente con la línea Yamanote a Tokyo Station y el autobús directo Airport Bus TYO-NRT.',
+    steps: [
+      {
+        id: 'gt-jp-5-s1',
+        stepNumber: 1,
+        instruction: 'Sal de Ginza Corridor a las 04:35 AM. Camina hacia Yūrakuchō Station (Entra por Hibiya Exit).',
+        mode: 'walk',
+        durationOrDistance: '9 min (~550 m)',
+        notes: 'Pasa por el torniquete y toma las escaleras.'
+      },
+      {
+        id: 'gt-jp-5-s2',
+        stepNumber: 2,
+        instruction: 'Aborda la Yamanote Line Local (For Tokyo / Ueno) a las 04:44 AM en Yūrakuchō Station (Andén 2, JY30).',
+        mode: 'subway',
+        durationOrDistance: '2 min (sin paradas)',
+        lineOrService: 'East Japan Railway',
+        notes: 'Desciende en Estación de Tokio a las 04:46 AM.'
+      },
+      {
+        id: 'gt-jp-5-s3',
+        stepNumber: 3,
+        instruction: 'Camina hacia la parada de autobuses "Tokyo Eki JR Kosoku Bus Noriba" (Yaesu South Exit).',
+        mode: 'walk',
+        durationOrDistance: '4 min (~210 m)',
+        notes: 'Sigue las señales de Yaesu South Exit.'
+      },
+      {
+        id: 'gt-jp-5-s4',
+        stepNumber: 4,
+        instruction: 'Aborda el autobús "Airport Bus Tyo-NRT" (05:00 AM) hacia Narita Airport (T1, T2, T3).',
+        mode: 'bus',
+        durationOrDistance: '1h 02 min (directo)',
+        lineOrService: 'AIRPORT BUS TYO-NRT',
+        notes: 'Arribo a Narita Airport Terminal 3 a las 06:02 AM.'
+      }
+    ]
+  },
+  {
+    id: 'gt-kr-1',
+    tripId: 'trip-asia-2026',
+    title: 'De Aeropuerto Internacional de Incheon (ICN T2) a Hotel Nine Tree by Parnas Seoul Insadong',
+    fromLocation: 'Aeropuerto Internacional de Incheon (ICN Terminal 2)',
+    toLocation: 'Nine Tree by Parnas Seoul Insadong, 49 Insadong-gil, Jongno District, Seoul',
+    estimatedDuration: '2h 05 min',
+    transportModes: ['walk', 'bus'],
+    notes: 'Servicio nocturno/madrugada de autobús expreso desde la terminal T2 de Incheon hacia el centro de Seúl.',
+    steps: [
+      {
+        id: 'gt-kr-1-s1',
+        stepNumber: 1,
+        instruction: 'Al desembarcar en ICN T2 (03:02 AM), camina hacia la parada de autobuses en Incheon International Airport T2-B1FL.',
+        mode: 'walk',
+        durationOrDistance: '23 min (~1.3 km)'
+      },
+      {
+        id: 'gt-kr-1-s2',
+        stepNumber: 2,
+        instruction: 'Aborda el autobús nocturno N6701 Dongdaemun Design Plaza (03:25 AM).',
+        mode: 'bus',
+        durationOrDistance: '1h 16 min (3 paradas)',
+        lineOrService: 'Servicio prestado por 서울특별시버스운송사업조합',
+        notes: 'Desciende en la parada Sungnyemun Gate a las 04:41 AM.'
+      },
+      {
+        id: 'gt-kr-1-s3',
+        stepNumber: 3,
+        instruction: 'Camina a la parada conectora de Sungnyemun Gate (04:41 AM -> 04:59 AM).',
+        mode: 'walk',
+        durationOrDistance: '1 min (~55 m)'
+      },
+      {
+        id: 'gt-kr-1-s4',
+        stepNumber: 4,
+        instruction: 'Aborda el autobús 704 (Eunpyeong New Town Garage) a las 04:59 AM.',
+        mode: 'bus',
+        durationOrDistance: '6 min (5 paradas)',
+        lineOrService: 'Línea 704 (Parada ID 02122)',
+        notes: 'Pasa por Namdaemun Market, Lotte Young Plaza, Woori Bank y Jogyesa Temple. Desciende en Duksung Girls\' Middle & High School (05:05 AM).'
+      },
+      {
+        id: 'gt-kr-1-s5',
+        stepNumber: 5,
+        instruction: 'Camina desde Duksung Girls\' School hacia Nine Tree by Parnas Seoul Insadong.',
+        mode: 'walk',
+        durationOrDistance: '3 min (~170 m)',
+        notes: '¡Arribo al hotel a las 05:08 AM!'
+      }
+    ]
+  },
+  {
+    id: 'gt-kr-2',
+    tripId: 'trip-asia-2026',
+    title: 'De Hotel Nine Tree Insadong a Aeropuerto Internacional de Incheon (ICN T1)',
+    fromLocation: 'Nine Tree by Parnas Seoul Insadong, Seoul',
+    toLocation: 'Aeropuerto Internacional de Incheon (Terminal 1)',
+    estimatedDuration: '1h 58 min',
+    transportModes: ['walk', 'bus'],
+    notes: 'Transferencia con autobús N51 y transbordo al expreso N6002 directo al aeropuerto.',
+    steps: [
+      {
+        id: 'gt-kr-2-s1',
+        stepNumber: 1,
+        instruction: 'Sal del hotel (03:26 AM) y camina hacia la parada Duksung Girls\' Middle & High School.',
+        mode: 'walk',
+        durationOrDistance: '3 min (~170 m)'
+      },
+      {
+        id: 'gt-kr-2-s2',
+        stepNumber: 2,
+        instruction: 'Aborda el autobús N51 시흥동차고지 (03:29 AM).',
+        mode: 'bus',
+        durationOrDistance: '23 min (14 paradas)',
+        lineOrService: 'Línea N51 (ID 01130)',
+        notes: 'Pasa por Sejong Center, Gwanghwamun, City Hall, Yeomcheongyo, Sinchon. Desciende en Hongik Univ. Station (03:52 AM).'
+      },
+      {
+        id: 'gt-kr-2-s3',
+        stepNumber: 3,
+        instruction: 'Transbordo en Hongik Univ. Station al autobús N6002 (04:00 AM) hacia Incheon Airport.',
+        mode: 'bus',
+        durationOrDistance: '1h 01 min (sin paradas)',
+        lineOrService: 'Línea N6002 (ID 14016)',
+        notes: 'Desciende en Incheon Airport Terminal 1 - 3rd Floor (05:01 AM).'
+      },
+      {
+        id: 'gt-kr-2-s4',
+        stepNumber: 4,
+        instruction: 'Camina a las salas de salida y mostradores de la aerolínea.',
+        mode: 'walk',
+        durationOrDistance: '23 min (~1.4 km)',
+        notes: 'Arribo final a la puerta de embarque a las 05:24 AM.'
+      }
+    ]
+  },
+  {
+    id: 'gt-th-1',
+    tripId: 'trip-asia-2026',
+    title: 'De Aeropuerto Bangkok Suvarnabhumi (BKK) a Hotel Sukhumvit 1472, Bangkok',
+    fromLocation: 'Aeropuerto Internacional Suvarnabhumi (BKK)',
+    toLocation: '1472 Sukhumvit Rd, Khwaeng Phra Khanong, Khet Khlong Toei, Krung Thep Maha Nakhon 10110, Tailandia',
+    estimatedDuration: '35 min (Taxi / Aplicación Directa)',
+    transportModes: ['taxi'],
+    notes: 'Trayecto cómodo por autopista con peajes mediante servicio de Taxi o aplicaciones (Grab / Bolt / InDrive).',
+    steps: [
+      {
+        id: 'gt-th-1-s1',
+        stepNumber: 1,
+        instruction: 'Aborda el taxi o vehículo en el piso de transportes del Aeropuerto Suvarnabhumi. Dirígete al oeste por ถ. Suvarnabhumi 2.',
+        mode: 'taxi',
+        durationOrDistance: '1.3 km'
+      },
+      {
+        id: 'gt-th-1-s2',
+        stepNumber: 2,
+        instruction: 'Incorporación a Carretera 7 (Motorway) dirección Bangkok.',
+        mode: 'taxi',
+        durationOrDistance: '8.1 km'
+      },
+      {
+        id: 'gt-th-1-s3',
+        stepNumber: 3,
+        instruction: 'Toma la salida hacia Carretera 3344 / Sri Nagarindra Rd.',
+        mode: 'taxi',
+        durationOrDistance: '260 m'
+      },
+      {
+        id: 'gt-th-1-s4',
+        stepNumber: 4,
+        instruction: 'Gira a la derecha en ถ. พัฒนาการ (Phatthanakan Rd) y pasa por 7-Eleven.',
+        mode: 'taxi',
+        durationOrDistance: '2.0 km'
+      },
+      {
+        id: 'gt-th-1-s5',
+        stepNumber: 5,
+        instruction: 'Incorporación a ทางพิเศษฉลองรัช (Chalong Rat Expressway / Carretera con peajes).',
+        mode: 'taxi',
+        durationOrDistance: '2.6 km'
+      },
+      {
+        id: 'gt-th-1-s6',
+        stepNumber: 6,
+        instruction: 'Utiliza el carril izquierdo para tomar la salida 1 hacia Sukhumvit 50 / Phra Khanong.',
+        mode: 'taxi',
+        durationOrDistance: '650 m',
+        notes: 'Arribo a 1472 Sukhumvit Rd (A la izquierda).'
+      }
+    ]
+  },
+  {
+    id: 'gt-th-2',
+    tripId: 'trip-asia-2026',
+    title: 'De Hotel Sukhumvit 1472 a Aeropuerto Bangkok Suvarnabhumi (BKK) (Opción Bus + ARL)',
+    fromLocation: '1472 Sukhumvit Rd, Khwaeng Phra Khanong, Bangkok',
+    toLocation: 'Aeropuerto Internacional Suvarnabhumi (BKK), Bangkok, Tailandia',
+    estimatedDuration: '1h 35 min',
+    transportModes: ['walk', 'bus', 'train'],
+    notes: 'Opción económica de transporte público combinando autobús de ciudad y el tren expreso Airport Rail Link (ARL).',
+    steps: [
+      {
+        id: 'gt-th-2-s1',
+        stepNumber: 1,
+        instruction: 'Sal de 1472 Sukhumvit Rd a las 04:19 AM. Camina hacia la parada de autobús Before On Nut Junction.',
+        mode: 'walk',
+        durationOrDistance: '2 min (~150 m)'
+      },
+      {
+        id: 'gt-th-2-s2',
+        stepNumber: 2,
+        instruction: 'Aborda el autobús 23 NGV (3-5) Thewet (04:51 AM).',
+        mode: 'bus',
+        durationOrDistance: '25 min (19 paradas)',
+        lineOrService: 'Bangkok Mass Transit Authority (BMTA)',
+        notes: 'Desciende en Srinakharinwirot University (Phetchaburi) a las 05:16 AM.'
+      },
+      {
+        id: 'gt-th-2-s3',
+        stepNumber: 3,
+        instruction: 'Camina hacia la estación de tren Makkasan Station (ARL).',
+        mode: 'walk',
+        durationOrDistance: '8 min (~300 m)',
+        notes: 'Sigue las señales a Ticket Office y toma el ascensor.'
+      },
+      {
+        id: 'gt-th-2-s4',
+        stepNumber: 4,
+        instruction: 'Aborda el tren ARL (Phaya Thai - Suvarnabhumi) a las 05:33 AM en Makkasan Station (Andén 1).',
+        mode: 'train',
+        durationOrDistance: '22 min (5 paradas)',
+        lineOrService: 'Servicio prestado por SRTET',
+        notes: 'Arribo puntual a Suvarnabhumi Airport Station a las 05:55 AM.'
+      }
+    ]
+  }
+];
+
+export const initialExpenses: Expense[] = [
+  {
+    id: 'exp-sat-pkg',
+    tripId: 'trip-asia-2026',
+    title: 'Paquete Principal de Viaje desde San Antonio (SAT) - Vuelos, Hoteles y Traslados',
+    amountUSD: 10706.76,
+    originalAmount: 10706.76,
+    originalCurrency: 'USD',
+    category: 'flight',
+    date: '2026-03-01',
+    paidBy: 'Donauro Emmanuel Castro',
+    splitWith: ['Robinson Josué Castro', 'Viajero 3', 'Viajero 4'],
+    paymentMethod: 'credit_card',
+    notes: 'Paquete todo incluido saliendo y regresando a San Antonio. División exacta entre 4 personas: $2,676.69 USD por persona.',
+    location: 'San Antonio (SAT) / Asia'
+  },
+  {
+    id: 'exp-hn-sat-flight',
+    tripId: 'trip-asia-2026',
+    title: 'Vuelo de Conexión Honduras (SAP) -> San Antonio (SAT)',
+    amountUSD: 1105.62,
+    originalAmount: 1105.62,
+    originalCurrency: 'USD',
+    category: 'flight',
+    date: '2026-03-11',
+    paidBy: 'Donauro Emmanuel Castro',
+    splitWith: ['Nohemí'],
+    paymentMethod: 'credit_card',
+    notes: 'Vuelo de conexión San Pedro Sula a San Antonio ($1,105.62 USD total). Dividido 50/50: $552.81 USD Donauro y $552.81 USD Nohemí.',
+    location: 'Honduras / San Antonio (SAT)'
+  },
+  {
+    id: 'exp-asia-3',
+    tripId: 'trip-asia-2026',
+    title: 'Tren Shinkansen Nozomi (Shin-Osaka -> Tokio - 4 Pasajeros)',
+    amountUSD: 384.50,
+    originalAmount: 59600,
+    originalCurrency: 'JPY',
+    category: 'transport',
+    date: '2026-03-18',
+    paidBy: 'Robinson Josué Castro',
+    splitWith: ['Donauro Emmanuel Castro', 'Viajero 3', 'Viajero 4'],
+    paymentMethod: 'credit_card',
+    notes: 'Boletos QR descargados con asientos asignados para el grupo de 4 ($384.50 USD / 59,600 JPY total = $96.13 USD por persona).',
+    location: 'Estación Shin-Osaka'
+  },
+  {
+    id: 'exp-asia-5',
+    tripId: 'trip-asia-2026',
+    title: 'Entradas Shibuya Sky & teamLab Planets Tokio (4 Personas)',
+    amountUSD: 103.22,
+    originalAmount: 16000,
+    originalCurrency: 'JPY',
+    category: 'activities',
+    date: '2026-03-19',
+    paidBy: 'Robinson Josué Castro',
+    splitWith: ['Donauro Emmanuel Castro', 'Viajero 3', 'Viajero 4'],
+    paymentMethod: 'credit_card',
+    notes: 'Pases de acceso reservados para el grupo de 4.',
+    location: 'Shibuya & Toyosu, Tokio'
+  },
+  {
+    id: 'exp-asia-6',
+    tripId: 'trip-asia-2026',
+    title: 'Recarga Tarjetas IC Suica / Pasmo (Metro y Conveniencia)',
+    amountUSD: 129.03,
+    originalAmount: 20000,
+    originalCurrency: 'JPY',
+    category: 'transport',
+    date: '2026-03-16',
+    paidBy: 'Donauro Emmanuel Castro',
+    splitWith: ['Robinson Josué Castro', 'Viajero 3', 'Viajero 4'],
+    paymentMethod: 'cash',
+    notes: 'Cargado en efectivo Yenes para desplazamientos locales.',
+    location: 'Tokio, Japón'
+  },
+  {
+    id: 'exp-asia-8',
+    tripId: 'trip-asia-2026',
+    title: 'Cena BBQ Coreana Tradicional & Comida de Calle Myeongdong',
+    amountUSD: 118.51,
+    originalAmount: 160000,
+    originalCurrency: 'KRW',
+    category: 'food',
+    date: '2026-03-23',
+    paidBy: 'Donauro Emmanuel Castro',
+    splitWith: ['Robinson Josué Castro', 'Viajero 3', 'Viajero 4'],
+    paymentMethod: 'cash',
+    notes: 'Cena para el grupo de 4 en Seúl.',
+    location: 'Myeongdong, Seúl'
+  }
+];
+

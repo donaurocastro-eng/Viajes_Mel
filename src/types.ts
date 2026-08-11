@@ -97,6 +97,29 @@ export interface Activity {
   priority: 'high' | 'medium' | 'low';
 }
 
+export interface GroundTransferStep {
+  id: string;
+  stepNumber: number;
+  instruction: string;
+  mode: 'walk' | 'bus' | 'subway' | 'train' | 'shinkansen' | 'taxi' | 'other';
+  durationOrDistance?: string;
+  lineOrService?: string;
+  notes?: string;
+}
+
+export interface GroundTransfer {
+  id: string;
+  tripId: string;
+  title: string;
+  fromLocation: string;
+  toLocation: string;
+  estimatedDuration?: string;
+  transportModes: ('walk' | 'bus' | 'subway' | 'train' | 'shinkansen' | 'taxi')[];
+  steps: GroundTransferStep[];
+  qrTickets?: QrTicket[];
+  notes?: string;
+}
+
 export interface WhatsAppLog {
   id: string;
   tripId: string;
@@ -120,4 +143,23 @@ export interface SupabaseConfig {
   supabaseUrl: string;
   supabaseKey: string;
   isConnected: boolean;
+}
+
+export type ExpenseCategory = 'flight' | 'accommodation' | 'food' | 'transport' | 'activities' | 'shopping' | 'other';
+export type PaymentMethod = 'credit_card' | 'debit_card' | 'cash' | 'transfer';
+
+export interface Expense {
+  id: string;
+  tripId: string;
+  title: string;
+  amountUSD: number;
+  originalAmount?: number;
+  originalCurrency?: 'USD' | 'JPY' | 'KRW' | 'THB' | 'HNL' | 'EUR';
+  category: ExpenseCategory;
+  date: string;
+  paidBy: string;
+  splitWith?: string[];
+  paymentMethod?: PaymentMethod;
+  notes?: string;
+  location?: string;
 }

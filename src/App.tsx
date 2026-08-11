@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Trip, Flight, Reservation, Activity, WhatsAppLog, WhatsAppConfig, SupabaseConfig, FlightStatus, BoardingPassAttachment } from './types';
-import { initialTrips, initialFlights, initialReservations, initialActivities, initialWhatsAppLogs } from './data/mockData';
+import { Trip, Flight, Reservation, Activity, WhatsAppLog, WhatsAppConfig, SupabaseConfig, FlightStatus, BoardingPassAttachment, GroundTransfer, Expense } from './types';
+import { initialTrips, initialFlights, initialReservations, initialActivities, initialWhatsAppLogs, initialGroundTransfers, initialExpenses } from './data/mockData';
 import { Navbar } from './components/Navbar';
 import { TripHeader } from './components/TripHeader';
 import { TripsMenuView } from './components/TripsMenuView';
 import { ItineraryView } from './components/ItineraryView';
 import { FlightsView } from './components/FlightsView';
+import { TransfersView } from './components/TransfersView';
+import { ExpensesView } from './components/ExpensesView';
+import { RouteMapView } from './components/RouteMapView';
 import { ReservationsView } from './components/ReservationsView';
 import { ActivitiesView } from './components/ActivitiesView';
 import { WhatsAppCenter } from './components/WhatsAppCenter';
@@ -104,6 +107,36 @@ export default function App() {
     }
   });
 
+  const [groundTransfers, setGroundTransfers] = useState<GroundTransfer[]>(() => {
+    try {
+      const saved = localStorage.getItem('viajeflow_ground_transfers_v1');
+      if (saved) {
+        const parsed: GroundTransfer[] = JSON.parse(saved);
+        const existingIds = new Set(parsed.map(g => g.id));
+        const missingAsia = initialGroundTransfers.filter(g => g.tripId === 'trip-asia-2026' && !existingIds.has(g.id));
+        return [...missingAsia, ...parsed];
+      }
+      return initialGroundTransfers;
+    } catch {
+      return initialGroundTransfers;
+    }
+  });
+
+  const [expenses, setExpenses] = useState<Expense[]>(() => {
+    try {
+      const saved = localStorage.getItem('viajeflow_expenses_v2');
+      if (saved) {
+        const parsed: Expense[] = JSON.parse(saved);
+        const existingIds = new Set(parsed.map(e => e.id));
+        const missingAsia = initialExpenses.filter(e => e.tripId === 'trip-asia-2026' && !existingIds.has(e.id));
+        return [...missingAsia, ...parsed];
+      }
+      return initialExpenses;
+    } catch {
+      return initialExpenses;
+    }
+  });
+
   const [whatsAppConfig, setWhatsAppConfig] = useState<WhatsAppConfig>(getSavedWhatsAppConfig);
   const [supabaseConfig, setSupabaseConfig] = useState<SupabaseConfig>(getSavedSupabaseConfig);
 
@@ -140,6 +173,41 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('viajeflow_activities_v1', JSON.stringify(activities));
   }, [activities]);
+
+  useEffect(() => {
+    localStorage.setItem('viajeflow_ground_transfers_v1', JSON.stringify(groundTransfers));
+  }, [groundTransfers]);
+
+  useEffect(() => {
+    localStorage.setItem('viajeflow_expenses_v2', JSON.stringify(expenses));
+  }, [expenses]);
+
+  const handleAddTransfer = (newTransfer: GroundTransfer) => {
+    setGroundTransfers((prev) => [newTransfer, ...prev]);
+    triggerToast(`🚌 Trayecto "${newTransfer.title}" agregado exitosamente.`);
+  };
+
+  const handleDeleteTransfer = (id: string) => {
+    setGroundTransfers((prev) => prev.filter((g) => g.id !== id));
+    triggerToast(`🗑️ Trayecto eliminado.`);
+  };
+
+  const handleAddExpense = (newExpense: Expense) => {
+    setExpenses((prev) => [newExpense, ...prev]);
+    triggerToast(`💵 Gasto "${newExpense.title}" ($${newExpense.amountUSD.toFixed(2)} USD) registrado.`);
+  };
+
+  const handleDeleteExpense = (id: string) => {
+    setExpenses((prev) => prev.filter((e) => e.id !== id));
+    triggerToast(`🗑️ Gasto eliminado.`);
+  };
+
+  const handleUpdateTripBudget = (tripId: string, newBudget: number) => {
+    setTrips((prev) =>
+      prev.map((t) => (t.id === tripId ? { ...t, budgetTotal: newBudget } : t))
+    );
+    triggerToast(`📊 Presupuesto del viaje actualizado a $${newBudget.toLocaleString('en-US')} USD.`);
+  };
 
   useEffect(() => {
     localStorage.setItem('viajeflow_walogs_v1', JSON.stringify(whatsAppLogs));
@@ -447,6 +515,39 @@ export default function App() {
                 onNotifyDelayWhatsApp={handleNotifyDelay}
                 onUploadBoardingPass={handleUploadBoardingPass}
                 onDeleteBoardingPass={handleDeleteBoardingPass}
+              />
+            )}
+
+            {activeTab === 'transfers' && (
+              <TransfersView
+                trip={activeTrip}
+                groundTransfers={groundTransfers}
+                onAddTransfer={handleAddTransfer}
+                onDeleteTransfer={handleDeleteTransfer}
+                onNotifyWhatsAppMessage={(msg) => dispatchWhatsAppMessage(msg, 'custom')}
+              />
+            )}
+
+            {activeTab === 'expenses' && (
+              <ExpensesView
+                trip={activeTrip}
+                expenses={expenses}
+                onAddExpense={handleAddExpense}
+                onDeleteExpense={handleDeleteExpense}
+                onUpdateTripBudget={handleUpdateTripBudget}
+                onNotifyWhatsAppMessage={(msg) => dispatchWhatsAppMessage(msg, 'custom')}
+              />
+            )}
+
+            {activeTab === 'route_map' && (
+              <RouteMapView
+                trip={activeTrip}
+                flights={flights}
+                activities={activities}
+                reservations={reservations}
+                onUpdateFlightStatus={handleUpdateFlightStatus}
+                onToggleActivity={handleToggleActivity}
+                onNotifyWhatsAppMessage={(msg) => dispatchWhatsAppMessage(msg, 'itinerary_update')}
               />
             )}
 

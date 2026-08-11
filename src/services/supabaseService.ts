@@ -13,8 +13,8 @@ export function getSavedSupabaseConfig(): SupabaseConfig {
     console.error('Error reading Supabase config', e);
   }
   return {
-    supabaseUrl: import.meta.env.VITE_SUPABASE_URL || '',
-    supabaseKey: import.meta.env.VITE_SUPABASE_ANON_KEY || '',
+    supabaseUrl: (import.meta as any).env?.VITE_SUPABASE_URL || '',
+    supabaseKey: (import.meta as any).env?.VITE_SUPABASE_ANON_KEY || '',
     isConnected: false,
   };
 }
