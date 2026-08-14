@@ -400,14 +400,28 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
             </div>
 
             <div className="flex items-center justify-between text-[11px] text-slate-400">
-              <span>{pendingCount} tareas pendientes</span>
+              <button
+                type="button"
+                onClick={() => setStatusFilter('pending')}
+                className="hover:text-amber-300 transition-colors flex items-center gap-1 font-semibold text-left"
+              >
+                <Clock className="w-3 h-3 text-amber-400" />
+                <span>{pendingCount} tareas pendientes</span>
+              </button>
               <span>{isEssentialDone ? '⭐ ¡Todos los imprescindibles completados!' : `Faltan ${essentialTotal - essentialCompleted} imprescindibles`}</span>
             </div>
           </div>
 
           {/* Quick Metrics Badges */}
           <div className="grid grid-cols-2 gap-2 border-t md:border-t-0 md:border-l border-slate-800 pt-3 md:pt-0 md:pl-4">
-            <div className={`p-2.5 rounded-xl border ${isEssentialDone ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300' : 'bg-amber-950/40 border-amber-500/40 text-amber-300'}`}>
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedImportance('imprescindible');
+                setStatusFilter('all');
+              }}
+              className={`p-2.5 rounded-xl border text-left transition-all hover:scale-[1.02] ${isEssentialDone ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300' : 'bg-amber-950/40 border-amber-500/40 text-amber-300'}`}
+            >
               <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-wider">
                 <span>Imprescindibles</span>
                 <Star className="w-3 h-3 fill-current" />
@@ -415,9 +429,16 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
               <p className="text-base font-black font-mono mt-0.5">
                 {essentialCompleted} / {essentialTotal}
               </p>
-            </div>
+            </button>
 
-            <div className="p-2.5 rounded-xl border bg-slate-900 border-slate-800 text-slate-300">
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedImportance('recomendable');
+                setStatusFilter('all');
+              }}
+              className="p-2.5 rounded-xl border bg-slate-900 border-slate-800 text-slate-300 text-left transition-all hover:scale-[1.02] hover:border-slate-700"
+            >
               <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-slate-400">
                 <span>Recomendables</span>
                 <Info className="w-3 h-3 text-cyan-400" />
@@ -425,13 +446,92 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
               <p className="text-base font-black font-mono mt-0.5 text-white">
                 {recommendedCompleted} / {recommendedTotal}
               </p>
-            </div>
+            </button>
           </div>
         </div>
       </div>
 
       {/* Category Pills & Filters */}
       <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 space-y-4">
+        {/* Main Status Toggle (Todas / Pendientes / Realizadas) */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-950 p-2.5 rounded-2xl border border-slate-800 shadow-inner">
+          <div className="flex items-center gap-1.5 p-1 bg-slate-900/90 rounded-xl border border-slate-800/80 w-full sm:w-auto">
+            <button
+              type="button"
+              onClick={() => setStatusFilter('all')}
+              className={`flex-1 sm:flex-none flex items-center justify-center space-x-1.5 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+                statusFilter === 'all'
+                  ? 'bg-slate-700 text-white shadow-md'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+              }`}
+            >
+              <Layers className="w-3.5 h-3.5" />
+              <span>Todas</span>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono ml-1 ${
+                statusFilter === 'all' ? 'bg-slate-900 text-white' : 'bg-slate-800 text-slate-400'
+              }`}>
+                {totalCount}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setStatusFilter('pending')}
+              className={`flex-1 sm:flex-none flex items-center justify-center space-x-1.5 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+                statusFilter === 'pending'
+                  ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black shadow-md shadow-amber-500/20'
+                  : 'text-amber-400/90 hover:text-amber-300 hover:bg-amber-500/10'
+              }`}
+            >
+              <Clock className="w-3.5 h-3.5" />
+              <span>⏳ Pendientes</span>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono ml-1 font-extrabold ${
+                statusFilter === 'pending' ? 'bg-slate-950 text-amber-300' : 'bg-amber-500/20 text-amber-300'
+              }`}>
+                {pendingCount}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setStatusFilter('completed')}
+              className={`flex-1 sm:flex-none flex items-center justify-center space-x-1.5 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+                statusFilter === 'completed'
+                  ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black shadow-md shadow-emerald-500/20'
+                  : 'text-emerald-400/90 hover:text-emerald-300 hover:bg-emerald-500/10'
+              }`}
+            >
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>✅ Realizadas</span>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono ml-1 font-extrabold ${
+                statusFilter === 'completed' ? 'bg-slate-950 text-emerald-300' : 'bg-emerald-500/20 text-emerald-300'
+              }`}>
+                {completedCount}
+              </span>
+            </button>
+          </div>
+
+          <div className="flex items-center justify-between sm:justify-end gap-2 text-xs px-2">
+            {statusFilter === 'pending' && (
+              <span className="text-amber-400 flex items-center gap-1.5 font-medium text-[11px] bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/20">
+                <Clock className="w-3.5 h-3.5 animate-pulse" />
+                <span>Mostrando {pendingCount} ítems por empacar/hacer</span>
+              </span>
+            )}
+            {statusFilter === 'completed' && (
+              <span className="text-emerald-400 flex items-center gap-1.5 font-medium text-[11px] bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Mostrando {completedCount} ítems completados</span>
+              </span>
+            )}
+            {statusFilter === 'all' && (
+              <span className="text-slate-400 text-[11px]">
+                {completedCount} de {totalCount} completadas
+              </span>
+            )}
+          </div>
+        </div>
+
         {/* Category Navigation Bar */}
         <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
           <button
@@ -539,11 +639,62 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
       <div className="space-y-6">
         {filteredItems.length === 0 ? (
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center space-y-3">
-            <CheckCircle2 className="w-10 h-10 text-emerald-400 mx-auto" />
-            <h3 className="text-sm font-bold text-white">No se encontraron tareas con estos filtros</h3>
-            <p className="text-xs text-slate-400 max-w-sm mx-auto">
-              Intenta cambiar los filtros seleccionados o añade un nuevo ítem a la lista de verificación.
-            </p>
+            {statusFilter === 'pending' ? (
+              <>
+                <div className="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto border border-emerald-500/30">
+                  <CheckCircle2 className="w-6 h-6" />
+                </div>
+                <h3 className="text-sm font-bold text-white">🎉 ¡Excelente! No tienes tareas pendientes</h3>
+                <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                  Has completado todas las tareas correspondientes a este filtro. Cambia a "Todas" o "Realizadas" para revisar.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setStatusFilter('all')}
+                  className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl border border-slate-700 transition-all"
+                >
+                  Ver Todas las Tareas
+                </button>
+              </>
+            ) : statusFilter === 'completed' ? (
+              <>
+                <div className="w-12 h-12 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto border border-amber-500/30">
+                  <Clock className="w-6 h-6" />
+                </div>
+                <h3 className="text-sm font-bold text-white">Aún no hay tareas marcadas como realizadas</h3>
+                <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                  A medida que empaques o prepares tus cosas, haz clic en el círculo de cada ítem para marcarlo como listo.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setStatusFilter('pending')}
+                  className="px-3.5 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs font-bold rounded-xl border border-amber-500/30 transition-all"
+                >
+                  Ver Tareas Pendientes
+                </button>
+              </>
+            ) : (
+              <>
+                <Search className="w-10 h-10 text-slate-500 mx-auto" />
+                <h3 className="text-sm font-bold text-white">No se encontraron tareas con estos filtros</h3>
+                <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                  Intenta cambiar los filtros seleccionados o añade un nuevo ítem a la lista de verificación.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedCategory('all');
+                    setSelectedImportance('all');
+                    setSelectedTraveler('all');
+                    setStatusFilter('all');
+                    setSearchQuery('');
+                  }}
+                  className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl border border-slate-700 transition-all"
+                >
+                  Restablecer Filtros
+                </button>
+              </>
+            )}
           </div>
         ) : (
           <>
