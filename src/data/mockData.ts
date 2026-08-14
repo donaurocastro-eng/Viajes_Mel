@@ -1778,7 +1778,7 @@ export const initialChecklistItems: ChecklistItem[] = [
     category: 'documentation',
     importance: 'imprescindible',
     title: 'Pasaporte Donauro Emmanuel Castro (F847292)',
-    description: 'Pasaporte Hondureño No. F847292 | Emisión: 18 OCT 2016 | Vencimiento: 18 OCT 2028 (Vigente durante todo el viaje).',
+    description: 'Pasaporte Hondureño No. F847292 | Emisión: 18 OCT 2018 | Vencimiento: 18 OCT 2028 (Vigente durante todo el viaje).',
     completed: true,
     assignedTo: 'Donauro Emmanuel Castro',
     notes: 'ID: 0801-1971-03153 | Nacimiento: 03 JUN 1971 | Emisor: Instituto Nacional de Migración Honduras.'

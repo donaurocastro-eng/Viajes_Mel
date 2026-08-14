@@ -299,7 +299,7 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
               </div>
               <div className="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
                 <span className="text-[10px] text-slate-400 block font-semibold">Fecha de Emisión</span>
-                <span className="font-mono font-bold text-amber-300">18 OCT 2016</span>
+                <span className="font-mono font-bold text-amber-300">18 OCT 2018</span>
               </div>
               <div className="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
                 <span className="text-[10px] text-slate-400 block font-semibold">Fecha de Vencimiento</span>
