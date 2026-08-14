@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Trip, Flight, Reservation, Activity, WhatsAppLog, WhatsAppConfig, SupabaseConfig, FlightStatus, BoardingPassAttachment, GroundTransfer, Expense } from './types';
-import { initialTrips, initialFlights, initialReservations, initialActivities, initialWhatsAppLogs, initialGroundTransfers, initialExpenses } from './data/mockData';
+import { Trip, Flight, Reservation, Activity, WhatsAppLog, WhatsAppConfig, SupabaseConfig, FlightStatus, BoardingPassAttachment, GroundTransfer, Expense, ChecklistItem } from './types';
+import { initialTrips, initialFlights, initialReservations, initialActivities, initialWhatsAppLogs, initialGroundTransfers, initialExpenses, initialChecklistItems } from './data/mockData';
 import { Navbar } from './components/Navbar';
 import { TripHeader } from './components/TripHeader';
 import { TripsMenuView } from './components/TripsMenuView';
@@ -8,6 +8,7 @@ import { ItineraryView } from './components/ItineraryView';
 import { FlightsView } from './components/FlightsView';
 import { TransfersView } from './components/TransfersView';
 import { ExpensesView } from './components/ExpensesView';
+import { ChecklistView } from './components/ChecklistView';
 import { RouteMapView } from './components/RouteMapView';
 import { ReservationsView } from './components/ReservationsView';
 import { ActivitiesView } from './components/ActivitiesView';
@@ -138,6 +139,21 @@ export default function App() {
     }
   });
 
+  const [checklistItems, setChecklistItems] = useState<ChecklistItem[]>(() => {
+    try {
+      const saved = localStorage.getItem('viajeflow_checklist_v3');
+      if (saved) {
+        const parsed: ChecklistItem[] = JSON.parse(saved);
+        const existingIds = new Set(parsed.map(i => i.id));
+        const missingAsia = initialChecklistItems.filter(i => i.tripId === 'trip-asia-2026' && !existingIds.has(i.id));
+        return [...missingAsia, ...parsed];
+      }
+      return initialChecklistItems;
+    } catch {
+      return initialChecklistItems;
+    }
+  });
+
   const [whatsAppConfig, setWhatsAppConfig] = useState<WhatsAppConfig>(getSavedWhatsAppConfig);
   const [supabaseConfig, setSupabaseConfig] = useState<SupabaseConfig>(getSavedSupabaseConfig);
 
@@ -183,6 +199,46 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('viajeflow_expenses_v2', JSON.stringify(expenses));
   }, [expenses]);
+
+  useEffect(() => {
+    localStorage.setItem('viajeflow_checklist_v3', JSON.stringify(checklistItems));
+  }, [checklistItems]);
+
+  const handleToggleChecklistItem = (id: string) => {
+    setChecklistItems((prev) =>
+      prev.map((item) => {
+        if (item.id === id) {
+          const nextStatus = !item.completed;
+          triggerToast(
+            nextStatus
+              ? `✅ Tarea "${item.title}" marcada como completada.`
+              : `⏳ Tarea "${item.title}" marcada como pendiente.`
+          );
+          return { ...item, completed: nextStatus };
+        }
+        return item;
+      })
+    );
+  };
+
+  const handleAddChecklistItem = (newItem: ChecklistItem) => {
+    setChecklistItems((prev) => [newItem, ...prev]);
+    triggerToast(`📋 Tarea "${newItem.title}" agregada al checklist.`);
+  };
+
+  const handleDeleteChecklistItem = (id: string) => {
+    setChecklistItems((prev) => prev.filter((item) => item.id !== id));
+    triggerToast(`🗑️ Tarea eliminada del checklist.`);
+  };
+
+  const handleResetChecklistItems = (tripId: string) => {
+    const defaultForTrip = initialChecklistItems.filter((i) => i.tripId === tripId);
+    setChecklistItems((prev) => [
+      ...prev.filter((i) => i.tripId !== tripId),
+      ...defaultForTrip
+    ]);
+    triggerToast(`🔄 Checklist restaurado a valores iniciales.`);
+  };
 
   const handleAddTransfer = (newTransfer: GroundTransfer) => {
     setGroundTransfers((prev) => [newTransfer, ...prev]);
@@ -538,6 +594,18 @@ export default function App() {
                 onAddExpense={handleAddExpense}
                 onDeleteExpense={handleDeleteExpense}
                 onUpdateTripBudget={handleUpdateTripBudget}
+                onNotifyWhatsAppMessage={(msg) => dispatchWhatsAppMessage(msg, 'custom')}
+              />
+            )}
+
+            {activeTab === 'checklist' && (
+              <ChecklistView
+                trip={activeTrip}
+                checklistItems={checklistItems}
+                onToggleItem={handleToggleChecklistItem}
+                onAddItem={handleAddChecklistItem}
+                onDeleteItem={handleDeleteChecklistItem}
+                onResetItems={handleResetChecklistItems}
                 onNotifyWhatsAppMessage={(msg) => dispatchWhatsAppMessage(msg, 'custom')}
               />
             )}

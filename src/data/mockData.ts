@@ -1,4 +1,4 @@
-import { Trip, Flight, Reservation, Activity, WhatsAppLog, GroundTransfer, Expense } from '../types';
+import { Trip, Flight, Reservation, Activity, WhatsAppLog, GroundTransfer, Expense, ChecklistItem } from '../types';
 
 export const initialTrips: Trip[] = [
   {
@@ -1769,4 +1769,341 @@ export const initialExpenses: Expense[] = [
     location: 'Myeongdong, Seúl'
   }
 ];
+
+export const initialChecklistItems: ChecklistItem[] = [
+  // --- DOCUMENTACIÓN: Imprescindible ---
+  {
+    id: 'chk-doc-1',
+    tripId: 'trip-asia-2026',
+    category: 'documentation',
+    importance: 'imprescindible',
+    title: 'Pasaporte Donauro Emmanuel Castro (F847292)',
+    description: 'Pasaporte Hondureño No. F847292 | Emisión: 18 OCT 2016 | Vencimiento: 18 OCT 2028 (Vigente durante todo el viaje).',
+    completed: true,
+    assignedTo: 'Donauro Emmanuel Castro',
+    notes: 'ID: 0801-1971-03153 | Nacimiento: 03 JUN 1971 | Emisor: Instituto Nacional de Migración Honduras.'
+  },
+  {
+    id: 'chk-doc-1-nohemy',
+    tripId: 'trip-asia-2026',
+    category: 'documentation',
+    importance: 'imprescindible',
+    title: 'Pasaporte Nohemy Maria Israel (642491797)',
+    description: 'Pasaporte Estadounidense (USA) No. 642491797 | Emisión: 02 NOV 2018 | Vencimiento: 01 NOV 2028 (Vigente durante todo el viaje).',
+    completed: true,
+    assignedTo: 'Maria Nohemy Israel',
+    notes: 'Nacimiento: 01 DEC 1947 | Lugar: Honduras | Emisor: United States Department of State.'
+  },
+  {
+    id: 'chk-doc-1b',
+    tripId: 'trip-asia-2026',
+    category: 'documentation',
+    importance: 'imprescindible',
+    title: 'Pasaportes de Robinson Josue y Robinson Castro (Vigencia +6 meses)',
+    description: 'Verificar pasaportes de Robinson Josue Castro y Robinson Castro.',
+    completed: true,
+    assignedTo: 'Todos',
+    notes: 'Requisito de 6 meses de vigencia mínima para entrar a Japón, Corea y Tailandia.'
+  },
+  {
+    id: 'chk-doc-2',
+    tripId: 'trip-asia-2026',
+    category: 'documentation',
+    importance: 'imprescindible',
+    title: 'Visado (si es necesario)',
+    description: 'Requisitos de visado / K-ETA / ESTA de tránsito según nacionalidad y pasaporte.',
+    completed: true,
+    assignedTo: 'Todos',
+    notes: 'Revisar autorizaciones de viaje vigentes.'
+  },
+  {
+    id: 'chk-doc-3',
+    tripId: 'trip-asia-2026',
+    category: 'documentation',
+    importance: 'imprescindible',
+    title: 'Documento de identidad (DNI, carnet de conducir)',
+    description: 'DNI / Identificación nacional y licencia de conducir vigente para trámites complementarios.',
+    completed: false,
+    assignedTo: 'Todos',
+    notes: 'Llevar en la billetera de mano.'
+  },
+  {
+    id: 'chk-doc-4',
+    tripId: 'trip-asia-2026',
+    category: 'documentation',
+    importance: 'imprescindible',
+    title: 'Billete de avión / tren / autobús',
+    description: 'Boletos de United Airlines, Jeju Air, Vietjet Air, Shinkansen Nozomi y Expreso AREX.',
+    completed: true,
+    assignedTo: 'Todos',
+    notes: 'Disponibles en el módulo de Vuelos y Trayectos de ViajeFlow.'
+  },
+  {
+    id: 'chk-doc-5',
+    tripId: 'trip-asia-2026',
+    category: 'documentation',
+    importance: 'imprescindible',
+    title: 'Token BAC',
+    description: 'Dispositivo o app Token BAC activa para autorizar transferencias, compras y desbloqueos bancarios.',
+    completed: false,
+    assignedTo: 'Donauro Emmanuel Castro',
+    notes: 'Verificar batería y sincronización de la app BAC antes de salir.'
+  },
+  {
+    id: 'chk-doc-6',
+    tripId: 'trip-asia-2026',
+    category: 'documentation',
+    importance: 'imprescindible',
+    title: 'Seguro de viaje (impreso o en el móvil)',
+    description: 'Póliza de asistencia médica y cobertura internacional de viaje con teléfonos de emergencia.',
+    completed: true,
+    assignedTo: 'Todos',
+    notes: 'Guardar copia PDF offline en el celular.'
+  },
+  // --- DOCUMENTACIÓN: Recomendable ---
+  {
+    id: 'chk-doc-7',
+    tripId: 'trip-asia-2026',
+    category: 'documentation',
+    importance: 'recomendable',
+    title: 'Fotocopias de todos los documentos importantes',
+    description: 'Guardadas en lugar seguro físico y en la nube (Google Drive / iCloud / email).',
+    completed: false,
+    assignedTo: 'Todos',
+    notes: 'Pasaportes, visas, reservas y tarjetas.'
+  },
+  {
+    id: 'chk-doc-8',
+    tripId: 'trip-asia-2026',
+    category: 'documentation',
+    importance: 'recomendable',
+    title: 'Números de contacto de embajadas y consulados',
+    description: 'Directorio consular de Honduras / EE.UU. en Japón, Corea del Sur y Tailandia.',
+    completed: false,
+    assignedTo: 'Todos',
+    notes: 'Anotar en notas del teléfono o libreta de viaje.'
+  },
+  {
+    id: 'chk-doc-9',
+    tripId: 'trip-asia-2026',
+    category: 'documentation',
+    importance: 'recomendable',
+    title: 'Información de contacto de tu seguro de viaje',
+    description: 'Línea de emergencia 24/7 y número de póliza accesible sin conexión a internet.',
+    completed: true,
+    assignedTo: 'Todos',
+    notes: 'Anotado en libreta de contactos rápidos.'
+  },
+
+  // --- DINERO: Imprescindible ---
+  {
+    id: 'chk-mon-1',
+    tripId: 'trip-asia-2026',
+    category: 'money',
+    importance: 'imprescindible',
+    title: 'Dinero en efectivo (moneda local del destino)',
+    description: 'Dólares (USD), Yenes (JPY), Wones (KRW) y Bahts (THB) para transporte, comida callejera y propinas.',
+    completed: false,
+    assignedTo: 'Todos',
+    notes: 'Retirar en cajeros 7-Eleven en Japón / Aeropuertos.'
+  },
+  {
+    id: 'chk-mon-2',
+    tripId: 'trip-asia-2026',
+    category: 'money',
+    importance: 'imprescindible',
+    title: 'Tarjetas de crédito/débito (avisar al banco que viajarás)',
+    description: 'Notificar viaje internacional a BAC y bancos emisores para evitar bloqueos por seguridad.',
+    completed: false,
+    assignedTo: 'Todos',
+    notes: 'Activar compras en el extranjero para Japón, Corea y Tailandia.'
+  },
+  // --- DINERO: Recomendable ---
+  {
+    id: 'chk-mon-3',
+    tripId: 'trip-asia-2026',
+    category: 'money',
+    importance: 'recomendable',
+    title: 'Tarjeta de viaje prepago',
+    description: 'Tarjeta internacional multi-moneda (Wise, Revolut u otra tarjeta prepago secundaria).',
+    completed: false,
+    assignedTo: 'Donauro Emmanuel Castro',
+    notes: 'Útil como respaldo de seguridad.'
+  },
+  {
+    id: 'chk-mon-4',
+    tripId: 'trip-asia-2026',
+    category: 'money',
+    importance: 'recomendable',
+    title: 'Algo de dinero en efectivo en tu moneda local',
+    description: 'Lempiras (HNL) o dólares para gastos iniciales en traslados de salida y regreso.',
+    completed: true,
+    assignedTo: 'Todos',
+    notes: 'Para transporte al aeropuerto en Honduras / SAT.'
+  },
+
+  // --- ELECTRÓNICA: Imprescindible ---
+  {
+    id: 'chk-ele-1',
+    tripId: 'trip-asia-2026',
+    category: 'electronics',
+    importance: 'imprescindible',
+    title: 'Móvil y cargador',
+    description: 'Smartphones de cada viajero con cargadores rápidos y cables reforzados USB-C / Lightning.',
+    completed: true,
+    assignedTo: 'Todos',
+    notes: 'Cargadores en equipaje de mano.'
+  },
+  {
+    id: 'chk-ele-2',
+    tripId: 'trip-asia-2026',
+    category: 'electronics',
+    importance: 'imprescindible',
+    title: 'Auriculares',
+    description: 'Auriculares (de preferencia con cancelación de ruido) para los vuelos transpacíficos largos.',
+    completed: true,
+    assignedTo: 'Todos',
+    notes: 'Adaptador jack 3.5mm para entretenimiento a bordo si aplica.'
+  },
+  {
+    id: 'chk-ele-3',
+    tripId: 'trip-asia-2026',
+    category: 'electronics',
+    importance: 'imprescindible',
+    title: 'Batería externa para el móvil (Power Bank)',
+    description: 'Power bank de 10,000 - 20,000 mAh (OBLIGATORIO llevar en equipaje de mano, prohibido en bodega).',
+    completed: false,
+    assignedTo: 'Todos',
+    notes: 'Máximo 100Wh según regulaciones IATA de aerolíneas.'
+  },
+
+  // --- ROPA Y CALZADO: Imprescindible ---
+  {
+    id: 'chk-clo-1',
+    tripId: 'trip-asia-2026',
+    category: 'clothing',
+    importance: 'imprescindible',
+    title: 'Ropa adecuada al clima del destino',
+    description: 'Prendas transpirables y capas ligeras para el verano/otoño asiático (Japón, Seúl y clima cálido en Tailandia).',
+    completed: false,
+    assignedTo: 'Todos',
+    notes: 'Prendas respetuosas para visitar templos en Kioto, Seúl y Bangkok.'
+  },
+  {
+    id: 'chk-clo-2',
+    tripId: 'trip-asia-2026',
+    category: 'clothing',
+    importance: 'imprescindible',
+    title: 'Calzado cómodo para caminar',
+    description: 'Zapatillas deportivas o calzado ergonómico (se caminan de 15,000 a 25,000 pasos diarios en Tokio y Seúl).',
+    completed: true,
+    assignedTo: 'Todos',
+    notes: 'Fáciles de quitar y poner para ingresar a templos y restaurantes tradicionales.'
+  },
+  {
+    id: 'chk-clo-3',
+    tripId: 'trip-asia-2026',
+    category: 'clothing',
+    importance: 'imprescindible',
+    title: 'Chubasquero o impermeable (si vas a un lugar lluvioso)',
+    description: 'Chaqueta impermeable ligera o poncho compacto para lloviznas de temporada.',
+    completed: false,
+    assignedTo: 'Todos',
+    notes: 'Llevar en la mochila de día.'
+  },
+
+  // --- HIGIENE PERSONAL: Imprescindible ---
+  {
+    id: 'chk-hyg-1',
+    tripId: 'trip-asia-2026',
+    category: 'hygiene',
+    importance: 'imprescindible',
+    title: 'Cepillo de dientes y pasta dental',
+    description: 'Kit de higiene bucal para viajes y vuelos largos (tamaño de líquidos <100ml para mano).',
+    completed: true,
+    assignedTo: 'Todos',
+    notes: 'En estuche impermeable.'
+  },
+  {
+    id: 'chk-hyg-2',
+    tripId: 'trip-asia-2026',
+    category: 'hygiene',
+    importance: 'imprescindible',
+    title: 'Desodorante',
+    description: 'Desodorante en barra o roll-on para uso diario y vuelos.',
+    completed: true,
+    assignedTo: 'Todos',
+    notes: 'Llevar en equipaje de mano / neceser personal.'
+  },
+
+  // --- OTROS: Imprescindible ---
+  {
+    id: 'chk-oth-1',
+    tripId: 'trip-asia-2026',
+    category: 'other',
+    importance: 'imprescindible',
+    title: 'Mochila o bolso para llevar tus cosas',
+    description: 'Mochila de día (daypack) cómoda y ligera para paseos diarios por las ciudades.',
+    completed: true,
+    assignedTo: 'Todos',
+    notes: 'Con compartimento para botella de agua y documentos.'
+  },
+  {
+    id: 'chk-oth-2',
+    tripId: 'trip-asia-2026',
+    category: 'other',
+    importance: 'imprescindible',
+    title: 'Gafas de sol',
+    description: 'Protección UV para caminatas al aire libre en templos, parques y traslados.',
+    completed: false,
+    assignedTo: 'Todos',
+    notes: 'Con estuche protector duro.'
+  },
+  // --- OTROS: Recomendable ---
+  {
+    id: 'chk-oth-3',
+    tripId: 'trip-asia-2026',
+    category: 'other',
+    importance: 'recomendable',
+    title: 'Libro o revista para entretenerte',
+    description: 'Lectura o Kindle para las esperas en aeropuertos y trayectos de tren.',
+    completed: false,
+    assignedTo: 'Todos',
+    notes: 'Opcional o contenido descargado en tablet/móvil.'
+  },
+  {
+    id: 'chk-oth-4',
+    tripId: 'trip-asia-2026',
+    category: 'other',
+    importance: 'recomendable',
+    title: 'Tapones para los oídos y antifaz para dormir',
+    description: 'Kit de descanso esencial para dormir en vuelos de más de 12 horas y hoteles.',
+    completed: true,
+    assignedTo: 'Todos',
+    notes: 'Mejora notablemente el descanso contra el jet lag.'
+  },
+  {
+    id: 'chk-oth-5',
+    tripId: 'trip-asia-2026',
+    category: 'other',
+    importance: 'recomendable',
+    title: 'Candado para la maleta (TSA Approved)',
+    description: 'Candado de combinación con estándar TSA para equipaje facturado y lockers.',
+    completed: false,
+    assignedTo: 'Todos',
+    notes: 'Seguridad en traslados y depósitos de maletas.'
+  },
+  {
+    id: 'chk-oth-6',
+    tripId: 'trip-asia-2026',
+    category: 'other',
+    importance: 'recomendable',
+    title: 'Bolsa reutilizable para compras',
+    description: 'Bolsa ecológica plegable para compras en tiendas de conveniencia (Lawson, 7-Eleven) y souvenirs.',
+    completed: true,
+    assignedTo: 'Todos',
+    notes: 'En Japón y Corea cobran las bolsas de plástico.'
+  }
+];
+
 

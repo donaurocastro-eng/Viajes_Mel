@@ -1,6 +1,6 @@
 import React from 'react';
 import { Trip } from '../types';
-import { Plane, Sparkles, Plus, MapPin, Calendar, LayoutGrid, Settings, Smartphone, Globe, Bus, DollarSign, Calculator } from 'lucide-react';
+import { Plane, Sparkles, Plus, MapPin, Calendar, LayoutGrid, Settings, Smartphone, Globe, Bus, DollarSign, Calculator, CheckSquare } from 'lucide-react';
 
 interface NavbarProps {
   trips: Trip[];
@@ -155,6 +155,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   { id: 'flights', label: 'Vuelos y Puertas', icon: Plane },
                   { id: 'transfers', label: 'Trayectos y Conexiones 🚌', icon: Bus },
                   { id: 'expenses', label: 'Control de Gastos 💵', icon: DollarSign },
+                  { id: 'checklist', label: 'Checklist y Tareas 📋', icon: CheckSquare },
                   { id: 'route_map', label: 'Mapa de Ruta Live 🗺️', icon: Globe },
                   { id: 'reservations', label: 'Reservas e HOTELES', icon: MapPin },
                   { id: 'activities', label: 'Actividades y Equipaje', icon: Sparkles },

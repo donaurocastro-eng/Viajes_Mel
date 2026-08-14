@@ -163,3 +163,28 @@ export interface Expense {
   notes?: string;
   location?: string;
 }
+
+export type ChecklistCategory =
+  | 'documentation'
+  | 'money'
+  | 'electronics'
+  | 'clothing'
+  | 'hygiene'
+  | 'other';
+
+export type ChecklistImportance = 'imprescindible' | 'recomendable';
+
+export interface ChecklistItem {
+  id: string;
+  tripId: string;
+  category: ChecklistCategory;
+  importance: ChecklistImportance;
+  title: string;
+  description?: string;
+  completed: boolean;
+  assignedTo?: string; // 'Todos' or specific traveler name
+  dueDate?: string;
+  notes?: string;
+  isCustom?: boolean;
+}
+
