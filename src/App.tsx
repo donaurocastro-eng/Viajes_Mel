@@ -141,7 +141,7 @@ export default function App() {
 
   const [checklistItems, setChecklistItems] = useState<ChecklistItem[]>(() => {
     try {
-      const saved = localStorage.getItem('viajeflow_checklist_v4');
+      const saved = localStorage.getItem('viajeflow_checklist_v5');
       if (saved) {
         const parsed: ChecklistItem[] = JSON.parse(saved);
         const existingIds = new Set(parsed.map(i => i.id));
@@ -201,7 +201,7 @@ export default function App() {
   }, [expenses]);
 
   useEffect(() => {
-    localStorage.setItem('viajeflow_checklist_v4', JSON.stringify(checklistItems));
+    localStorage.setItem('viajeflow_checklist_v5', JSON.stringify(checklistItems));
   }, [checklistItems]);
 
   const handleToggleChecklistItem = (id: string) => {

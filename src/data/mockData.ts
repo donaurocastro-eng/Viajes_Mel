@@ -1795,6 +1795,28 @@ export const initialChecklistItems: ChecklistItem[] = [
     notes: 'Nacimiento: 01 DEC 1947 | Lugar: Honduras | Emisor: United States Department of State.'
   },
   {
+    id: 'chk-doc-thai-visa-donauro',
+    tripId: 'trip-asia-2026',
+    category: 'documentation',
+    importance: 'imprescindible',
+    title: '🇹🇭 Thai E-Visa Aprobada — Donauro Emmanuel Castro (G1939299)',
+    description: 'Visa Electrónica de Tailandia No. G1939299 | Ref: MEX001-202605-5685681 | Tourist TR Single Entry | Válida del 14/08/2026 al 11/11/2026.',
+    completed: true,
+    assignedTo: 'Donauro Emmanuel Castro',
+    notes: 'Pasaporte HND F847292 | Emitida en Ciudad de México el 14/08/2026 | Requerida exclusivamente para pasaporte hondureño.'
+  },
+  {
+    id: 'chk-doc-thai-visa-usa-exempt',
+    tripId: 'trip-asia-2026',
+    category: 'documentation',
+    importance: 'imprescindible',
+    title: '🇹🇭 Exención de Visa Tailandia para Pasaportes USA',
+    description: 'Ciudadanos de EE.UU. (Nohemy Maria Israel, Robinson Josue, Robinson) no requieren visado para turismo (Exención de hasta 60 días).',
+    completed: true,
+    assignedTo: 'Todos',
+    notes: 'Ingreso directo con pasaporte estadounidense vigente por más de 6 meses y boleto de salida.'
+  },
+  {
     id: 'chk-doc-1b',
     tripId: 'trip-asia-2026',
     category: 'documentation',

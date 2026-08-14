@@ -24,7 +24,14 @@ import {
   Layers,
   ChevronDown,
   ChevronUp,
-  Info
+  Info,
+  Eye,
+  Download,
+  X,
+  Printer,
+  QrCode,
+  ExternalLink,
+  ShieldCheck
 } from 'lucide-react';
 
 interface ChecklistViewProps {
@@ -98,6 +105,7 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'completed'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isThaiVisaDocOpen, setIsThaiVisaDocOpen] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
 
   // New Item Form State
@@ -374,6 +382,76 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between text-[10px] text-slate-400 bg-slate-950/60 p-2 rounded-lg border border-slate-800/80 font-mono gap-1">
               <span>MRZ: P&lt;USAISRAEL&lt;&lt;NOHEMY&lt;MARIA&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;</span>
               <span className="text-blue-400 font-semibold">Vigente hasta 01/11/2028 (Amplia vigencia para Asia y EE.UU.)</span>
+            </div>
+          </div>
+
+          {/* Card 3: Thai E-Visa (Donauro Emmanuel Castro) */}
+          <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-amber-950/40 rounded-2xl p-4 border border-amber-500/40 shadow-lg space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-2.5">
+              <div className="flex items-center space-x-2">
+                <div className="p-1.5 bg-amber-500/20 text-amber-300 rounded-lg border border-amber-500/40">
+                  <FileText className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-xs font-black uppercase text-amber-300 tracking-wider flex items-center gap-1.5">
+                    <span>🇹🇭 Documento Oficial Registrado — THAI E-VISA (Visa de Tailandia)</span>
+                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-bold font-mono">
+                      ✓ Aprobada & Válida
+                    </span>
+                  </h3>
+                  <p className="text-[11px] text-slate-400">
+                    Royal Thai Embassy • Place of Issue: Mexico City
+                  </p>
+                </div>
+              </div>
+              <div className="text-right">
+                <span className="text-[10px] font-mono text-slate-400 block">Visa Number / No. de Visa</span>
+                <span className="text-sm font-black font-mono text-amber-300 bg-slate-950 px-2.5 py-1 rounded-lg border border-amber-500/40">
+                  G1939299
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-[11px]">
+              <div className="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
+                <span className="text-[10px] text-slate-400 block font-semibold">Applicant / Titular</span>
+                <span className="font-extrabold text-white">DONAURO EMMANUEL CASTRO MENDOZA</span>
+              </div>
+              <div className="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
+                <span className="text-[10px] text-slate-400 block font-semibold">Passport Linked / Pasaporte</span>
+                <span className="font-mono font-bold text-cyan-300">Honduras • F847292</span>
+              </div>
+              <div className="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
+                <span className="text-[10px] text-slate-400 block font-semibold">Visa Type / Entry</span>
+                <span className="font-mono font-bold text-amber-300">Tourist TR • Single</span>
+              </div>
+              <div className="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
+                <span className="text-[10px] text-slate-400 block font-semibold">Valid From / Emisión</span>
+                <span className="font-mono font-bold text-slate-200">14 AUG 2026</span>
+              </div>
+              <div className="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
+                <span className="text-[10px] text-slate-400 block font-semibold">Valid Until / Vencimiento</span>
+                <span className="font-mono font-bold text-emerald-400">11 NOV 2026</span>
+              </div>
+              <div className="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
+                <span className="text-[10px] text-slate-400 block font-semibold">Transaction Ref.</span>
+                <span className="font-mono font-bold text-slate-300 text-[10px] truncate">MEX001-202605-5685681</span>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between text-[10px] text-slate-400 bg-slate-950/60 p-2.5 rounded-xl border border-slate-800/80 font-mono gap-2">
+              <span className="truncate">Ref: 63DA7TOMG10671692 • Email: donauro.castro@gmail.com</span>
+              <div className="flex items-center gap-2">
+                <span className="text-amber-300 font-semibold hidden md:inline">🇺🇸 Pasaportes USA exentos</span>
+                <button
+                  type="button"
+                  onClick={() => setIsThaiVisaDocOpen(true)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs rounded-lg shadow-md transition-all shrink-0 cursor-pointer"
+                >
+                  <Eye className="w-3.5 h-3.5" />
+                  <span>Ver Documento Oficial Completo (Thai E-Visa)</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -868,6 +946,203 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+      {/* Full Thai E-Visa Official Document Modal */}
+      {isThaiVisaDocOpen && (
+        <div
+          id="modal-thai-evisa-backdrop"
+          className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto"
+          onClick={() => setIsThaiVisaDocOpen(false)}
+        >
+          <div
+            id="modal-thai-evisa-content"
+            className="bg-white text-slate-900 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden border border-slate-300 relative my-auto animate-in fade-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Action Bar Header */}
+            <div className="bg-slate-900 text-white px-5 py-3 flex items-center justify-between border-b border-slate-800">
+              <div className="flex items-center space-x-2">
+                <div className="p-1 bg-amber-500/20 text-amber-300 rounded-lg">
+                  <ShieldCheck className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-xs font-bold text-white tracking-wide">
+                    Documento de Respaldo Oficial — THAI E-VISA
+                  </h3>
+                  <p className="text-[10px] text-slate-400 font-mono">
+                    Royal Thai Embassy • Electronic Visa Confirmation
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition-colors border border-slate-700"
+                  title="Imprimir o Guardar como PDF"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Imprimir / PDF</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsThaiVisaDocOpen(false)}
+                  className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Official Document Body (Exact replica of Thai E-Visa Layout) */}
+            <div className="p-6 sm:p-8 space-y-6 font-sans bg-[#FAFBFD]">
+              {/* Header Title & Thai Emblem */}
+              <div className="flex items-start justify-between border-b-2 border-slate-800 pb-4">
+                <div>
+                  <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-[#0F3668]">
+                    THAI E-VISA
+                  </h1>
+                  <p className="text-xs font-bold text-slate-600 mt-1">
+                    KINGDOM OF THAILAND
+                  </p>
+                </div>
+
+                <div className="flex flex-col items-center">
+                  {/* Garuda Emblem Representation */}
+                  <div className="w-14 h-14 rounded-full bg-slate-100 border border-slate-300 flex items-center justify-center text-slate-800 shadow-inner">
+                    <span className="text-2xl" title="Garuda National Emblem of Thailand">🦅</span>
+                  </div>
+                  <span className="text-[11px] font-bold text-slate-700 mt-1">14 August 2026</span>
+                </div>
+              </div>
+
+              {/* SECTION A: APPLICANT DATA */}
+              <div className="space-y-3">
+                <div className="bg-slate-100 px-3 py-1.5 rounded-lg border-l-4 border-[#0F3668]">
+                  <h2 className="text-xs font-black uppercase text-slate-800 tracking-wider">
+                    A. APPLICANT DATA
+                  </h2>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-xs font-medium pl-2">
+                  <div className="flex justify-between sm:justify-start sm:gap-6 border-b border-slate-200 py-1">
+                    <span className="text-slate-500 w-36">First name :</span>
+                    <span className="font-bold text-slate-900 uppercase">DONAURO</span>
+                  </div>
+                  <div className="flex justify-between sm:justify-start sm:gap-6 border-b border-slate-200 py-1">
+                    <span className="text-slate-500 w-36">Middle name :</span>
+                    <span className="font-bold text-slate-900 uppercase">EMMANUEL</span>
+                  </div>
+                  <div className="flex justify-between sm:justify-start sm:gap-6 border-b border-slate-200 py-1">
+                    <span className="text-slate-500 w-36">Family name :</span>
+                    <span className="font-bold text-slate-900 uppercase">CASTRO MENDOZA</span>
+                  </div>
+                  <div className="flex justify-between sm:justify-start sm:gap-6 border-b border-slate-200 py-1">
+                    <span className="text-slate-500 w-36">Sex :</span>
+                    <span className="font-bold text-slate-900">M</span>
+                  </div>
+                  <div className="flex justify-between sm:justify-start sm:gap-6 border-b border-slate-200 py-1">
+                    <span className="text-slate-500 w-36">Date of birth :</span>
+                    <span className="font-bold text-slate-900">03 June 1971</span>
+                  </div>
+                  <div className="flex justify-between sm:justify-start sm:gap-6 border-b border-slate-200 py-1">
+                    <span className="text-slate-500 w-36">Nationality :</span>
+                    <span className="font-bold text-slate-900">HND (Honduras)</span>
+                  </div>
+                  <div className="flex justify-between sm:justify-start sm:gap-6 border-b border-slate-200 py-1">
+                    <span className="text-slate-500 w-36">Passport / TD :</span>
+                    <span className="font-bold text-slate-900">Honduras</span>
+                  </div>
+                  <div className="flex justify-between sm:justify-start sm:gap-6 border-b border-slate-200 py-1">
+                    <span className="text-slate-500 w-36">Passport / TD number :</span>
+                    <span className="font-bold font-mono text-[#0F3668]">F847292</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* SECTION B: VISA DATA */}
+              <div className="space-y-3">
+                <div className="bg-slate-100 px-3 py-1.5 rounded-lg border-l-4 border-[#0F3668]">
+                  <h2 className="text-xs font-black uppercase text-slate-800 tracking-wider">
+                    B. VISA DATA
+                  </h2>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-xs font-medium pl-2">
+                  <div className="flex justify-between sm:justify-start sm:gap-6 border-b border-slate-200 py-1">
+                    <span className="text-slate-500 w-44">Transaction reference :</span>
+                    <span className="font-mono font-bold text-slate-900">MEX001-202605-5685681</span>
+                  </div>
+                  <div className="flex justify-between sm:justify-start sm:gap-6 border-b border-slate-200 py-1">
+                    <span className="text-slate-500 w-44">Place of issue :</span>
+                    <span className="font-bold text-slate-900">Mexico City</span>
+                  </div>
+                  <div className="flex justify-between sm:justify-start sm:gap-6 border-b border-slate-200 py-1">
+                    <span className="text-slate-500 w-44">Visa number :</span>
+                    <span className="font-mono font-black text-amber-700 text-sm">G1939299</span>
+                  </div>
+                  <div className="flex justify-between sm:justify-start sm:gap-6 border-b border-slate-200 py-1">
+                    <span className="text-slate-500 w-44">Visa type :</span>
+                    <span className="font-bold text-slate-900">Tourist TR</span>
+                  </div>
+                  <div className="flex justify-between sm:justify-start sm:gap-6 border-b border-slate-200 py-1">
+                    <span className="text-slate-500 w-44">No. of Entry :</span>
+                    <span className="font-bold text-slate-900">Single</span>
+                  </div>
+                  <div className="flex justify-between sm:justify-start sm:gap-6 border-b border-slate-200 py-1">
+                    <span className="text-slate-500 w-44">Valid from :</span>
+                    <span className="font-bold text-slate-900">14 August 2026</span>
+                  </div>
+                  <div className="flex justify-between sm:justify-start sm:gap-6 border-b border-slate-200 py-1">
+                    <span className="text-slate-500 w-44">Valid until :</span>
+                    <span className="font-bold font-mono text-emerald-700 bg-emerald-50 px-1.5 rounded">
+                      11 November 2026
+                    </span>
+                  </div>
+                  <div className="flex justify-between sm:justify-start sm:gap-6 border-b border-slate-200 py-1">
+                    <span className="text-slate-500 w-44">Remarks :</span>
+                    <span className="font-bold text-red-600">Employment Prohibited</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Official QR Code & Authentication Footer */}
+              <div className="pt-4 border-t-2 border-slate-300 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200">
+                <div className="text-[11px] text-slate-600 space-y-1 text-center sm:text-left">
+                  <p className="italic">This e-mail was sent to <strong className="text-slate-900">donauro.castro@gmail.com</strong> on 14 August 2026</p>
+                  <p className="font-mono text-[10px] text-slate-500">Security Ref: 63DA7TOMG10671692</p>
+                  <p className="font-mono text-[9px] text-slate-400">G4aK759c7UGCAiU0QI6i1AdqB0Q=</p>
+                </div>
+
+                <div className="flex items-center gap-3 bg-slate-50 p-2.5 rounded-xl border border-slate-300">
+                  <div className="w-20 h-20 bg-slate-900 rounded-lg p-1.5 flex flex-col items-center justify-center text-white shadow">
+                    <QrCode className="w-12 h-12 text-white" />
+                    <span className="text-[7px] font-mono tracking-tighter">OFFICIAL QR</span>
+                  </div>
+                  <div className="text-[10px] text-slate-600 max-w-[130px]">
+                    <span className="font-bold text-slate-900 block">E-Visa Verificada</span>
+                    <span>Código QR oficial para lectura de oficiales de inmigración en Tailandia.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Bottom Footer */}
+            <div className="bg-slate-100 px-6 py-3 border-t border-slate-300 flex items-center justify-between text-xs text-slate-600">
+              <span className="font-medium text-[11px]">
+                🛡️ Respaldo digital seguro guardado en ViajeFlow
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsThaiVisaDocOpen(false)}
+                className="px-4 py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-lg transition-colors"
+              >
+                Cerrar
+              </button>
+            </div>
           </div>
         </div>
       )}
