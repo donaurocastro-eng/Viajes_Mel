@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Flight, Activity, Reservation } from '../types';
+import pacificMapImage from '../assets/images/pacific_route_map_illustrated_1787185092847.jpg';
 import { Plane, MapPin, ExternalLink, Compass, Navigation, Calendar, Hotel, CheckCircle2, Clock } from 'lucide-react';
 
 interface VisualMapViewProps {
@@ -24,14 +25,14 @@ interface DestinationNode {
 }
 
 const DESTINATION_NODES: DestinationNode[] = [
-  { id: 'comayagua', name: 'Comayagua / Tegucigalpa', country: 'Honduras', flag: '🇭🇳', code: 'XPL / TGU', role: 'origin', lat: 14.38, lng: -87.62, xPercent: 24, yPercent: 62 },
-  { id: 'houston', name: 'Houston, Texas', country: 'EE.UU.', flag: '🇺🇸', code: 'IAH', role: 'transit', lat: 29.99, lng: -95.34, xPercent: 22, yPercent: 44 },
-  { id: 'san_antonio', name: 'San Antonio, Texas', country: 'EE.UU.', flag: '🇺🇸', code: 'SAT', role: 'transit', lat: 29.53, lng: -98.47, xPercent: 20, yPercent: 46 },
-  { id: 'san_francisco', name: 'San Francisco, California', country: 'EE.UU.', flag: '🇺🇸', code: 'SFO', role: 'transit', lat: 37.62, lng: -122.38, xPercent: 14, yPercent: 36 },
-  { id: 'osaka', name: 'Osaka / Kioto', country: 'Japón', flag: '🇯🇵', code: 'KIX', role: 'asia_hub', lat: 34.43, lng: 135.23, xPercent: 82, yPercent: 40 },
-  { id: 'tokyo', name: 'Tokio', country: 'Japón', flag: '🇯🇵', code: 'HND / NRT', role: 'asia_hub', lat: 35.55, lng: 139.78, xPercent: 86, yPercent: 38 },
-  { id: 'seoul', name: 'Seúl', country: 'Corea del Sur', flag: '🇰🇷', code: 'ICN', role: 'asia_hub', lat: 37.46, lng: 126.44, xPercent: 78, yPercent: 36 },
-  { id: 'bangkok', name: 'Bangkok', country: 'Tailandia', flag: '🇹🇭', code: 'BKK', role: 'asia_hub', lat: 13.69, lng: 100.75, xPercent: 74, yPercent: 64 },
+  { id: 'comayagua', name: 'Comayagua / Palmerola', country: 'Honduras', flag: '🇭🇳', code: 'XPL / TGU', role: 'origin', lat: 14.38, lng: -87.62, xPercent: 86, yPercent: 58 },
+  { id: 'houston', name: 'Houston, Texas', country: 'EE.UU.', flag: '🇺🇸', code: 'IAH', role: 'transit', lat: 29.99, lng: -95.34, xPercent: 80, yPercent: 44 },
+  { id: 'san_antonio', name: 'San Antonio, Texas', country: 'EE.UU.', flag: '🇺🇸', code: 'SAT', role: 'transit', lat: 29.53, lng: -98.47, xPercent: 77, yPercent: 46 },
+  { id: 'san_francisco', name: 'San Francisco, California', country: 'EE.UU.', flag: '🇺🇸', code: 'SFO', role: 'transit', lat: 37.62, lng: -122.38, xPercent: 68, yPercent: 38 },
+  { id: 'osaka', name: 'Osaka / Kioto', country: 'Japón', flag: '🇯🇵', code: 'KIX', role: 'asia_hub', lat: 34.43, lng: 135.23, xPercent: 26, yPercent: 44 },
+  { id: 'tokyo', name: 'Tokio', country: 'Japón', flag: '🇯🇵', code: 'HND / NRT', role: 'asia_hub', lat: 35.55, lng: 139.78, xPercent: 30, yPercent: 42 },
+  { id: 'seoul', name: 'Seúl', country: 'Corea del Sur', flag: '🇰🇷', code: 'ICN', role: 'asia_hub', lat: 37.46, lng: 126.44, xPercent: 21, yPercent: 39 },
+  { id: 'bangkok', name: 'Bangkok', country: 'Tailandia', flag: '🇹🇭', code: 'BKK', role: 'asia_hub', lat: 13.69, lng: 100.75, xPercent: 13, yPercent: 64 },
 ];
 
 export const VisualMapView: React.FC<VisualMapViewProps> = ({
@@ -152,48 +153,42 @@ export const VisualMapView: React.FC<VisualMapViewProps> = ({
             })}
           </div>
 
-          {/* Interactive World Vector Grid Stage */}
-          <div className="relative w-full h-[420px] bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 rounded-2xl border border-slate-800 overflow-hidden select-none">
-            {/* World Grid & Continents SVG Layer */}
-            <svg className="w-full h-full absolute inset-0 opacity-85" viewBox="0 0 1000 500" preserveAspectRatio="none">
+          {/* Interactive World Vector Grid Stage (Pacific Centered, No Europe) */}
+          <div className="relative w-full h-[420px] bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden select-none">
+            {/* Pacific Vintage Cartographic Map Image (Without Europe) */}
+            <img
+              src={pacificMapImage}
+              alt="Mapa del Pacífico"
+              className="w-full h-full object-cover object-center opacity-85 select-none"
+              referrerPolicy="no-referrer"
+            />
+            {/* Dark gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-slate-950/50 pointer-events-none" />
+
+            {/* Flight Arcs Overlay SVG */}
+            <svg className="w-full h-full absolute inset-0 z-10" viewBox="0 0 1000 500" preserveAspectRatio="none">
               <defs>
-                <pattern id="grid-pattern" width="40" height="40" patternUnits="userSpaceOnUse">
-                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" strokeWidth="0.6" opacity="0.6" />
-                </pattern>
-                <linearGradient id="route-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <linearGradient id="route-gradient" x1="100%" y1="0%" x2="0%" y2="0%">
                   <stop offset="0%" stopColor="#06b6d4" />
                   <stop offset="50%" stopColor="#3b82f6" />
                   <stop offset="100%" stopColor="#10b981" />
                 </linearGradient>
               </defs>
 
-              <rect width="1000" height="500" fill="url(#grid-pattern)" />
-
-              {/* Simplified Continents Silhouette Backdrops */}
-              <g fill="#1e293b" opacity="0.45" stroke="#334155" strokeWidth="1">
-                {/* North America */}
-                <path d="M 100 80 L 160 60 L 250 90 L 300 160 L 260 250 L 210 240 L 160 180 L 90 120 Z" />
-                {/* Central America & Honduras */}
-                <path d="M 210 240 L 250 255 L 265 280 L 235 295 L 215 260 Z" fill="#0284c7" opacity="0.7" />
-                {/* Asia & Japan */}
-                <path d="M 620 90 L 850 70 L 930 190 L 820 310 L 670 260 Z" />
-                {/* Japan Archipelagos */}
-                <path d="M 830 180 Q 860 190 850 230" stroke="#38bdf8" strokeWidth="4" strokeLinecap="round" />
-              </g>
-
-              {/* Flight Arcs Connected between Real Points */}
-              {/* Honduras ➔ Houston */}
-              <path d="M 240 310 Q 230 250 220 220" fill="none" stroke="url(#route-gradient)" strokeWidth="2.5" strokeDasharray="5 4" opacity="0.8" />
-              {/* Houston ➔ San Francisco */}
-              <path d="M 220 220 Q 180 200 140 180" fill="none" stroke="url(#route-gradient)" strokeWidth="2.5" strokeDasharray="5 4" opacity="0.8" />
-              {/* San Francisco ➔ Osaka (Transpacific Great Circle Arc) */}
-              <path d="M 140 180 Q 480 60 820 200" fill="none" stroke="#10b981" strokeWidth="3" opacity="0.9" />
-              {/* Osaka ➔ Tokyo (Shinkansen Bullet Train Route) */}
-              <path d="M 820 200 L 860 190" fill="none" stroke="#fbbf24" strokeWidth="3.5" />
-              {/* Tokyo ➔ Seoul */}
-              <path d="M 860 190 Q 820 170 780 180" fill="none" stroke="#38bdf8" strokeWidth="2.5" strokeDasharray="4 4" />
-              {/* Seoul ➔ Bangkok */}
-              <path d="M 780 180 Q 760 250 740 320" fill="none" stroke="#38bdf8" strokeWidth="2.5" strokeDasharray="4 4" />
+              {/* Honduras (860, 290) ➔ Houston (800, 220) */}
+              <path d="M 860 290 Q 840 250 800 220" fill="none" stroke="url(#route-gradient)" strokeWidth="2.5" strokeDasharray="5 4" opacity="0.9" />
+              {/* Houston (800, 220) ➔ San Antonio (770, 230) */}
+              <path d="M 800 220 L 770 230" fill="none" stroke="#06b6d4" strokeWidth="3" strokeDasharray="4 3" />
+              {/* San Antonio (770, 230) ➔ San Francisco (680, 190) */}
+              <path d="M 770 230 Q 720 200 680 190" fill="none" stroke="url(#route-gradient)" strokeWidth="2.5" strokeDasharray="5 4" opacity="0.9" />
+              {/* San Francisco (680, 190) ➔ Osaka (260, 220) (Transpacific Great Circle Arc) */}
+              <path d="M 680 190 Q 470 70 260 220" fill="none" stroke="#10b981" strokeWidth="3.5" opacity="0.95" />
+              {/* Osaka (260, 220) ➔ Tokyo (300, 210) (Shinkansen Bullet Train Route) */}
+              <path d="M 260 220 L 300 210" fill="none" stroke="#fbbf24" strokeWidth="3.5" />
+              {/* Tokyo (300, 210) ➔ Seoul (210, 195) */}
+              <path d="M 300 210 Q 255 185 210 195" fill="none" stroke="#38bdf8" strokeWidth="2.5" strokeDasharray="4 4" />
+              {/* Seoul (210, 195) ➔ Bangkok (130, 320) */}
+              <path d="M 210 195 Q 160 250 130 320" fill="none" stroke="#38bdf8" strokeWidth="2.5" strokeDasharray="4 4" />
             </svg>
 
             {/* Interactive City Pin Overlays */}

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Flight, Activity, Reservation } from '../types';
+import pacificMapImage from '../assets/images/pacific_route_map_illustrated_1787185092847.jpg';
 import {
   Plane,
   Train,
@@ -47,7 +48,7 @@ export interface LegNode {
   status: 'completado' | 'en_curso' | 'programado';
   notes: string;
   region: 'Centroamérica' | 'Norteamérica' | 'Asia' | 'Intercontinental';
-  // Offline Visual Coordinates in schematic map (0-100%)
+  // Pacific-Centered Coordinates (Asia on Left, Pacific Center, Americas on Right) (0-100%)
   fromPos: { x: number; y: number };
   toPos: { x: number; y: number };
 }
@@ -70,8 +71,8 @@ const ITINERARY_LEGS: LegNode[] = [
     status: 'completado',
     notes: 'Salida desde Honduras hacia Hub de conexión en Texas.',
     region: 'Centroamérica',
-    fromPos: { x: 18, y: 76 },
-    toPos: { x: 26, y: 52 },
+    fromPos: { x: 86, y: 58 },
+    toPos: { x: 80, y: 44 },
   },
   {
     step: 2,
@@ -90,8 +91,8 @@ const ITINERARY_LEGS: LegNode[] = [
     status: 'completado',
     notes: 'Traslado local por autopista interestatal y estancia en Texas.',
     region: 'Norteamérica',
-    fromPos: { x: 26, y: 52 },
-    toPos: { x: 24, y: 56 },
+    fromPos: { x: 80, y: 44 },
+    toPos: { x: 77, y: 46 },
   },
   {
     step: 3,
@@ -108,10 +109,10 @@ const ITINERARY_LEGS: LegNode[] = [
     duration: '4h 10m',
     departureDate: '2026-09-04',
     status: 'completado',
-    notes: 'Vuelo de costa a costa hacia la puerta de salida al Pacífico.',
+    notes: 'Vuelo hacia la costa oeste y puerta de salida al Pacífico.',
     region: 'Norteamérica',
-    fromPos: { x: 24, y: 56 },
-    toPos: { x: 14, y: 38 },
+    fromPos: { x: 77, y: 46 },
+    toPos: { x: 68, y: 38 },
   },
   {
     step: 4,
@@ -130,8 +131,8 @@ const ITINERARY_LEGS: LegNode[] = [
     status: 'en_curso',
     notes: 'Cruce del Océano Pacífico (Línea Internacional de Cambio de Fecha).',
     region: 'Intercontinental',
-    fromPos: { x: 14, y: 38 },
-    toPos: { x: 74, y: 44 },
+    fromPos: { x: 68, y: 38 },
+    toPos: { x: 26, y: 44 },
   },
   {
     step: 5,
@@ -150,8 +151,8 @@ const ITINERARY_LEGS: LegNode[] = [
     status: 'programado',
     notes: 'Trayecto de alta velocidad pasando por el Monte Fuji (320 km/h).',
     region: 'Asia',
-    fromPos: { x: 74, y: 44 },
-    toPos: { x: 80, y: 40 },
+    fromPos: { x: 26, y: 44 },
+    toPos: { x: 30, y: 42 },
   },
   {
     step: 6,
@@ -170,8 +171,8 @@ const ITINERARY_LEGS: LegNode[] = [
     status: 'programado',
     notes: 'Salto internacional a Corea del Sur.',
     region: 'Asia',
-    fromPos: { x: 80, y: 40 },
-    toPos: { x: 70, y: 36 },
+    fromPos: { x: 30, y: 42 },
+    toPos: { x: 21, y: 39 },
   },
   {
     step: 7,
@@ -190,20 +191,20 @@ const ITINERARY_LEGS: LegNode[] = [
     status: 'programado',
     notes: 'Vuelo hacia el Sudeste Asiático (Tailandia).',
     region: 'Asia',
-    fromPos: { x: 70, y: 36 },
-    toPos: { x: 62, y: 72 },
+    fromPos: { x: 21, y: 39 },
+    toPos: { x: 13, y: 64 },
   },
 ];
 
 const DESTINATIONS_CATALOG = [
-  { id: 'comayagua', name: 'Comayagua', flag: '🇭🇳', country: 'Honduras', tag: 'Origen' },
-  { id: 'houston', name: 'Houston', flag: '🇺🇸', country: 'EE.UU.', tag: 'Conexión' },
-  { id: 'san_antonio', name: 'San Antonio', flag: '🇺🇸', country: 'EE.UU.', tag: 'Escala' },
-  { id: 'san_francisco', name: 'San Francisco', flag: '🇺🇸', country: 'EE.UU.', tag: 'Salida Pacífico' },
-  { id: 'osaka', name: 'Osaka / Kioto', flag: '🇯🇵', country: 'Japón', tag: 'Llegada Asia' },
-  { id: 'tokyo', name: 'Tokio', flag: '🇯🇵', country: 'Japón', tag: 'Metrópolis' },
-  { id: 'seoul', name: 'Seúl', flag: '🇰🇷', country: 'Corea del Sur', tag: 'Destino' },
-  { id: 'bangkok', name: 'Bangkok', flag: '🇹🇭', country: 'Tailandia', tag: 'Sudeste Asiático' },
+  { id: 'comayagua', name: 'Comayagua', flag: '🇭🇳', country: 'Honduras', tag: 'Origen', x: 86, y: 58 },
+  { id: 'houston', name: 'Houston', flag: '🇺🇸', country: 'EE.UU.', tag: 'Conexión', x: 80, y: 44 },
+  { id: 'san_antonio', name: 'San Antonio', flag: '🇺🇸', country: 'EE.UU.', tag: 'Escala', x: 77, y: 46 },
+  { id: 'san_francisco', name: 'San Francisco', flag: '🇺🇸', country: 'EE.UU.', tag: 'Salida Pacífico', x: 68, y: 38 },
+  { id: 'osaka', name: 'Osaka / Kioto', flag: '🇯🇵', country: 'Japón', tag: 'Llegada Asia', x: 26, y: 44 },
+  { id: 'tokyo', name: 'Tokio', flag: '🇯🇵', country: 'Japón', tag: 'Metrópolis', x: 30, y: 42 },
+  { id: 'seoul', name: 'Seúl', flag: '🇰🇷', country: 'Corea del Sur', tag: 'Destino', x: 21, y: 39 },
+  { id: 'bangkok', name: 'Bangkok', flag: '🇹🇭', country: 'Tailandia', tag: 'Sudeste Asiático', x: 13, y: 64 },
 ];
 
 export const OfflineRouteMapView: React.FC<OfflineRouteMapViewProps> = ({
@@ -299,27 +300,20 @@ export const OfflineRouteMapView: React.FC<OfflineRouteMapViewProps> = ({
             <span className="text-[11px] text-slate-400 font-mono">Toca un tramo o nodo para inspeccionar</span>
           </div>
 
-          {/* Schematic SVG Stage */}
-          <div className="relative w-full h-[360px] bg-slate-900/60 rounded-2xl border border-slate-800/80 overflow-hidden">
-            {/* Background Grid Pattern */}
-            <svg className="w-full h-full absolute inset-0" viewBox="0 0 1000 500" preserveAspectRatio="none">
-              <defs>
-                <pattern id="grid-pattern-offline" width="30" height="30" patternUnits="userSpaceOnUse">
-                  <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#334155" strokeWidth="0.5" opacity="0.3" />
-                </pattern>
-              </defs>
-              <rect width="1000" height="500" fill="url(#grid-pattern-offline)" />
+          {/* Schematic Stage with Pacific Map Backdrop (No Europe, Pacific Centered) */}
+          <div className="relative w-full h-[380px] bg-slate-950 rounded-2xl border border-slate-800/80 overflow-hidden shadow-inner group">
+            {/* Pacific Vintage Cartographic Map Image (Without Europe) */}
+            <img
+              src={pacificMapImage}
+              alt="Mapa de Rutas del Pacífico"
+              className="w-full h-full object-cover object-center opacity-85 select-none"
+              referrerPolicy="no-referrer"
+            />
+            {/* Dark gradient overlay to ensure contrast and readability */}
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-slate-950/60 pointer-events-none" />
 
-              {/* Continents Silhouettes */}
-              <g fill="#1e293b" opacity="0.35" stroke="#334155" strokeWidth="1">
-                {/* Americas */}
-                <path d="M 120 80 L 180 70 L 260 110 L 290 180 L 240 290 L 180 220 L 110 130 Z" />
-                <path d="M 180 290 L 210 320 L 220 370 L 190 380 Z" fill="#0284c7" opacity="0.6" />
-                {/* Asia */}
-                <path d="M 600 90 L 850 70 L 920 180 L 800 320 L 640 270 Z" />
-                <path d="M 800 180 Q 840 190 820 240" stroke="#38bdf8" strokeWidth="4" strokeLinecap="round" />
-              </g>
-
+            {/* Flight Route Connections SVG Overlay */}
+            <svg className="w-full h-full absolute inset-0 z-10" viewBox="0 0 1000 500" preserveAspectRatio="none">
               {/* Render Flight Route Connections */}
               {ITINERARY_LEGS.map((leg, idx) => {
                 const isSelected = selectedLegIndex === idx;
@@ -328,10 +322,10 @@ export const OfflineRouteMapView: React.FC<OfflineRouteMapViewProps> = ({
                 const x2 = leg.toPos.x * 10;
                 const y2 = leg.toPos.y * 5;
 
-                // Great curve calculation
+                // Great curve calculation across the Pacific or overland
                 const midX = (x1 + x2) / 2;
                 const isTranspacific = leg.type === 'transpacific';
-                const midY = isTranspacific ? 60 : Math.min(y1, y2) - 30;
+                const midY = isTranspacific ? 90 : Math.min(y1, y2) - 25;
 
                 const pathD = `M ${x1},${y1} Q ${midX},${midY} ${x2},${y2}`;
 
@@ -340,7 +334,7 @@ export const OfflineRouteMapView: React.FC<OfflineRouteMapViewProps> = ({
                     ? '#10b981'
                     : leg.status === 'en_curso'
                     ? '#f59e0b'
-                    : '#0284c7';
+                    : '#06b6d4';
 
                 return (
                   <g key={leg.id} className="cursor-pointer" onClick={() => setSelectedLegIndex(idx)}>
@@ -351,7 +345,7 @@ export const OfflineRouteMapView: React.FC<OfflineRouteMapViewProps> = ({
                         fill="none"
                         stroke="#38bdf8"
                         strokeWidth="8"
-                        opacity="0.5"
+                        opacity="0.65"
                         strokeLinecap="round"
                       />
                     )}
@@ -360,12 +354,12 @@ export const OfflineRouteMapView: React.FC<OfflineRouteMapViewProps> = ({
                       d={pathD}
                       fill="none"
                       stroke={strokeColor}
-                      strokeWidth={isSelected ? 3.5 : 2}
+                      strokeWidth={isSelected ? 3.5 : 2.5}
                       strokeDasharray={leg.type === 'ground' ? '4 4' : isSelected ? 'none' : '6 4'}
                     />
                     {/* Midpoint Step Number Pill */}
-                    <circle cx={midX} cy={midY} r={10} fill="#0f172a" stroke={strokeColor} strokeWidth="2" />
-                    <text x={midX} y={midY + 3.5} textAnchor="middle" fill="#ffffff" fontSize="9" fontWeight="bold">
+                    <circle cx={midX} cy={midY} r={11} fill="#020617" stroke={strokeColor} strokeWidth="2.5" />
+                    <text x={midX} y={midY + 4} textAnchor="middle" fill="#ffffff" fontSize="10" fontWeight="bold">
                       {leg.step}
                     </text>
                   </g>
@@ -373,36 +367,33 @@ export const OfflineRouteMapView: React.FC<OfflineRouteMapViewProps> = ({
               })}
             </svg>
 
-            {/* City Pin Overlays on the Schematic Map */}
-            {DESTINATIONS_CATALOG.map((city, idx) => {
-              // Find matching coordinates
-              const matchingLeg = ITINERARY_LEGS.find(
-                (l) =>
-                  l.from.toLowerCase().includes(city.id) ||
-                  l.to.toLowerCase().includes(city.id) ||
-                  l.from.toLowerCase().includes(city.name.toLowerCase()) ||
-                  l.to.toLowerCase().includes(city.name.toLowerCase())
-              );
-
-              const pos = matchingLeg
-                ? matchingLeg.from.toLowerCase().includes(city.name.toLowerCase())
-                  ? matchingLeg.fromPos
-                  : matchingLeg.toPos
-                : { x: 50, y: 50 };
+            {/* City Pin Overlays on the Pacific Map */}
+            {DESTINATIONS_CATALOG.map((city) => {
+              const isSelected =
+                currentLeg.from.toLowerCase().includes(city.id) ||
+                currentLeg.to.toLowerCase().includes(city.id) ||
+                currentLeg.from.toLowerCase().includes(city.name.toLowerCase()) ||
+                currentLeg.to.toLowerCase().includes(city.name.toLowerCase());
 
               const acts = getCityActivities(city.name);
 
               return (
                 <div
                   key={city.id}
-                  style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
-                  className="absolute -translate-x-1/2 -translate-y-1/2 z-20"
+                  style={{ left: `${city.x}%`, top: `${city.y}%` }}
+                  className="absolute -translate-x-1/2 -translate-y-1/2 z-20 cursor-pointer transition-transform hover:scale-110"
                 >
-                  <div className="flex items-center space-x-1 px-2 py-0.5 rounded-full bg-slate-950 border border-slate-700 text-[10px] font-bold text-white shadow-xl whitespace-nowrap">
-                    <span>{city.flag}</span>
-                    <span>{city.name.split('/')[0]}</span>
+                  <div
+                    className={`flex items-center space-x-1 px-2.5 py-1 rounded-full text-[10px] font-extrabold shadow-2xl transition-all border ${
+                      isSelected
+                        ? 'bg-cyan-500 text-slate-950 border-cyan-300 ring-2 ring-cyan-400/50 scale-105'
+                        : 'bg-slate-950/90 text-white border-slate-700/80 backdrop-blur-sm'
+                    }`}
+                  >
+                    <span className="text-xs">{city.flag}</span>
+                    <span className="whitespace-nowrap">{city.name.split('/')[0]}</span>
                     {acts.length > 0 && (
-                      <span className="bg-emerald-500 text-slate-950 px-1 rounded-full text-[8px] font-black">
+                      <span className={`px-1.5 py-0.2 rounded-full text-[9px] font-black ${isSelected ? 'bg-slate-950 text-cyan-300' : 'bg-emerald-500 text-slate-950'}`}>
                         {acts.length}
                       </span>
                     )}

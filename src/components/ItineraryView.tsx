@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Trip, Activity } from '../types';
-import { Calendar, Clock, MapPin, DollarSign, CheckCircle2, Circle, MessageSquare, Plus, Trash2, Tag, ArrowRight, Compass, Plane, Train, Car, Layers, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
+import pacificMapImage from '../assets/images/pacific_route_map_illustrated_1787185092847.jpg';
+import { Calendar, Clock, MapPin, DollarSign, CheckCircle2, Circle, MessageSquare, Plus, Trash2, Tag, ArrowRight, Compass, Plane, Train, Car, Layers, ChevronDown, ChevronUp, ExternalLink, Globe } from 'lucide-react';
 
 interface ItineraryViewProps {
   trip: Trip;
@@ -135,6 +136,28 @@ export const ItineraryView: React.FC<ItineraryViewProps> = ({
                   </button>
                 );
               })}
+            </div>
+
+            {/* Visual Cartographic Map of Pacific Route with Trajectories */}
+            <div className="relative w-full h-56 sm:h-72 bg-slate-950 rounded-xl overflow-hidden border border-slate-800 shadow-2xl group">
+              <img
+                src={pacificMapImage}
+                alt="Mapa de Rutas del Pacífico (Honduras - EE.UU. - Japón - Corea - Tailandia)"
+                className="w-full h-full object-cover object-center transform group-hover:scale-102 transition-transform duration-500"
+                referrerPolicy="no-referrer"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-slate-950/40 pointer-events-none" />
+              
+              {/* Map Floating Badges & Legend */}
+              <div className="absolute bottom-3 left-3 right-3 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
+                <div className="flex items-center space-x-2 bg-slate-950/80 backdrop-blur-md px-2.5 py-1 rounded-lg border border-slate-700/80 text-[11px] text-white">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="font-bold">Trayectoria Transpacífica Activa</span>
+                </div>
+                <div className="flex items-center space-x-2 bg-slate-950/80 backdrop-blur-md px-2.5 py-1 rounded-lg border border-slate-700/80 text-[10px] text-slate-300 font-mono">
+                  <span>🇭🇳 Comayagua ➔ 🇺🇸 Houston ➔ 🇺🇸 SFO ➔ 🇯🇵 Osaka/Tokio ➔ 🇰🇷 Seúl ➔ 🇹🇭 Bangkok</span>
+                </div>
+              </div>
             </div>
 
             {/* Quick Detail Pill of Selected Stage */}
