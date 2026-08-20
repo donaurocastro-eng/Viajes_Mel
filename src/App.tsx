@@ -57,7 +57,7 @@ export default function App() {
 
   const [flights, setFlights] = useState<Flight[]>(() => {
     try {
-      const saved = localStorage.getItem('viajeflow_flights_v1');
+      const saved = localStorage.getItem('viajeflow_flights_v2');
       if (saved) {
         const parsed: Flight[] = JSON.parse(saved);
         const existingIds = new Set(parsed.map(f => f.id));
@@ -111,7 +111,7 @@ export default function App() {
 
   const [groundTransfers, setGroundTransfers] = useState<GroundTransfer[]>(() => {
     try {
-      const saved = localStorage.getItem('viajeflow_ground_transfers_v1');
+      const saved = localStorage.getItem('viajeflow_ground_transfers_v2');
       if (saved) {
         const parsed: GroundTransfer[] = JSON.parse(saved);
         const existingIds = new Set(parsed.map(g => g.id));
@@ -181,7 +181,7 @@ export default function App() {
   }, [trips]);
 
   useEffect(() => {
-    localStorage.setItem('viajeflow_flights_v1', JSON.stringify(flights));
+    localStorage.setItem('viajeflow_flights_v2', JSON.stringify(flights));
   }, [flights]);
 
   useEffect(() => {
@@ -193,7 +193,7 @@ export default function App() {
   }, [activities]);
 
   useEffect(() => {
-    localStorage.setItem('viajeflow_ground_transfers_v1', JSON.stringify(groundTransfers));
+    localStorage.setItem('viajeflow_ground_transfers_v2', JSON.stringify(groundTransfers));
   }, [groundTransfers]);
 
   useEffect(() => {

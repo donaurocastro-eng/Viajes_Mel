@@ -31,28 +31,52 @@ export const initialFlights: Flight[] = [
     tripId: 'trip-asia-2026',
     flightNumber: 'UA 527',
     airline: 'United Airlines',
-    departureAirport: 'XPL (Comayagua, Honduras)',
-    arrivalAirport: 'IAH (Houston, EE.UU.)',
-    departureCity: 'Comayagua',
-    arrivalCity: 'Houston',
+    departureAirport: 'XPL (Palmerola / Comayagua, Honduras)',
+    arrivalAirport: 'IAH (Houston-Bush Intl, EE.UU.)',
+    departureCity: 'Comayagua (XPL)',
+    arrivalCity: 'Houston (IAH)',
     departureTime: '2026-08-18T12:30',
     arrivalTime: '2026-08-18T16:35',
-    terminal: 'T1',
-    gate: 'A4',
-    seat: '15C',
+    terminal: 'Internacional',
+    gate: 'Por asignar',
+    seat: 'Donauro: 28A | Nohemy: 28C',
     status: 'programado',
-    confirmationCode: 'BQDIQK',
+    confirmationCode: 'O7TX21',
     price: 552,
-    notes: 'Reserva BQDIQK (Cod. O7TX21). Salida de Honduras. Escala de 2h 15m en Houston.',
+    transportType: 'flight',
+    notes: 'Reserva O7TX21. Abordaje inicia: 11:50 AM (Cierre 12:15 PM) • Grupo 6. Tarifa BE-NO CARRY ON. Donauro (Asiento 28A Ventana, E-Ticket: 01621079886800), Nohemy (Asiento 28C Pasillo, E-Ticket: 01621079886811). Escala en Houston de 2h 15m.',
+    qrTickets: [
+      {
+        passengerName: 'Donauro Emmanuel Castro Mendoza',
+        seat: '28A (Ventana - Económica)',
+        car: 'Grupo 6',
+        qrCodeData: 'M1CASTROMENDOZA/DONAURO EO7TX21 XPLIAHUA 0527 230Y028A0007 148>3180 M6230BUA 01621079886800'
+      },
+      {
+        passengerName: 'Maria Nohemy Israel',
+        seat: '28C (Pasillo - Económica)',
+        car: 'Grupo 6',
+        qrCodeData: 'M1ISRAEL/NOHEMY        EO7TX21 XPLIAHUA 0527 230Y028C0008 148>3180 M6230BUA 01621079886811'
+      }
+    ],
     boardingPasses: [
       {
-        id: 'bp-hn-1-a',
-        fileName: 'Pase_Abordaje_United_UA527_Donauro.pdf',
+        id: 'bp-hn-1-donauro',
+        fileName: 'Pase_Abordaje_UA527_XPL_IAH_Donauro_28A.pdf',
         fileType: 'pdf',
         fileDataUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-        passengerName: 'Donauro Emmanuel Castro',
-        seat: '15C',
-        uploadedAt: new Date().toISOString()
+        passengerName: 'Donauro Emmanuel Castro Mendoza',
+        seat: '28A (Ventana)',
+        uploadedAt: '2026-08-17T12:00:00Z'
+      },
+      {
+        id: 'bp-hn-1-nohemy',
+        fileName: 'Pase_Abordaje_UA527_XPL_IAH_Nohemy_28C.pdf',
+        fileType: 'pdf',
+        fileDataUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+        passengerName: 'Maria Nohemy Israel',
+        seat: '28C (Pasillo)',
+        uploadedAt: '2026-08-17T12:00:00Z'
       }
     ]
   },
@@ -61,19 +85,54 @@ export const initialFlights: Flight[] = [
     tripId: 'trip-asia-2026',
     flightNumber: 'UA 1477',
     airline: 'United Airlines',
-    departureAirport: 'IAH (Houston, EE.UU.)',
-    arrivalAirport: 'SAT (San Antonio, EE.UU.)',
-    departureCity: 'Houston',
-    arrivalCity: 'San Antonio',
+    departureAirport: 'IAH (Houston-Bush Intl, EE.UU.)',
+    arrivalAirport: 'SAT (San Antonio Intl, EE.UU.)',
+    departureCity: 'Houston (IAH)',
+    arrivalCity: 'San Antonio (SAT)',
     departureTime: '2026-08-18T18:50',
     arrivalTime: '2026-08-18T19:58',
-    terminal: 'TC',
-    gate: 'C18',
-    seat: '15C',
+    terminal: 'Internacional / Doméstica',
+    gate: 'Por asignar',
+    seat: 'Donauro: 27D | Nohemy: 26D',
     status: 'programado',
-    confirmationCode: 'BQDIQK',
+    confirmationCode: 'O7TX21',
     price: 553,
-    notes: 'Llegada a San Antonio (SAT). Estancia en San Antonio antes del vuelo transpacífico a Japón el 23-Ago.'
+    transportType: 'flight',
+    notes: 'Reserva O7TX21. Abordaje inicia: 6:15 PM (Cierre 6:35 PM) • Grupo 6. Tarifa BE-NO CARRY ON. Donauro (Asiento 27D Pasillo, E-Ticket: 01621079886800), Nohemy (Asiento 26D Pasillo, E-Ticket: 01621079886811). Llegada a San Antonio (SAT) para descanso previo a la salida a Asia.',
+    qrTickets: [
+      {
+        passengerName: 'Donauro Emmanuel Castro Mendoza',
+        seat: '27D (Pasillo - Económica)',
+        car: 'Grupo 6',
+        qrCodeData: 'M1CASTROMENDOZA/DONAURO EO7TX21 IAHSATUA 1477 230Y027D0015 148>3180 M6230BUA 01621079886800'
+      },
+      {
+        passengerName: 'Maria Nohemy Israel',
+        seat: '26D (Pasillo - Económica)',
+        car: 'Grupo 6',
+        qrCodeData: 'M1ISRAEL/NOHEMY        EO7TX21 IAHSATUA 1477 230Y026D0016 148>3180 M6230BUA 01621079886811'
+      }
+    ],
+    boardingPasses: [
+      {
+        id: 'bp-hn-2-donauro',
+        fileName: 'Pase_Abordaje_UA1477_IAH_SAT_Donauro_27D.pdf',
+        fileType: 'pdf',
+        fileDataUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+        passengerName: 'Donauro Emmanuel Castro Mendoza',
+        seat: '27D (Pasillo)',
+        uploadedAt: '2026-08-17T12:00:00Z'
+      },
+      {
+        id: 'bp-hn-2-nohemy',
+        fileName: 'Pase_Abordaje_UA1477_IAH_SAT_Nohemy_26D.pdf',
+        fileType: 'pdf',
+        fileDataUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+        passengerName: 'Maria Nohemy Israel',
+        seat: '26D (Pasillo)',
+        uploadedAt: '2026-08-17T12:00:00Z'
+      }
+    ]
   },
   {
     id: 'flight-jp-1',
@@ -1240,6 +1299,79 @@ export const initialWhatsAppLogs: WhatsAppLog[] = [
 ];
 
 export const initialGroundTransfers: GroundTransfer[] = [
+  {
+    id: 'gt-hn-1',
+    tripId: 'trip-asia-2026',
+    title: 'HONDURAS: Traslado al Aeropuerto Internacional de Palmerola (XPL, Comayagua)',
+    fromLocation: 'Tegucigalpa / Comayagua, Honduras',
+    toLocation: 'Aeropuerto Internacional de Palmerola (XPL), Comayagua',
+    estimatedDuration: '1h 15 min (Vehículo / Transfer)',
+    transportModes: ['taxi'],
+    notes: 'Salida hacia el aeropuerto con suficiente anticipación para vuelo internacional UA 527. Llegar al menos 3 horas antes de la salida (09:30 AM).',
+    steps: [
+      {
+        id: 'gt-hn-1-s1',
+        stepNumber: 1,
+        instruction: 'Salida en vehículo particular / transporte terrestre hacia el Aeropuerto de Palmerola (XPL) por la Carretera CA-5.',
+        mode: 'taxi',
+        durationOrDistance: '1h 00 min (~75 km)',
+        notes: 'Verificar pasaportes físicos (Donauro F847292 y Nohemy 642491797) y pases de abordaje en mano.'
+      },
+      {
+        id: 'gt-hn-1-s2',
+        stepNumber: 2,
+        instruction: 'Llegada a la Terminal Internacional de Palmerola (XPL). Dirigirse a los mostradores de United Airlines.',
+        mode: 'walk',
+        durationOrDistance: '15 min',
+        lineOrService: 'United Airlines Counter',
+        notes: 'Check-in y entrega de equipaje si aplica. Confirmación PNR: O7TX21.'
+      },
+      {
+        id: 'gt-hn-1-s3',
+        stepNumber: 3,
+        instruction: 'Control migratorio y seguridad hacia la sala de abordaje. Inicio de abordaje a las 11:50 AM (Grupo 6).',
+        mode: 'walk',
+        durationOrDistance: '20 min',
+        notes: 'Asientos: Donauro (28A) | Nohemy (28C). Vuelo UA 527 despega 12:30 PM rumbo a Houston (IAH).'
+      }
+    ]
+  },
+  {
+    id: 'gt-us-1',
+    tripId: 'trip-asia-2026',
+    title: 'TEXAS: Conexión Houston (IAH) a San Antonio (SAT) y Hotel en San Antonio',
+    fromLocation: 'Aeropuerto Houston-Bush (IAH)',
+    toLocation: 'San Antonio (SAT) / Alojamiento en San Antonio, Texas',
+    estimatedDuration: '2h 15 min (Escala y Vuelo UA 1477)',
+    transportModes: ['taxi', 'walk'],
+    notes: 'Escala en Houston (IAH) de 2h 15m y vuelo de conexión UA 1477 (6:50 PM - 7:58 PM) hacia San Antonio (SAT).',
+    steps: [
+      {
+        id: 'gt-us-1-s1',
+        stepNumber: 1,
+        instruction: 'Desembarque en Aeropuerto Houston-Bush (IAH) a las 4:35 PM. Trámite de Aduana/Inmigración EE.UU. (CBP) y re-chequeo si corresponde.',
+        mode: 'walk',
+        durationOrDistance: '45 min',
+        notes: 'Seguir señales de conexiones y tránsito nacional hacia la puerta del vuelo UA 1477.'
+      },
+      {
+        id: 'gt-us-1-s2',
+        stepNumber: 2,
+        instruction: 'Abordaje de vuelo UA 1477 a las 6:15 PM (Grupo 6). Despegue 6:50 PM rumbo a San Antonio (SAT).',
+        mode: 'walk',
+        durationOrDistance: '1h 08 min',
+        notes: 'Asientos: Donauro (27D) | Nohemy (26D). Aterrizaje en SAT a las 7:58 PM.'
+      },
+      {
+        id: 'gt-us-1-s3',
+        stepNumber: 3,
+        instruction: 'Recogida de equipaje en San Antonio Intl (SAT) y traslado en taxi/Uber hacia el alojamiento.',
+        mode: 'taxi',
+        durationOrDistance: '20 min (~15 km)',
+        notes: 'Descanso y preparación en San Antonio antes del vuelo transpacífico a Japón (23 de Agosto).'
+      }
+    ]
+  },
   {
     id: 'gt-jp-1',
     tripId: 'trip-asia-2026',

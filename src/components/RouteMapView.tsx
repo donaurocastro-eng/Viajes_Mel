@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Trip, Flight, Activity, Reservation, FlightStatus } from '../types';
+import { VisualMapView } from './VisualMapView';
+import { OfflineRouteMapView } from './OfflineRouteMapView';
 import {
   Map,
   Plane,
@@ -17,7 +19,10 @@ import {
   Calendar,
   Layers,
   Zap,
-  ArrowRight
+  ArrowRight,
+  ExternalLink,
+  Smartphone,
+  Compass
 } from 'lucide-react';
 
 interface RouteMapViewProps {
@@ -117,8 +122,10 @@ export const RouteMapView: React.FC<RouteMapViewProps> = ({
   onNotifyWhatsAppMessage,
 }) => {
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
-  const [zoomPreset, setZoomPreset] = useState<'global' | 'americas' | 'asia'>('americas');
+  const [zoomPreset, setZoomPreset] = useState<'global' | 'americas' | 'asia'>('global');
   const [focusedFlightId, setFocusedFlightId] = useState<string | null>(null);
+  const [mapEngine, setMapEngine] = useState<'etapas' | 'real_map' | 'interactive' | 'google_maps'>('etapas');
+  const [activeGoogleMapCity, setActiveGoogleMapCity] = useState<string>('Osaka, Japan');
 
   // Filter flights and activities for current trip
   const tripFlights = flights.filter((f) => f.tripId === trip.id);
@@ -129,7 +136,7 @@ export const RouteMapView: React.FC<RouteMapViewProps> = ({
   const viewBoxMap = {
     global: '0 0 1000 500',
     americas: '100 80 400 320', // Focused on Honduras & North America
-    asia: '500 60 480 340',     // Focused on USA to Asia
+    asia: '460 60 520 340',     // Focused on East Asia (Japan, Korea, Thailand)
   };
 
   // Convert (lat, lng) to SVG Canvas (1000 x 500)
@@ -259,46 +266,96 @@ export const RouteMapView: React.FC<RouteMapViewProps> = ({
 
         {/* Action Controls */}
         <div className="flex flex-wrap items-center gap-2">
-          {/* View Zoom Presets */}
-          <div className="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
+          {/* Map Engine Selector */}
+          <div className="flex bg-slate-950 p-1 rounded-xl border border-cyan-500/40 text-xs">
             <button
-              onClick={() => setZoomPreset('americas')}
-              className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
-                zoomPreset === 'americas'
-                  ? 'bg-cyan-600 text-white shadow-sm'
+              onClick={() => setMapEngine('etapas')}
+              className={`px-3 py-1.5 rounded-lg font-bold transition-all flex items-center space-x-1.5 ${
+                mapEngine === 'etapas'
+                  ? 'bg-gradient-to-r from-cyan-500 to-emerald-500 text-slate-950 shadow-md font-black'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              🌎 América (HN ✈️ USA)
+              <Layers className="w-3.5 h-3.5" />
+              <span>🗺️ Mapa & Trayectos por Etapas</span>
             </button>
             <button
-              onClick={() => setZoomPreset('asia')}
-              className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
-                zoomPreset === 'asia'
-                  ? 'bg-cyan-600 text-white shadow-sm'
+              onClick={() => setMapEngine('real_map')}
+              className={`px-3 py-1.5 rounded-lg font-bold transition-all flex items-center space-x-1.5 ${
+                mapEngine === 'real_map'
+                  ? 'bg-cyan-500 text-slate-950 shadow-md font-extrabold'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              🌏 USA ✈️ Asia
+              <Compass className="w-3.5 h-3.5" />
+              <span>Explorador Callejero</span>
             </button>
             <button
-              onClick={() => setZoomPreset('global')}
-              className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
-                zoomPreset === 'global'
-                  ? 'bg-cyan-600 text-white shadow-sm'
+              onClick={() => setMapEngine('interactive')}
+              className={`px-3 py-1.5 rounded-lg font-bold transition-all flex items-center space-x-1.5 ${
+                mapEngine === 'interactive'
+                  ? 'bg-cyan-600 text-white shadow-sm font-bold'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              🌍 Vista Global
+              <Globe className="w-3.5 h-3.5" />
+              <span>Diagrama SVG</span>
+            </button>
+            <button
+              onClick={() => setMapEngine('google_maps')}
+              className={`px-3 py-1.5 rounded-lg font-bold transition-all flex items-center space-x-1.5 ${
+                mapEngine === 'google_maps'
+                  ? 'bg-emerald-600 text-slate-950 shadow-sm font-extrabold'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <MapPin className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Google Maps 🗺️</span>
             </button>
           </div>
+
+          {/* View Zoom Presets (Interactive mode) */}
+          {mapEngine === 'interactive' && (
+            <div className="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
+              <button
+                onClick={() => setZoomPreset('americas')}
+                className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
+                  zoomPreset === 'americas'
+                    ? 'bg-cyan-600 text-white shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                🌎 América
+              </button>
+              <button
+                onClick={() => setZoomPreset('asia')}
+                className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
+                  zoomPreset === 'asia'
+                    ? 'bg-cyan-600 text-white shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                🌏 Asia
+              </button>
+              <button
+                onClick={() => setZoomPreset('global')}
+                className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
+                  zoomPreset === 'global'
+                    ? 'bg-cyan-600 text-white shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                🌍 Global
+              </button>
+            </div>
+          )}
 
           <button
             onClick={handleShareMapReportWhatsApp}
             className="flex items-center space-x-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black rounded-xl text-xs shadow-lg shadow-emerald-600/20 transition-all"
           >
             <MessageSquare className="w-4 h-4 fill-slate-950" />
-            <span>Compartir Mapa por WhatsApp 📲</span>
+            <span>WhatsApp 📲</span>
           </button>
         </div>
       </div>
@@ -345,244 +402,342 @@ export const RouteMapView: React.FC<RouteMapViewProps> = ({
         </div>
       </div>
 
-      {/* Main Interactive Map Canvas */}
-      <div className="relative bg-slate-950 rounded-3xl border border-slate-800 overflow-hidden shadow-2xl min-h-[420px] flex items-center justify-center">
-        {/* SVG World Map Vector Backdrop */}
-        <svg
-          viewBox={viewBoxMap[zoomPreset]}
-          className="w-full h-full min-h-[420px] transition-all duration-500 select-none"
-          style={{ background: '#020617' }}
-        >
-          {/* Subtle Grid Lines */}
-          <defs>
-            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" strokeWidth="0.5" opacity="0.4" />
-            </pattern>
+      {/* Main Map Display (Offline Stage Map, Visual Interactive Map, Google Maps Live, or Vector View) */}
+      {mapEngine === 'etapas' ? (
+        <OfflineRouteMapView
+          flights={tripFlights}
+          activities={tripActivities}
+          reservations={tripReservations}
+          selectedCity={selectedCity}
+          onSelectCity={(city) => setSelectedCity(city.toLowerCase())}
+        />
+      ) : mapEngine === 'real_map' ? (
+        <div className="space-y-3">
+          <VisualMapView
+            flights={tripFlights}
+            activities={tripActivities}
+            reservations={tripReservations}
+            selectedCity={selectedCity}
+            onSelectCity={(city) => setSelectedCity(city.toLowerCase())}
+          />
+        </div>
+      ) : mapEngine === 'google_maps' ? (
+        <div className="bg-slate-950 rounded-3xl border border-emerald-500/40 overflow-hidden shadow-2xl p-5 space-y-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+            <div>
+              <h3 className="text-sm font-bold text-white flex items-center space-x-2">
+                <MapPin className="w-4 h-4 text-emerald-400" />
+                <span>Explorador de Destinos y Callejero con Google Maps</span>
+              </h3>
+              <p className="text-xs text-slate-400">
+                Visualiza los destinos, hoteles, aeropuertos y atracciones directamente en el mapa real
+              </p>
+            </div>
 
-            {/* Glowing Gradient Filters */}
-            <filter id="glow-emerald" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="3" result="blur" />
-              <feComposite in="SourceGraphic" in2="blur" operator="over" />
-            </filter>
-            <filter id="glow-amber" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="4" result="blur" />
-              <feComposite in="SourceGraphic" in2="blur" operator="over" />
-            </filter>
-          </defs>
+            {/* Google Maps City Destination Quick Selector */}
+            <div className="flex flex-wrap items-center gap-1.5 bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs">
+              {[
+                { name: 'Osaka, Japón 🇯🇵', query: 'Osaka, Japan' },
+                { name: 'Tokio, Japón 🇯🇵', query: 'Tokyo, Japan' },
+                { name: 'Seúl, Corea 🇰🇷', query: 'Seoul, South Korea' },
+                { name: 'Bangkok, Tailandia 🇹🇭', query: 'Bangkok, Thailand' },
+                { name: 'San Antonio, Texas 🇺🇸', query: 'San Antonio International Airport, TX' },
+                { name: 'Palmerola (XPL), Honduras 🇭🇳', query: 'Palmerola International Airport, Comayagua' }
+              ].map((c) => (
+                <button
+                  key={c.query}
+                  onClick={() => setActiveGoogleMapCity(c.query)}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                    activeGoogleMapCity === c.query
+                      ? 'bg-emerald-500 text-slate-950 shadow-md font-black'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  {c.name}
+                </button>
+              ))}
+            </div>
+          </div>
 
-          <rect width="1000" height="500" fill="url(#grid)" />
+          {/* Embedded Google Map IFrame */}
+          <div className="w-full h-[460px] rounded-2xl overflow-hidden border border-slate-800 relative bg-slate-900">
+            <iframe
+              title="Google Map Live View"
+              src={`https://maps.google.com/maps?q=${encodeURIComponent(activeGoogleMapCity)}&t=m&z=12&ie=UTF8&iwloc=&output=embed`}
+              className="w-full h-full border-0"
+              loading="lazy"
+              allowFullScreen
+            />
+          </div>
 
-          {/* Continents Outline Stylized Vector Shapes */}
-          <g opacity="0.22" fill="#334155" stroke="#475569" strokeWidth="0.8">
-            {/* North America */}
-            <path d="M 120 70 L 160 60 L 220 80 L 280 120 L 260 200 L 210 220 L 170 190 L 120 120 Z" />
-            {/* Central America & Honduras */}
-            <path d="M 210 220 L 245 235 L 260 250 L 240 260 L 225 240 Z" fill="#1e3a8a" stroke="#3b82f6" strokeWidth="1.2" opacity="0.6" />
-            {/* South America */}
-            <path d="M 250 260 L 310 280 L 330 380 L 280 450 L 240 380 Z" />
-            {/* Europe */}
-            <path d="M 470 80 L 530 70 L 560 120 L 510 160 L 460 130 Z" />
-            {/* Asia & Japan */}
-            <path d="M 580 80 L 850 70 L 920 180 L 800 280 L 650 240 Z" />
-            <path d="M 870 130 Q 885 145 880 165 T 865 185" fill="none" stroke="#64748b" strokeWidth="3" />
-          </g>
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+            <div className="text-xs text-slate-400 flex items-center space-x-2">
+              <Compass className="w-4 h-4 text-cyan-400" />
+              <span>Destino actual: <strong className="text-white">{activeGoogleMapCity}</strong></span>
+            </div>
 
-          {/* Render Flight Route Lines & Curved Arcs */}
-          {tripFlights.map((f, idx) => {
-            const dep = getCityCoords(f.departureCity, f.departureAirport);
-            const arr = getCityCoords(f.arrivalCity, f.arrivalAirport);
+            <a
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(activeGoogleMapCity)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black rounded-xl text-xs flex items-center space-x-1.5 shadow-lg shadow-emerald-600/25 transition-all"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              <span>Abrir en App de Google Maps 🗺️</span>
+            </a>
+          </div>
+        </div>
+      ) : (
+        /* Main Interactive Map Canvas */
+        <div className="relative bg-slate-950 rounded-3xl border border-slate-800 overflow-hidden shadow-2xl min-h-[420px] flex items-center justify-center">
+          {/* SVG World Map Vector Backdrop */}
+          <svg
+            viewBox={viewBoxMap[zoomPreset]}
+            className="w-full h-full min-h-[420px] transition-all duration-500 select-none"
+            style={{ background: '#020617' }}
+          >
+            {/* Subtle Grid Lines */}
+            <defs>
+              <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" strokeWidth="0.5" opacity="0.4" />
+              </pattern>
 
-            const p1 = projectCoords(dep.lat, dep.lng);
-            const p2 = projectCoords(arr.lat, arr.lng);
+              {/* Glowing Gradient Filters */}
+              <filter id="glow-emerald" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="3" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+              </filter>
+              <filter id="glow-amber" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="4" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+              </filter>
+            </defs>
 
-            // Compute curved control point for geodesic flight arc
-            const midX = (p1.x + p2.x) / 2;
-            const dist = Math.hypot(p2.x - p1.x, p2.y - p1.y);
-            const curveOffset = Math.min(60, Math.max(25, dist * 0.25));
-            const midY = Math.min(p1.y, p2.y) - curveOffset;
+            <rect width="1000" height="500" fill="url(#grid)" />
 
-            const pathD = `M ${p1.x},${p1.y} Q ${midX},${midY} ${p2.x},${p2.y}`;
+            {/* Continents Outline Stylized Vector Shapes */}
+            <g opacity="0.22" fill="#334155" stroke="#475569" strokeWidth="0.8">
+              {/* North America */}
+              <path d="M 120 70 L 160 60 L 220 80 L 280 120 L 260 200 L 210 220 L 170 190 L 120 120 Z" />
+              {/* Central America & Honduras */}
+              <path d="M 210 220 L 245 235 L 260 250 L 240 260 L 225 240 Z" fill="#1e3a8a" stroke="#3b82f6" strokeWidth="1.2" opacity="0.6" />
+              {/* South America */}
+              <path d="M 250 260 L 310 280 L 330 380 L 280 450 L 240 380 Z" />
+              {/* Europe */}
+              <path d="M 470 80 L 530 70 L 560 120 L 510 160 L 460 130 Z" />
+              {/* Asia & Japan */}
+              <path d="M 580 80 L 850 70 L 920 180 L 800 280 L 650 240 Z" />
+              <path d="M 870 130 Q 885 145 880 165 T 865 185" fill="none" stroke="#64748b" strokeWidth="3" />
+            </g>
 
-            const isCompleted = f.status === 'aterrizado';
-            const isInFlight = f.status === 'en_vuelo' || f.status === 'embarcando';
-            const isFocused = focusedFlightId === f.id;
+            {/* Render Flight Route Lines & Curved Arcs */}
+            {tripFlights.map((f, idx) => {
+              const dep = getCityCoords(f.departureCity, f.departureAirport);
+              const arr = getCityCoords(f.arrivalCity, f.arrivalAirport);
 
-            // Compute plane position along quadratic bezier curve
-            const t = isCompleted ? 1.0 : isInFlight ? 0.6 : 0.05;
-            const planeX = (1 - t) * (1 - t) * p1.x + 2 * (1 - t) * t * midX + t * t * p2.x;
-            const planeY = (1 - t) * (1 - t) * p1.y + 2 * (1 - t) * t * midY + t * t * p2.y;
+              const p1 = projectCoords(dep.lat, dep.lng);
+              const p2 = projectCoords(arr.lat, arr.lng);
 
-            return (
-              <g key={f.id} className="cursor-pointer group" onClick={() => setFocusedFlightId(f.id)}>
-                {/* Background Line */}
-                <path
-                  d={pathD}
-                  fill="none"
-                  stroke={isCompleted ? '#10b981' : isInFlight ? '#f59e0b' : '#38bdf8'}
-                  strokeWidth={isFocused ? 3.5 : 2}
-                  strokeDasharray={isCompleted ? 'none' : '6 4'}
-                  opacity={isCompleted ? 0.9 : isInFlight ? 1 : 0.5}
-                  filter={isCompleted ? 'url(#glow-emerald)' : isInFlight ? 'url(#glow-amber)' : undefined}
-                />
+              // Handle Pacific crossing (e.g. SFO at x~156 to Osaka at x~875)
+              const isPacificCrossing = Math.abs(p2.x - p1.x) > 400;
+              let pathD: string;
+              let midX: number;
+              let midY: number;
 
-                {/* Animated Flying Pulse Effect when En Vuelo */}
-                {isInFlight && (
+              if (isPacificCrossing) {
+                // Great circle transpacific arc via northern Pacific / Alaska
+                midX = p1.x < p2.x ? ((p1.x + p2.x) / 2) : ((p2.x + p1.x) / 2);
+                midY = Math.min(p1.y, p2.y) - 70;
+                pathD = `M ${p1.x},${p1.y} Q ${midX},${midY} ${p2.x},${p2.y}`;
+              } else {
+                midX = (p1.x + p2.x) / 2;
+                const dist = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+                const curveOffset = Math.min(50, Math.max(15, dist * 0.2));
+                midY = Math.min(p1.y, p2.y) - curveOffset;
+                pathD = `M ${p1.x},${p1.y} Q ${midX},${midY} ${p2.x},${p2.y}`;
+              }
+
+              const isCompleted = f.status === 'aterrizado';
+              const isInFlight = f.status === 'en_vuelo' || f.status === 'embarcando';
+              const isFocused = focusedFlightId === f.id;
+
+              // Compute plane position along quadratic bezier curve
+              const t = isCompleted ? 1.0 : isInFlight ? 0.6 : 0.05;
+              const planeX = (1 - t) * (1 - t) * p1.x + 2 * (1 - t) * t * midX + t * t * p2.x;
+              const planeY = (1 - t) * (1 - t) * p1.y + 2 * (1 - t) * t * midY + t * t * p2.y;
+
+              return (
+                <g key={f.id} className="cursor-pointer group" onClick={() => setFocusedFlightId(f.id)}>
+                  {/* Background Line */}
                   <path
                     d={pathD}
                     fill="none"
-                    stroke="#fbbf24"
-                    strokeWidth="3.5"
-                    strokeDasharray="12 12"
-                    className="animate-pulse"
-                  >
-                    <animate
-                      attributeName="stroke-dashoffset"
-                      from="24"
-                      to="0"
-                      dur="1s"
-                      repeatCount="indefinite"
-                    />
-                  </path>
-                )}
-
-                {/* Airplane Marker Icon on the Arc */}
-                <g transform={`translate(${planeX}, ${planeY})`}>
-                  <circle
-                    r={isCompleted ? 10 : 12}
-                    fill={isCompleted ? '#059669' : isInFlight ? '#d97706' : '#0284c7'}
-                    stroke="#ffffff"
-                    strokeWidth="2"
-                    className={isInFlight ? 'animate-bounce' : ''}
+                    stroke={isCompleted ? '#10b981' : isInFlight ? '#f59e0b' : '#38bdf8'}
+                    strokeWidth={isFocused ? 3.5 : 2}
+                    strokeDasharray={isCompleted ? 'none' : '6 4'}
+                    opacity={isCompleted ? 0.9 : isInFlight ? 1 : 0.5}
+                    filter={isCompleted ? 'url(#glow-emerald)' : isInFlight ? 'url(#glow-amber)' : undefined}
                   />
-                  {isCompleted ? (
-                    <text x="-4" y="3" fill="#ffffff" fontSize="9" fontWeight="bold">
-                      ✓
-                    </text>
-                  ) : (
-                    <text x="-5" y="4" fill="#ffffff" fontSize="10" fontWeight="bold">
-                      ✈
-                    </text>
+
+                  {/* Animated Flying Pulse Effect when En Vuelo */}
+                  {isInFlight && (
+                    <path
+                      d={pathD}
+                      fill="none"
+                      stroke="#fbbf24"
+                      strokeWidth="3.5"
+                      strokeDasharray="12 12"
+                      className="animate-pulse"
+                    >
+                      <animate
+                        attributeName="stroke-dashoffset"
+                        from="24"
+                        to="0"
+                        dur="1s"
+                        repeatCount="indefinite"
+                      />
+                    </path>
                   )}
-                </g>
 
-                {/* Route Segment Badge Label */}
-                <g transform={`translate(${midX}, ${midY - 8})`}>
-                  <rect
-                    x="-45"
-                    y="-11"
-                    width="90"
-                    height="18"
-                    rx="9"
-                    fill="#0f172a"
-                    stroke={isCompleted ? '#10b981' : isInFlight ? '#f59e0b' : '#334155'}
-                    strokeWidth="1.2"
-                  />
-                  <text
-                    x="0"
-                    y="1"
-                    textAnchor="middle"
-                    fill={isCompleted ? '#34d399' : isInFlight ? '#fbbf24' : '#94a3b8'}
-                    fontSize="9"
-                    fontWeight="bold"
-                  >
-                    {dep.flag} ✈ {arr.flag} {isCompleted ? '✓ OK' : ''}
-                  </text>
-                </g>
-              </g>
-            );
-          })}
+                  {/* Airplane Marker Icon on the Arc */}
+                  <g transform={`translate(${planeX}, ${planeY})`}>
+                    <circle
+                      r={isCompleted ? 10 : 12}
+                      fill={isCompleted ? '#059669' : isInFlight ? '#d97706' : '#0284c7'}
+                      stroke="#ffffff"
+                      strokeWidth="2"
+                      className={isInFlight ? 'animate-bounce' : ''}
+                    />
+                    {isCompleted ? (
+                      <text x="-4" y="3" fill="#ffffff" fontSize="9" fontWeight="bold">
+                        ✓
+                      </text>
+                    ) : (
+                      <text x="-5" y="4" fill="#ffffff" fontSize="10" fontWeight="bold">
+                        ✈
+                      </text>
+                    )}
+                  </g>
 
-          {/* Render City Pins and Destination Hubs */}
-          {Array.from(cityMap.values()).map(({ location, activities: cityActs, reservations: cityRes }) => {
-            const pos = projectCoords(location.lat, location.lng);
-            const isSelected = selectedCity === location.city.toLowerCase();
-            const completedActs = cityActs.filter((a) => a.completed).length;
-
-            return (
-              <g
-                key={location.city}
-                transform={`translate(${pos.x}, ${pos.y})`}
-                className="cursor-pointer group"
-                onClick={() => setSelectedCity(location.city.toLowerCase())}
-              >
-                {/* Outer Pulsing Radar Ring */}
-                <circle
-                  r={isSelected ? 16 : 10}
-                  fill="none"
-                  stroke="#38bdf8"
-                  strokeWidth="1.5"
-                  opacity="0.6"
-                  className="animate-ping"
-                />
-
-                {/* Node Center Circle */}
-                <circle
-                  r={isSelected ? 8 : 6}
-                  fill={isSelected ? '#38bdf8' : '#0ea5e9'}
-                  stroke="#ffffff"
-                  strokeWidth="2"
-                  className="group-hover:scale-125 transition-transform"
-                />
-
-                {/* City Label Badge */}
-                <g transform="translate(0, 18)">
-                  <rect
-                    x="-40"
-                    y="-10"
-                    width="80"
-                    height="16"
-                    rx="8"
-                    fill="#020617"
-                    stroke="#334155"
-                    strokeWidth="1"
-                    opacity="0.95"
-                  />
-                  <text
-                    x="0"
-                    y="1"
-                    textAnchor="middle"
-                    fill="#f8fafc"
-                    fontSize="9"
-                    fontWeight="bold"
-                  >
-                    {location.flag} {location.city}
-                  </text>
-                </g>
-
-                {/* Activity Counter Pill if present */}
-                {cityActs.length > 0 && (
-                  <g transform="translate(12, -8)">
-                    <circle r="7" fill="#10b981" stroke="#0f172a" strokeWidth="1.5" />
-                    <text x="0" y="3" textAnchor="middle" fill="#ffffff" fontSize="8" fontWeight="bold">
-                      {completedActs}/{cityActs.length}
+                  {/* Route Segment Badge Label */}
+                  <g transform={`translate(${midX}, ${midY - 8})`}>
+                    <rect
+                      x="-45"
+                      y="-11"
+                      width="90"
+                      height="18"
+                      rx="9"
+                      fill="#0f172a"
+                      stroke={isCompleted ? '#10b981' : isInFlight ? '#f59e0b' : '#334155'}
+                      strokeWidth="1.2"
+                    />
+                    <text
+                      x="0"
+                      y="1"
+                      textAnchor="middle"
+                      fill={isCompleted ? '#34d399' : isInFlight ? '#fbbf24' : '#94a3b8'}
+                      fontSize="9"
+                      fontWeight="bold"
+                    >
+                      {dep.flag} ✈ {arr.flag} {isCompleted ? '✓ OK' : ''}
                     </text>
                   </g>
-                )}
-              </g>
-            );
-          })}
-        </svg>
+                </g>
+              );
+            })}
 
-        {/* Floating Quick Legend Overlay */}
-        <div className="absolute top-3 left-3 bg-slate-900/90 backdrop-blur-md p-3 rounded-2xl border border-slate-800 text-xs space-y-1.5 shadow-xl">
-          <p className="font-bold text-white flex items-center space-x-1.5">
-            <Navigation className="w-3.5 h-3.5 text-cyan-400" />
-            <span>Leyenda del Mapa</span>
-          </p>
-          <div className="flex items-center space-x-2 text-[11px] text-slate-300">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block" />
-            <span>Tramo Completado / Aterrizado</span>
-          </div>
-          <div className="flex items-center space-x-2 text-[11px] text-slate-300">
-            <span className="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block" />
-            <span>Tramo En Vuelo (En Tránsito)</span>
-          </div>
-          <div className="flex items-center space-x-2 text-[11px] text-slate-300">
-            <span className="w-2.5 h-2.5 rounded-full bg-cyan-500 inline-block" />
-            <span>Tramo Programado Futuro</span>
+            {/* Render City Pins and Destination Hubs */}
+            {Array.from(cityMap.values()).map(({ location, activities: cityActs, reservations: cityRes }) => {
+              const pos = projectCoords(location.lat, location.lng);
+              const isSelected = selectedCity === location.city.toLowerCase();
+              const completedActs = cityActs.filter((a) => a.completed).length;
+
+              return (
+                <g
+                  key={location.city}
+                  transform={`translate(${pos.x}, ${pos.y})`}
+                  className="cursor-pointer group"
+                  onClick={() => setSelectedCity(location.city.toLowerCase())}
+                >
+                  {/* Outer Pulsing Radar Ring */}
+                  <circle
+                    r={isSelected ? 16 : 10}
+                    fill="none"
+                    stroke="#38bdf8"
+                    strokeWidth="1.5"
+                    opacity="0.6"
+                    className="animate-ping"
+                  />
+
+                  {/* Node Center Circle */}
+                  <circle
+                    r={isSelected ? 8 : 6}
+                    fill={isSelected ? '#38bdf8' : '#0ea5e9'}
+                    stroke="#ffffff"
+                    strokeWidth="2"
+                    className="group-hover:scale-125 transition-transform"
+                  />
+
+                  {/* City Label Badge */}
+                  <g transform="translate(0, 18)">
+                    <rect
+                      x="-40"
+                      y="-10"
+                      width="80"
+                      height="16"
+                      rx="8"
+                      fill="#020617"
+                      stroke="#334155"
+                      strokeWidth="1"
+                      opacity="0.95"
+                    />
+                    <text
+                      x="0"
+                      y="1"
+                      textAnchor="middle"
+                      fill="#f8fafc"
+                      fontSize="9"
+                      fontWeight="bold"
+                    >
+                      {location.flag} {location.city}
+                    </text>
+                  </g>
+
+                  {/* Activity Counter Pill if present */}
+                  {cityActs.length > 0 && (
+                    <g transform="translate(12, -8)">
+                      <circle r="7" fill="#10b981" stroke="#0f172a" strokeWidth="1.5" />
+                      <text x="0" y="3" textAnchor="middle" fill="#ffffff" fontSize="8" fontWeight="bold">
+                        {completedActs}/{cityActs.length}
+                      </text>
+                    </g>
+                  )}
+                </g>
+              );
+            })}
+          </svg>
+
+          {/* Floating Quick Legend Overlay */}
+          <div className="absolute top-3 left-3 bg-slate-900/90 backdrop-blur-md p-3 rounded-2xl border border-slate-800 text-xs space-y-1.5 shadow-xl">
+            <p className="font-bold text-white flex items-center space-x-1.5">
+              <Navigation className="w-3.5 h-3.5 text-cyan-400" />
+              <span>Leyenda del Mapa</span>
+            </p>
+            <div className="flex items-center space-x-2 text-[11px] text-slate-300">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block" />
+              <span>Tramo Completado / Aterrizado</span>
+            </div>
+            <div className="flex items-center space-x-2 text-[11px] text-slate-300">
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block" />
+              <span>Tramo En Vuelo (En Tránsito)</span>
+            </div>
+            <div className="flex items-center space-x-2 text-[11px] text-slate-300">
+              <span className="w-2.5 h-2.5 rounded-full bg-cyan-500 inline-block" />
+              <span>Tramo Programado Futuro</span>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Sequential Flight Legs Timeline & Controls */}
       <div className="bg-slate-900 rounded-2xl border border-slate-800 p-5 space-y-4 shadow-xl">

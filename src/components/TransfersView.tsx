@@ -121,7 +121,14 @@ export const TransfersView: React.FC<TransfersViewProps> = ({
 
   const handleOpenGoogleMaps = (from: string, to: string) => {
     const url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(from)}&destination=${encodeURIComponent(to)}&travelmode=transit`;
-    window.open(url, '_blank');
+    try {
+      const win = window.open(url, '_blank', 'noopener,noreferrer');
+      if (!win) {
+        window.location.href = url;
+      }
+    } catch {
+      window.location.href = url;
+    }
   };
 
   const handleCreateTransferSubmit = (e: React.FormEvent) => {

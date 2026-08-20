@@ -31,7 +31,8 @@ import {
   Printer,
   QrCode,
   ExternalLink,
-  ShieldCheck
+  ShieldCheck,
+  Plane
 } from 'lucide-react';
 
 interface ChecklistViewProps {
@@ -106,6 +107,7 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isThaiVisaDocOpen, setIsThaiVisaDocOpen] = useState(false);
+  const [isHondurasPassesDocOpen, setIsHondurasPassesDocOpen] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
 
   // New Item Form State
@@ -452,6 +454,94 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
                   <span>Ver Documento Oficial Completo (Thai E-Visa)</span>
                 </button>
               </div>
+            </div>
+          </div>
+
+          {/* Card 4: Boletos de Abordaje Oficiales United Airlines (Honduras - Houston - San Antonio) */}
+          <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-blue-950/40 rounded-2xl p-4 border border-blue-500/40 shadow-lg space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-2.5">
+              <div className="flex items-center space-x-2">
+                <div className="p-1.5 bg-blue-500/20 text-blue-300 rounded-lg border border-blue-500/40">
+                  <Plane className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-xs font-black uppercase text-blue-300 tracking-wider flex items-center gap-1.5">
+                    <span>✈️ Pases de Abordaje Oficiales — United Airlines (Honduras a Texas)</span>
+                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-bold font-mono">
+                      ✓ Emitidos & Confirmados
+                    </span>
+                  </h3>
+                  <p className="text-[11px] text-slate-400">
+                    Martes 18 de Agosto 2026 • Palmerola (XPL) ➔ Houston (IAH) ➔ San Antonio (SAT)
+                  </p>
+                </div>
+              </div>
+              <div className="text-right">
+                <span className="text-[10px] font-mono text-slate-400 block">Confirmation / Código PNR</span>
+                <span className="text-sm font-black font-mono text-blue-300 bg-slate-950 px-2.5 py-1 rounded-lg border border-blue-500/40">
+                  O7TX21
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-[11px]">
+              <div className="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800 space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] text-slate-400 font-semibold">Tramo 1: UA 527</span>
+                  <span className="text-[10px] font-mono font-bold text-amber-300">12:30 PM - 4:35 PM</span>
+                </div>
+                <div className="font-extrabold text-white">XPL (Comayagua) ➔ IAH (Houston)</div>
+                <div className="text-[10px] text-slate-300 flex justify-between font-mono pt-1 border-t border-slate-800">
+                  <span>Abordaje: 11:50 AM</span>
+                  <span className="text-cyan-300 font-bold">Grupo 6</span>
+                </div>
+              </div>
+
+              <div className="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800 space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] text-slate-400 font-semibold">Tramo 2: UA 1477</span>
+                  <span className="text-[10px] font-mono font-bold text-amber-300">6:50 PM - 7:58 PM</span>
+                </div>
+                <div className="font-extrabold text-white">IAH (Houston) ➔ SAT (San Antonio)</div>
+                <div className="text-[10px] text-slate-300 flex justify-between font-mono pt-1 border-t border-slate-800">
+                  <span>Abordaje: 6:15 PM</span>
+                  <span className="text-cyan-300 font-bold">Grupo 6</span>
+                </div>
+              </div>
+
+              <div className="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800 space-y-1">
+                <span className="text-[10px] text-slate-400 block font-semibold">👤 Donauro Emmanuel Castro</span>
+                <div className="font-mono text-cyan-300 font-bold text-[11px]">
+                  UA527: <span className="text-white bg-slate-900 px-1.5 py-0.5 rounded border border-slate-700">28A (Ventana)</span>
+                </div>
+                <div className="font-mono text-cyan-300 font-bold text-[11px]">
+                  UA1477: <span className="text-white bg-slate-900 px-1.5 py-0.5 rounded border border-slate-700">27D (Pasillo)</span>
+                </div>
+                <div className="text-[9px] text-slate-400 font-mono">Ticket: 01621079886800</div>
+              </div>
+
+              <div className="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800 space-y-1">
+                <span className="text-[10px] text-slate-400 block font-semibold">👤 Nohemy Maria Israel</span>
+                <div className="font-mono text-cyan-300 font-bold text-[11px]">
+                  UA527: <span className="text-white bg-slate-900 px-1.5 py-0.5 rounded border border-slate-700">28C (Pasillo)</span>
+                </div>
+                <div className="font-mono text-cyan-300 font-bold text-[11px]">
+                  UA1477: <span className="text-white bg-slate-900 px-1.5 py-0.5 rounded border border-slate-700">26D (Pasillo)</span>
+                </div>
+                <div className="text-[9px] text-slate-400 font-mono">Ticket: 01621079886811</div>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between text-[10px] text-slate-400 bg-slate-950/60 p-2.5 rounded-xl border border-slate-800/80 font-mono gap-2">
+              <span className="truncate">Tarifa: Basic Economy (BE-NO CARRY ON) • Star Alliance</span>
+              <button
+                type="button"
+                onClick={() => setIsHondurasPassesDocOpen(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 text-white font-black text-xs rounded-lg shadow-md transition-all shrink-0 cursor-pointer"
+              >
+                <Eye className="w-3.5 h-3.5" />
+                <span>Ver los 4 Pases de Abordaje Oficiales (PDF Respaldo)</span>
+              </button>
             </div>
           </div>
         </div>
@@ -1138,6 +1228,273 @@ export const ChecklistView: React.FC<ChecklistViewProps> = ({
               <button
                 type="button"
                 onClick={() => setIsThaiVisaDocOpen(false)}
+                className="px-4 py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-lg transition-colors"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Full Honduras - USA United Airlines Boarding Passes Official Backup Modal */}
+      {isHondurasPassesDocOpen && (
+        <div
+          id="modal-hn-passes-backdrop"
+          className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto"
+          onClick={() => setIsHondurasPassesDocOpen(false)}
+        >
+          <div
+            id="modal-hn-passes-content"
+            className="bg-white text-slate-900 w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden border border-slate-300 relative my-auto animate-in fade-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="bg-[#002244] text-white px-5 py-3.5 flex items-center justify-between border-b border-slate-800">
+              <div className="flex items-center space-x-2.5">
+                <div className="p-1.5 bg-blue-500/20 text-blue-300 rounded-lg border border-blue-400/30">
+                  <Plane className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-xs font-bold text-white tracking-wide flex items-center gap-2">
+                    <span>UNITED AIRLINES — PASES DE ABORDAJE (XPL ➔ IAH ➔ SAT)</span>
+                    <span className="bg-amber-500 text-slate-950 font-black text-[9px] px-2 py-0.5 rounded font-mono">
+                      BE-NO CARRY ON
+                    </span>
+                  </h3>
+                  <p className="text-[10px] text-blue-200 font-mono">
+                    Confirmación / PNR: O7TX21 • Martes 18 de Agosto 2026 • Star Alliance
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="px-3 py-1.5 bg-blue-900/60 hover:bg-blue-800 text-white text-xs font-semibold rounded-lg flex items-center gap-1.5 transition-colors border border-blue-600/40"
+                  title="Imprimir o Guardar como PDF"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Imprimir / PDF</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsHondurasPassesDocOpen(false)}
+                  className="p-1.5 text-slate-300 hover:text-white rounded-lg hover:bg-blue-900 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Passes Container Body */}
+            <div className="p-4 sm:p-6 space-y-6 max-h-[75vh] overflow-y-auto bg-slate-50">
+              {/* PASS 1: DONAURO (UA 527: XPL -> IAH) */}
+              <div className="bg-white rounded-xl border-2 border-slate-300 p-4 shadow-sm space-y-3">
+                <div className="flex flex-wrap items-center justify-between border-b border-slate-200 pb-2">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-lg font-black text-[#002244]">UNITED</span>
+                    <span className="bg-slate-900 text-white font-mono text-[10px] font-bold px-2 py-0.5 rounded">INTL</span>
+                    <span className="bg-orange-500 text-white font-bold text-[10px] px-2 py-0.5 rounded">BE-NO CARRY ON</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="font-mono text-xs font-bold text-slate-600">O7TX21 • 28A • Page 1/4</span>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                  <div>
+                    <span className="text-[10px] text-slate-500 block uppercase font-bold">Passenger / Pasajero</span>
+                    <strong className="text-sm text-slate-900">CASTROMENDOZA / DONAURO</strong>
+                  </div>
+                  <div className="text-left sm:text-right">
+                    <span className="text-[10px] text-slate-500 block uppercase font-bold">Flight / Vuelo</span>
+                    <strong className="text-base text-[#002244] font-black">UA 527</strong>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-slate-100 p-3 rounded-lg text-xs">
+                  <div>
+                    <span className="text-[10px] text-slate-500 block">Route / Ruta</span>
+                    <strong className="text-slate-900">XPL ➔ IAH</strong>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-500 block">Boarding Begins</span>
+                    <strong className="text-slate-900">11:50 AM (Ends 12:15 PM)</strong>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-500 block">Departs / Arrives</span>
+                    <strong className="text-slate-900">12:30 PM ➔ 4:35 PM</strong>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-500 block">Seat / Asiento & Group</span>
+                    <strong className="text-blue-700 font-bold text-sm">28A (Window) • Group 6</strong>
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center text-[10px] text-slate-500 font-mono pt-1">
+                  <span>Ticket: 01621079886800</span>
+                  <span>Confirmation: O7TX21 • Star Alliance</span>
+                </div>
+              </div>
+
+              {/* PASS 2: NOHEMY (UA 527: XPL -> IAH) */}
+              <div className="bg-white rounded-xl border-2 border-slate-300 p-4 shadow-sm space-y-3">
+                <div className="flex flex-wrap items-center justify-between border-b border-slate-200 pb-2">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-lg font-black text-[#002244]">UNITED</span>
+                    <span className="bg-slate-900 text-white font-mono text-[10px] font-bold px-2 py-0.5 rounded">INTL</span>
+                    <span className="bg-orange-500 text-white font-bold text-[10px] px-2 py-0.5 rounded">BE-NO CARRY ON</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="font-mono text-xs font-bold text-slate-600">O7TX21 • 28C • Page 2/4</span>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                  <div>
+                    <span className="text-[10px] text-slate-500 block uppercase font-bold">Passenger / Pasajera</span>
+                    <strong className="text-sm text-slate-900">ISRAEL / NOHEMY</strong>
+                  </div>
+                  <div className="text-left sm:text-right">
+                    <span className="text-[10px] text-slate-500 block uppercase font-bold">Flight / Vuelo</span>
+                    <strong className="text-base text-[#002244] font-black">UA 527</strong>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-slate-100 p-3 rounded-lg text-xs">
+                  <div>
+                    <span className="text-[10px] text-slate-500 block">Route / Ruta</span>
+                    <strong className="text-slate-900">XPL ➔ IAH</strong>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-500 block">Boarding Begins</span>
+                    <strong className="text-slate-900">11:50 AM (Ends 12:15 PM)</strong>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-500 block">Departs / Arrives</span>
+                    <strong className="text-slate-900">12:30 PM ➔ 4:35 PM</strong>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-500 block">Seat / Asiento & Group</span>
+                    <strong className="text-blue-700 font-bold text-sm">28C (Aisle) • Group 6</strong>
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center text-[10px] text-slate-500 font-mono pt-1">
+                  <span>Ticket: 01621079886811</span>
+                  <span>Confirmation: O7TX21 • Star Alliance</span>
+                </div>
+              </div>
+
+              {/* PASS 3: DONAURO (UA 1477: IAH -> SAT) */}
+              <div className="bg-white rounded-xl border-2 border-slate-300 p-4 shadow-sm space-y-3">
+                <div className="flex flex-wrap items-center justify-between border-b border-slate-200 pb-2">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-lg font-black text-[#002244]">UNITED</span>
+                    <span className="bg-slate-900 text-white font-mono text-[10px] font-bold px-2 py-0.5 rounded">INTL / DOM</span>
+                    <span className="bg-orange-500 text-white font-bold text-[10px] px-2 py-0.5 rounded">BE-NO CARRY ON</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="font-mono text-xs font-bold text-slate-600">O7TX21 • 27D • Page 3/4</span>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                  <div>
+                    <span className="text-[10px] text-slate-500 block uppercase font-bold">Passenger / Pasajero</span>
+                    <strong className="text-sm text-slate-900">CASTROMENDOZA / DONAURO</strong>
+                  </div>
+                  <div className="text-left sm:text-right">
+                    <span className="text-[10px] text-slate-500 block uppercase font-bold">Flight / Vuelo</span>
+                    <strong className="text-base text-[#002244] font-black">UA 1477</strong>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-slate-100 p-3 rounded-lg text-xs">
+                  <div>
+                    <span className="text-[10px] text-slate-500 block">Route / Ruta</span>
+                    <strong className="text-slate-900">IAH ➔ SAT</strong>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-500 block">Boarding Begins</span>
+                    <strong className="text-slate-900">6:15 PM (Ends 6:35 PM)</strong>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-500 block">Departs / Arrives</span>
+                    <strong className="text-slate-900">6:50 PM ➔ 7:58 PM</strong>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-500 block">Seat / Asiento & Group</span>
+                    <strong className="text-blue-700 font-bold text-sm">27D (Aisle) • Group 6</strong>
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center text-[10px] text-slate-500 font-mono pt-1">
+                  <span>Ticket: 01621079886800</span>
+                  <span>Confirmation: O7TX21 • Star Alliance</span>
+                </div>
+              </div>
+
+              {/* PASS 4: NOHEMY (UA 1477: IAH -> SAT) */}
+              <div className="bg-white rounded-xl border-2 border-slate-300 p-4 shadow-sm space-y-3">
+                <div className="flex flex-wrap items-center justify-between border-b border-slate-200 pb-2">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-lg font-black text-[#002244]">UNITED</span>
+                    <span className="bg-slate-900 text-white font-mono text-[10px] font-bold px-2 py-0.5 rounded">INTL / DOM</span>
+                    <span className="bg-orange-500 text-white font-bold text-[10px] px-2 py-0.5 rounded">BE-NO CARRY ON</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="font-mono text-xs font-bold text-slate-600">O7TX21 • 26D • Page 4/4</span>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                  <div>
+                    <span className="text-[10px] text-slate-500 block uppercase font-bold">Passenger / Pasajera</span>
+                    <strong className="text-sm text-slate-900">ISRAEL / NOHEMY</strong>
+                  </div>
+                  <div className="text-left sm:text-right">
+                    <span className="text-[10px] text-slate-500 block uppercase font-bold">Flight / Vuelo</span>
+                    <strong className="text-base text-[#002244] font-black">UA 1477</strong>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-slate-100 p-3 rounded-lg text-xs">
+                  <div>
+                    <span className="text-[10px] text-slate-500 block">Route / Ruta</span>
+                    <strong className="text-slate-900">IAH ➔ SAT</strong>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-500 block">Boarding Begins</span>
+                    <strong className="text-slate-900">6:15 PM (Ends 6:35 PM)</strong>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-500 block">Departs / Arrives</span>
+                    <strong className="text-slate-900">6:50 PM ➔ 7:58 PM</strong>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-500 block">Seat / Asiento & Group</span>
+                    <strong className="text-blue-700 font-bold text-sm">26D (Aisle) • Group 6</strong>
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center text-[10px] text-slate-500 font-mono pt-1">
+                  <span>Ticket: 01621079886811</span>
+                  <span>Confirmation: O7TX21 • Star Alliance</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="bg-slate-100 px-6 py-3 border-t border-slate-300 flex items-center justify-between text-xs text-slate-600">
+              <span className="font-medium text-[11px]">
+                🛡️ 4 pases de abordaje emitidos y listos para presentación en el mostrador / puerta
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsHondurasPassesDocOpen(false)}
                 className="px-4 py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-lg transition-colors"
               >
                 Cerrar
