@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Trip, Activity } from '../types';
-import { Calendar, Clock, MapPin, DollarSign, CheckCircle2, Circle, MessageSquare, Plus, Trash2, Tag, ArrowRight } from 'lucide-react';
+import { Calendar, Clock, MapPin, DollarSign, CheckCircle2, Circle, MessageSquare, Plus, Trash2, Tag, ArrowRight, Compass, Plane, Train, Car, Layers, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
 
 interface ItineraryViewProps {
   trip: Trip;
@@ -11,6 +11,16 @@ interface ItineraryViewProps {
   onNotifyWhatsApp: (activity: Activity) => void;
 }
 
+const ITINERARY_STAGES_QUICK = [
+  { step: 1, from: 'Comayagua 🇭🇳', to: 'Houston 🇺🇸', type: 'flight', code: 'UA 527', date: '18-Ago', status: 'Listo' },
+  { step: 2, from: 'Houston 🇺🇸', to: 'San Antonio 🇺🇸', type: 'ground', code: 'I-10 W', date: '19-Ago', status: 'Listo' },
+  { step: 3, from: 'San Antonio 🇺🇸', to: 'San Francisco 🇺🇸', type: 'flight', code: 'UA 388', date: '21-Ago', status: 'Listo' },
+  { step: 4, from: 'San Francisco 🇺🇸', to: 'Osaka 🇯🇵', type: 'flight', code: 'NH 007', date: '23-Ago', status: 'En Ruta' },
+  { step: 5, from: 'Osaka 🇯🇵', to: 'Tokio 🇯🇵', type: 'train', code: 'Shinkansen', date: '27-Ago', status: 'Programado' },
+  { step: 6, from: 'Tokio 🇯🇵', to: 'Seúl 🇰🇷', type: 'flight', code: 'KE 704', date: '31-Ago', status: 'Programado' },
+  { step: 7, from: 'Seúl 🇰🇷', to: 'Bangkok 🇹🇭', type: 'flight', code: 'TG 659', date: '04-Sep', status: 'Programado' },
+];
+
 export const ItineraryView: React.FC<ItineraryViewProps> = ({
   trip,
   activities,
@@ -20,6 +30,8 @@ export const ItineraryView: React.FC<ItineraryViewProps> = ({
   onNotifyWhatsApp,
 }) => {
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>('all');
+  const [showRouteStrip, setShowRouteStrip] = useState<boolean>(true);
+  const [selectedStageIdx, setSelectedStageIdx] = useState<number>(3); // Pacific crossing by default
 
   // Filter activities by tripId
   const tripActivities = activities.filter((a) => a.tripId === trip.id);
@@ -63,6 +75,111 @@ export const ItineraryView: React.FC<ItineraryViewProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* Route & Stages Visual Map Banner (Always Visible) */}
+      <div className="bg-slate-900 rounded-2xl border border-cyan-500/40 p-4 shadow-xl space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2.5">
+            <div className="p-2 bg-gradient-to-tr from-cyan-500 to-emerald-500 rounded-xl text-slate-950 font-black shadow-md shadow-cyan-500/20">
+              <Compass className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-extrabold text-white flex items-center space-x-2">
+                <span>Ruta y Trayectos de la Travesía</span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                  7 ETAPAS
+                </span>
+              </h3>
+              <p className="text-[11px] text-slate-400">
+                Honduras 🇭🇳 ➔ EE.UU. 🇺🇸 ➔ Japón 🇯🇵 (Osaka/Tokio) ➔ Seúl 🇰🇷 ➔ Bangkok 🇹🇭
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => setShowRouteStrip(!showRouteStrip)}
+            className="flex items-center space-x-1 px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-800 text-xs font-bold text-slate-300 hover:text-white transition-all"
+          >
+            <span>{showRouteStrip ? 'Ocultar Mapa' : 'Ver Mapa'}</span>
+            {showRouteStrip ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+          </button>
+        </div>
+
+        {showRouteStrip && (
+          <div className="pt-2 border-t border-slate-800 space-y-3">
+            {/* Stages Step Timeline Buttons */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+              {ITINERARY_STAGES_QUICK.map((stg, i) => {
+                const isSelected = selectedStageIdx === i;
+                return (
+                  <button
+                    key={stg.step}
+                    onClick={() => setSelectedStageIdx(i)}
+                    className={`p-2 rounded-xl text-left transition-all border ${
+                      isSelected
+                        ? 'bg-cyan-500 text-slate-950 border-cyan-400 font-extrabold shadow-md scale-102'
+                        : 'bg-slate-950/80 text-slate-300 border-slate-800 hover:bg-slate-800/80'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between text-[10px] opacity-80 mb-0.5">
+                      <span>Tramo #{stg.step}</span>
+                      <span>{stg.date}</span>
+                    </div>
+                    <div className="text-xs font-bold truncate">
+                      {stg.from.split(' ')[0]} ➔ {stg.to.split(' ')[0]}
+                    </div>
+                    <div className="text-[10px] mt-1 flex items-center justify-between opacity-90">
+                      <span>{stg.code}</span>
+                      <span className={isSelected ? 'text-slate-950 font-black' : 'text-emerald-400 font-semibold'}>
+                        {stg.status}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Quick Detail Pill of Selected Stage */}
+            {ITINERARY_STAGES_QUICK[selectedStageIdx] && (
+              <div className="p-3 bg-slate-950 rounded-xl border border-slate-800/90 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-slate-900 rounded-lg text-cyan-400 border border-slate-800">
+                    {ITINERARY_STAGES_QUICK[selectedStageIdx].type === 'train' ? (
+                      <Train className="w-4 h-4 text-amber-400" />
+                    ) : ITINERARY_STAGES_QUICK[selectedStageIdx].type === 'ground' ? (
+                      <Car className="w-4 h-4 text-cyan-400" />
+                    ) : (
+                      <Plane className="w-4 h-4 text-emerald-400" />
+                    )}
+                  </div>
+                  <div>
+                    <div className="font-bold text-white flex items-center space-x-2">
+                      <span>{ITINERARY_STAGES_QUICK[selectedStageIdx].from}</span>
+                      <ArrowRight className="w-3 h-3 text-slate-500" />
+                      <span>{ITINERARY_STAGES_QUICK[selectedStageIdx].to}</span>
+                      <span className="text-cyan-400 font-mono text-[11px]">[{ITINERARY_STAGES_QUICK[selectedStageIdx].code}]</span>
+                    </div>
+                    <span className="text-[11px] text-slate-400">
+                      Fecha programada: {ITINERARY_STAGES_QUICK[selectedStageIdx].date} 2026 • Estado: {ITINERARY_STAGES_QUICK[selectedStageIdx].status}
+                    </span>
+                  </div>
+                </div>
+
+                <a
+                  href={`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(
+                    ITINERARY_STAGES_QUICK[selectedStageIdx].from
+                  )}&destination=${encodeURIComponent(ITINERARY_STAGES_QUICK[selectedStageIdx].to)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-cyan-300 border border-slate-700 rounded-lg text-xs font-bold flex items-center justify-center space-x-1.5 transition-all"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>Ver ruta en Google Maps</span>
+                </a>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
       {/* Category Filter & Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-slate-900/80 p-4 rounded-xl border border-slate-800">
         <div>
