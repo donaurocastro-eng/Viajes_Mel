@@ -205,38 +205,68 @@ export default function App() {
   }, [checklistItems]);
 
   const handleToggleChecklistItem = (id: string) => {
-    setChecklistItems((prev) =>
-      prev.map((item) => {
-        if (item.id === id) {
-          const nextStatus = !item.completed;
-          triggerToast(
-            nextStatus
-              ? `✅ Tarea "${item.title}" marcada como completada.`
-              : `⏳ Tarea "${item.title}" marcada como pendiente.`
-          );
-          return { ...item, completed: nextStatus };
-        }
-        return item;
-      })
-    );
+    setChecklistItems((prev) => {
+      const target = prev.find((item) => item.id === id);
+      const nextStatus = target ? !target.completed : true;
+      const updated = prev.map((item) =>
+        item.id === id ? { ...item, completed: nextStatus } : item
+      );
+      try {
+        localStorage.setItem('viajeflow_checklist_v5', JSON.stringify(updated));
+      } catch (err) {
+        console.error('Error saving checklist:', err);
+      }
+      if (target) {
+        triggerToast(
+          nextStatus
+            ? `✅ Tarea "${target.title}" marcada como completada.`
+            : `⏳ Tarea "${target.title}" marcada como pendiente.`
+        );
+      }
+      return updated;
+    });
   };
 
   const handleAddChecklistItem = (newItem: ChecklistItem) => {
-    setChecklistItems((prev) => [newItem, ...prev]);
+    setChecklistItems((prev) => {
+      const updated = [newItem, ...prev];
+      try {
+        localStorage.setItem('viajeflow_checklist_v5', JSON.stringify(updated));
+      } catch (err) {
+        console.error('Error saving checklist:', err);
+      }
+      return updated;
+    });
     triggerToast(`📋 Tarea "${newItem.title}" agregada al checklist.`);
   };
 
   const handleDeleteChecklistItem = (id: string) => {
-    setChecklistItems((prev) => prev.filter((item) => item.id !== id));
+    setChecklistItems((prev) => {
+      const updated = prev.filter((item) => item.id !== id);
+      try {
+        localStorage.setItem('viajeflow_checklist_v5', JSON.stringify(updated));
+      } catch (err) {
+        console.error('Error saving checklist:', err);
+      }
+      return updated;
+    });
     triggerToast(`🗑️ Tarea eliminada del checklist.`);
   };
 
   const handleResetChecklistItems = (tripId: string) => {
     const defaultForTrip = initialChecklistItems.filter((i) => i.tripId === tripId);
-    setChecklistItems((prev) => [
-      ...prev.filter((i) => i.tripId !== tripId),
-      ...defaultForTrip
-    ]);
+    setChecklistItems((prev) => {
+      const updated = [
+        ...prev.filter((i) => i.tripId !== tripId),
+        ...defaultForTrip
+      ];
+      try {
+        localStorage.setItem('viajeflow_checklist_v5', JSON.stringify(updated));
+      } catch (err) {
+        console.error('Error saving checklist:', err);
+      }
+      return updated;
+    });
     triggerToast(`🔄 Checklist restaurado a valores iniciales.`);
   };
 
@@ -288,8 +318,9 @@ export default function App() {
   };
 
   const handleUpdateFlightStatus = (flightId: string, newStatus: FlightStatus, newGate?: string) => {
-    setFlights((prev) =>
-      prev.map((f) => {
+    setFlights((prev) => {
+      const target = prev.find((f) => f.id === flightId);
+      const updated = prev.map((f) => {
         if (f.id === flightId) {
           return {
             ...f,
@@ -298,8 +329,27 @@ export default function App() {
           };
         }
         return f;
-      })
-    );
+      });
+      try {
+        localStorage.setItem('viajeflow_flights_v2', JSON.stringify(updated));
+      } catch (err) {
+        console.error('Error saving flights:', err);
+      }
+      if (target) {
+        const statusLabel =
+          newStatus === 'aterrizado'
+            ? 'Completado / Realizado 🛬'
+            : newStatus === 'en_vuelo'
+            ? 'En Vuelo / En Trayecto ✈️'
+            : newStatus === 'retrasado'
+            ? 'Retrasado ⏱️'
+            : newStatus === 'embarcando'
+            ? 'Embarcando 🚪'
+            : 'Programado 🗓️';
+        triggerToast(`✈️ Tramo "${target.airline} ${target.flightNumber}" actualizado a: ${statusLabel}`);
+      }
+      return updated;
+    });
   };
 
   const handleDeleteFlight = (id: string) => {
@@ -358,9 +408,24 @@ export default function App() {
   };
 
   const handleToggleActivity = (id: string) => {
-    setActivities((prev) =>
-      prev.map((a) => (a.id === id ? { ...a, completed: !a.completed } : a))
-    );
+    setActivities((prev) => {
+      const target = prev.find((a) => a.id === id);
+      const nextStatus = target ? !target.completed : true;
+      const updated = prev.map((a) => (a.id === id ? { ...a, completed: nextStatus } : a));
+      try {
+        localStorage.setItem('viajeflow_activities_v1', JSON.stringify(updated));
+      } catch (err) {
+        console.error('Error saving activities:', err);
+      }
+      if (target) {
+        triggerToast(
+          nextStatus
+            ? `✅ Actividad "${target.title}" marcada como completada.`
+            : `⏳ Actividad "${target.title}" marcada como pendiente.`
+        );
+      }
+      return updated;
+    });
   };
 
   const handleDeleteActivity = (id: string) => {

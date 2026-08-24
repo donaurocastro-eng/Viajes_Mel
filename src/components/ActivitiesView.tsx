@@ -41,10 +41,25 @@ export const ActivitiesView: React.FC<ActivitiesViewProps> = ({
     { id: 'p-6', label: 'Tarjetas de Crédito / Débito sin comisión en divisas', category: 'Finanzas' },
   ];
 
-  const [checkedPacking, setCheckedPacking] = useState<Record<string, boolean>>({});
+  const [checkedPacking, setCheckedPacking] = useState<Record<string, boolean>>(() => {
+    try {
+      const saved = localStorage.getItem(`viajeflow_packing_${trip.id}`);
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
 
   const togglePacking = (id: string) => {
-    setCheckedPacking((prev) => ({ ...prev, [id]: !prev[id] }));
+    setCheckedPacking((prev) => {
+      const next = { ...prev, [id]: !prev[id] };
+      try {
+        localStorage.setItem(`viajeflow_packing_${trip.id}`, JSON.stringify(next));
+      } catch (err) {
+        console.error('Error saving packing list:', err);
+      }
+      return next;
+    });
   };
 
   return (

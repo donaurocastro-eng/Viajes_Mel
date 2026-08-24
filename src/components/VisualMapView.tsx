@@ -9,6 +9,7 @@ interface VisualMapViewProps {
   reservations: Reservation[];
   selectedCity?: string | null;
   onSelectCity?: (city: string) => void;
+  onToggleActivity?: (activityId: string) => void;
 }
 
 interface DestinationNode {
@@ -41,6 +42,7 @@ export const VisualMapView: React.FC<VisualMapViewProps> = ({
   reservations,
   selectedCity: controlledCity,
   onSelectCity,
+  onToggleActivity,
 }) => {
   const [internalSelectedCity, setInternalSelectedCity] = useState<string>('osaka');
   const [activeTab, setActiveTab] = useState<'map' | 'osm_embed' | 'satellite'>('map');
@@ -297,19 +299,40 @@ export const VisualMapView: React.FC<VisualMapViewProps> = ({
                 ) : (
                   <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
                     {getCityActivities(activeNode).map((act) => (
-                      <div key={act.id} className="p-2.5 bg-slate-900 rounded-lg border border-slate-800 flex items-start justify-between text-xs">
-                        <div>
-                          <div className="font-bold text-white">{act.title}</div>
-                          <div className="text-[11px] text-slate-400 flex items-center space-x-2 mt-0.5">
-                            <Clock className="w-3 h-3 text-cyan-400" />
-                            <span>{act.date} • {act.startTime}</span>
-                            {act.cost ? <span className="text-emerald-400 font-bold">${act.cost}</span> : null}
+                      <div
+                        key={act.id}
+                        onClick={() => onToggleActivity && onToggleActivity(act.id)}
+                        className={`p-2.5 rounded-lg border flex items-start justify-between text-xs transition-all ${
+                          onToggleActivity ? 'cursor-pointer hover:border-slate-600' : ''
+                        } ${
+                          act.completed
+                            ? 'bg-slate-900/60 border-emerald-500/30'
+                            : 'bg-slate-900 border-slate-800'
+                        }`}
+                      >
+                        <div className="flex items-start space-x-2">
+                          <div className="mt-0.5 text-slate-400">
+                            {act.completed ? (
+                              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                            ) : (
+                              <div className="w-4 h-4 rounded-full border border-slate-600" />
+                            )}
+                          </div>
+                          <div>
+                            <div className={`font-bold ${act.completed ? 'line-through text-slate-400' : 'text-white'}`}>
+                              {act.title}
+                            </div>
+                            <div className="text-[11px] text-slate-400 flex items-center space-x-2 mt-0.5">
+                              <Clock className="w-3 h-3 text-cyan-400" />
+                              <span>{act.date} • {act.startTime}</span>
+                              {act.cost ? <span className="text-emerald-400 font-bold">${act.cost}</span> : null}
+                            </div>
                           </div>
                         </div>
                         {act.completed ? (
-                          <span className="text-emerald-400 text-xs">✓ Hecho</span>
+                          <span className="text-emerald-400 text-[11px] font-bold shrink-0 ml-2">✓ Hecho</span>
                         ) : (
-                          <span className="text-amber-400 text-xs">⏳ Pendiente</span>
+                          <span className="text-amber-400 text-[11px] shrink-0 ml-2">⏳ Pendiente</span>
                         )}
                       </div>
                     ))}

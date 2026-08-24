@@ -6,6 +6,7 @@ import {
   Map,
   Plane,
   CheckCircle2,
+  Circle,
   Clock,
   MapPin,
   Sparkles,
@@ -922,12 +923,13 @@ export const RouteMapView: React.FC<RouteMapViewProps> = ({
                         }`}
                       >
                         <div className="flex items-center space-x-3">
-                          <input
-                            type="checkbox"
-                            checked={act.completed}
-                            onChange={() => onToggleActivity(act.id)}
-                            className="w-4 h-4 rounded border-slate-700 text-emerald-500 focus:ring-emerald-500 cursor-pointer accent-emerald-500"
-                          />
+                          <div className="text-slate-400 hover:text-emerald-400 flex-shrink-0">
+                            {act.completed ? (
+                              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                            ) : (
+                              <Circle className="w-4 h-4 text-slate-500" />
+                            )}
+                          </div>
                           <div>
                             <p className={`text-xs font-bold ${act.completed ? 'line-through text-slate-400' : 'text-white'}`}>
                               {act.title}
