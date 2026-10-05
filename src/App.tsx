@@ -1,9 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { Trip, Flight, Reservation, Activity, WhatsAppLog, WhatsAppConfig, SupabaseConfig, FlightStatus, BoardingPassAttachment, GroundTransfer, Expense, ChecklistItem } from './types';
-import { initialTrips, initialFlights, initialReservations, initialActivities, initialWhatsAppLogs, initialGroundTransfers, initialExpenses, initialChecklistItems } from './data/mockData';
+import { 
+  Trip, Flight, Reservation, ReservationStatus, Activity, 
+  WhatsAppLog, WhatsAppConfig, SupabaseConfig, FlightStatus, 
+  BoardingPassAttachment, GroundTransfer, Expense, ChecklistItem,
+  VisitedCountry, TravelPhoto 
+} from './types';
+import { 
+  initialTrips, initialFlights, initialReservations, 
+  initialActivities, initialWhatsAppLogs, initialGroundTransfers, 
+  initialExpenses, initialChecklistItems 
+} from './data/mockData';
+import { WORLD_COUNTRIES_CATALOG, INITIAL_TRAVEL_PHOTOS } from './data/worldCountries';
 import { Navbar } from './components/Navbar';
 import { TripHeader } from './components/TripHeader';
 import { TripsMenuView } from './components/TripsMenuView';
+import { TripPlanContainer } from './components/TripPlanContainer';
+import { FinancesContainer } from './components/FinancesContainer';
+import { WorldTravelMap } from './components/WorldTravelMap';
+import { PhotoUploadModal } from './components/PhotoUploadModal';
+import { CountryDetailModal } from './components/CountryDetailModal';
 import { ItineraryView } from './components/ItineraryView';
 import { FlightsView } from './components/FlightsView';
 import { TransfersView } from './components/TransfersView';
@@ -29,6 +44,21 @@ import {
   formatDailySummaryAlert,
 } from './services/whatsappClient';
 import { getSavedSupabaseConfig, saveSupabaseConfig, getSupabaseInstance } from './services/supabaseService';
+
+// Hotel IDs mapping to Checklist Item IDs for seamless 2-way synchronization
+const HOTEL_RES_TO_CHECKLIST_MAP: Record<string, string> = {
+  'res-jp-1': 'chk-hotel-1-voco',
+  'res-jp-2': 'chk-hotel-2-ginza',
+  'res-kr-1': 'chk-hotel-3-insadong',
+  'res-th-1': 'chk-hotel-4-bangkok',
+};
+
+const CHECKLIST_TO_HOTEL_RES_MAP: Record<string, string> = {
+  'chk-hotel-1-voco': 'res-jp-1',
+  'chk-hotel-2-ginza': 'res-jp-2',
+  'chk-hotel-3-insadong': 'res-kr-1',
+  'chk-hotel-4-bangkok': 'res-th-1',
+};
 
 export default function App() {
   // Persistence state
@@ -57,12 +87,19 @@ export default function App() {
 
   const [flights, setFlights] = useState<Flight[]>(() => {
     try {
-      const saved = localStorage.getItem('viajeflow_flights_v2');
+      const saved = localStorage.getItem('viajeflow_flights_v3') || localStorage.getItem('viajeflow_flights_v2');
       if (saved) {
         const parsed: Flight[] = JSON.parse(saved);
-        const existingIds = new Set(parsed.map(f => f.id));
+        // Ensure flights up to Osaka (flight-hn-1, flight-hn-2, flight-jp-1, flight-jp-2) default to aterrizado if not already
+        const updated = parsed.map(f => {
+          if (['flight-hn-1', 'flight-hn-2', 'flight-jp-1', 'flight-jp-2'].includes(f.id) && f.status === 'programado') {
+            return { ...f, status: 'aterrizado' as FlightStatus };
+          }
+          return f;
+        });
+        const existingIds = new Set(updated.map(f => f.id));
         const missingAsia = initialFlights.filter(f => f.tripId === 'trip-asia-2026' && !existingIds.has(f.id));
-        return [...missingAsia, ...parsed];
+        return [...missingAsia, ...updated];
       }
       return initialFlights;
     } catch {
@@ -72,12 +109,19 @@ export default function App() {
 
   const [reservations, setReservations] = useState<Reservation[]>(() => {
     try {
-      const saved = localStorage.getItem('viajeflow_reservations_v1');
+      const saved = localStorage.getItem('viajeflow_reservations_v2') || localStorage.getItem('viajeflow_reservations_v1');
       if (saved) {
         const parsed: Reservation[] = JSON.parse(saved);
-        const existingIds = new Set(parsed.map(r => r.id));
-        const missingAsia = initialReservations.filter(r => r.tripId === 'trip-asia-2026' && !existingIds.has(r.id));
-        return [...missingAsia, ...parsed];
+        // Ensure hotel at Osaka (voco) is checked-in / completed if currently staying there
+        const updated = parsed.map(r => {
+          if (r.id === 'res-jp-1' && r.status === 'confirmed' && !r.completed) {
+            return { ...r, status: 'checked_in' as ReservationStatus, completed: true, checkedIn: true };
+          }
+          return r;
+        });
+        const existingIds = new Set(updated.map(r => r.id));
+        const missingAsianest = initialReservations.filter(r => r.tripId === 'trip-asia-2026' && !existingIds.has(r.id));
+        return [...missingAsianest, ...updated];
       }
       return initialReservations;
     } catch {
@@ -130,8 +174,8 @@ export default function App() {
       if (saved) {
         const parsed: Expense[] = JSON.parse(saved);
         const existingIds = new Set(parsed.map(e => e.id));
-        const missingAsia = initialExpenses.filter(e => e.tripId === 'trip-asia-2026' && !existingIds.has(e.id));
-        return [...missingAsia, ...parsed];
+        const missingAsia拼 = initialExpenses.filter(e => e.tripId === 'trip-asia-2026' && !existingIds.has(e.id));
+        return [...missingAsia拼, ...parsed];
       }
       return initialExpenses;
     } catch {
@@ -141,9 +185,9 @@ export default function App() {
 
   const [checklistItems, setChecklistItems] = useState<ChecklistItem[]>(() => {
     try {
-      const saved = localStorage.getItem('viajeflow_checklist_v5');
-      if (saved) {
-        const parsed: ChecklistItem[] = JSON.parse(saved);
+      const saved不易 = localStorage.getItem('viajeflow_checklist_v6') || localStorage.getItem('viajeflow_checklist_v5');
+      if (saved不易) {
+        const parsed: ChecklistItem[] = JSON.parse(saved不易);
         const existingIds = new Set(parsed.map(i => i.id));
         const missingAsia = initialChecklistItems.filter(i => i.tripId === 'trip-asia-2026' && !existingIds.has(i.id));
         return [...missingAsia, ...parsed];
@@ -157,8 +201,119 @@ export default function App() {
   const [whatsAppConfig, setWhatsAppConfig] = useState<WhatsAppConfig>(getSavedWhatsAppConfig);
   const [supabaseConfig, setSupabaseConfig] = useState<SupabaseConfig>(getSavedSupabaseConfig);
 
+  // Travel photos state with persistence and automatic Panama fix
+  const [travelPhotos, setTravelPhotos] = useState<TravelPhoto[]>(() => {
+    try {
+      const saved = localStorage.getItem('viajeflow_travel_photos_v2');
+      let photosList: TravelPhoto[] = saved ? JSON.parse(saved) : INITIAL_TRAVEL_PHOTOS;
+      
+      // Auto-reconciliation: If any photo mentions Panama, Prague/Czechoslovakia, or Hungary
+      let autoFixed = false;
+      photosList = photosList.map(p => {
+        const text = `${p.city || ''} ${p.title || ''} ${p.notes || ''}`.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        if (p.countryCode === 'HN' && (text.includes('panama') || text.includes('pty') || text.includes('canal de panama'))) {
+          autoFixed = true;
+          return {
+            ...p,
+            countryCode: 'PA',
+            countryName: 'Panamá',
+          };
+        }
+        if (text.includes('praga') || text.includes('checoslovaqui') || text.includes('czech') || text.includes('chequia')) {
+          if (p.countryCode !== 'CZ') {
+            autoFixed = true;
+            return {
+              ...p,
+              countryCode: 'CZ',
+              countryName: 'República Checa (Checoslovaquia)',
+              city: p.city || 'Ciudad de Praga',
+            };
+          }
+        }
+        if (text.includes('hungri') || text.includes('budapest')) {
+          if (p.countryCode !== 'HU') {
+            autoFixed = true;
+            return {
+              ...p,
+              countryCode: 'HU',
+              countryName: 'Hungría',
+              city: p.city || 'Budapest',
+            };
+          }
+        }
+        return p;
+      });
+
+      if (autoFixed) {
+        localStorage.setItem('viajeflow_travel_photos_v2', JSON.stringify(photosList));
+      }
+      return photosList;
+    } catch {
+      return INITIAL_TRAVEL_PHOTOS;
+    }
+  });
+
+  // Visited countries state with persistence and coordinate healing
+  const [visitedCountries, setVisitedCountries] = useState<VisitedCountry[]>(() => {
+    try {
+      const saved = localStorage.getItem('viajeflow_visited_countries_v2');
+      const savedList: VisitedCountry[] = saved ? JSON.parse(saved) : [];
+
+      // Check if Panama, Prague or Hungary has photos
+      const savedPhotosStr = localStorage.getItem('viajeflow_travel_photos_v2');
+      const currentPhotos: TravelPhoto[] = savedPhotosStr ? JSON.parse(savedPhotosStr) : [];
+      const hasPanamaPhotos = currentPhotos.some(p => {
+        const text = `${p.city || ''} ${p.title || ''} ${p.notes || ''}`.toLowerCase();
+        return p.countryCode === 'PA' || text.includes('panam');
+      });
+      const hasPraguePhotos = currentPhotos.some(p => {
+        const text = `${p.city || ''} ${p.title || ''} ${p.notes || ''}`.toLowerCase();
+        return p.countryCode === 'CZ' || text.includes('praga') || text.includes('checoslovaqui');
+      });
+      const hasHungaryPhotos = currentPhotos.some(p => {
+        const text = `${p.city || ''} ${p.title || ''} ${p.notes || ''}`.toLowerCase();
+        return p.countryCode === 'HU' || text.includes('hungri') || text.includes('budapest');
+      });
+
+      // Merge saved visit status into the latest WORLD_COUNTRIES_CATALOG
+      // This guarantees svgCoords are ALWAYS percentage coordinates (0-100) and never old 800+ px values
+      const mergedList = WORLD_COUNTRIES_CATALOG.map(catalogCountry => {
+        const savedCountry = savedList.find(s => s.code === catalogCountry.code);
+        let isVisited = catalogCountry.visited;
+        if (savedCountry && typeof savedCountry.visited === 'boolean') {
+          isVisited = savedCountry.visited;
+        }
+        if (catalogCountry.code === 'PA' && (hasPanamaPhotos || isVisited)) {
+          isVisited = true;
+        }
+        if (catalogCountry.code === 'CZ' && (hasPraguePhotos || isVisited)) {
+          isVisited = true;
+        }
+        if (catalogCountry.code === 'HU' && (hasHungaryPhotos || isVisited)) {
+          isVisited = true;
+        }
+        return {
+          ...catalogCountry,
+          visited: isVisited,
+          visitedDate: savedCountry?.visitedDate || catalogCountry.visitedDate,
+          notes: savedCountry?.notes || catalogCountry.notes,
+          tripName: savedCountry?.tripName || catalogCountry.tripName,
+        };
+      });
+
+      // Also preserve any custom user-added countries from savedList
+      const customSaved = savedList.filter(s => !WORLD_COUNTRIES_CATALOG.some(c => c.code === s.code));
+      const combined = [...mergedList, ...customSaved];
+
+      localStorage.setItem('viajeflow_visited_countries_v2', JSON.stringify(combined));
+      return combined;
+    } catch {
+      return WORLD_COUNTRIES_CATALOG;
+    }
+  });
+
   // Active Tab & Modal States
-  const [activeTab, setActiveTab] = useState<string>('itinerary');
+  const [activeTab, setActiveTab] = useState<string>('world_map');
   const [isNewTripOpen, setIsNewTripOpen] = useState(false);
   const [isAddFlightOpen, setIsAddFlightOpen] = useState(false);
   const [isAddReservationOpen, setIsAddReservationOpen] = useState(false);
@@ -166,6 +321,9 @@ export default function App() {
   const [isAiPlannerOpen, setIsAiPlannerOpen] = useState(false);
   const [isSupabaseModalOpen, setIsSupabaseModalOpen] = useState(false);
   const [isCurrencyConverterOpen, setIsCurrencyConverterOpen] = useState(false);
+  const [isPhotoUploadOpen, setIsPhotoUploadOpen] = useState(false);
+  const [preselectedUploadCountry, setPreselectedUploadCountry] = useState<string | undefined>(undefined);
+  const [selectedCountryForDetail, setSelectedCountryForDetail] = useState<VisitedCountry | null>(null);
 
   // Toast alert banner for WhatsApp notifications
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -177,14 +335,121 @@ export default function App() {
 
   // Sync state to local storage
   useEffect(() => {
+    localStorage.setItem('viajeflow_visited_countries_v2', JSON.stringify(visitedCountries));
+  }, [visitedCountries]);
+
+  useEffect(() => {
+    localStorage.setItem('viajeflow_travel_photos_v2', JSON.stringify(travelPhotos));
+  }, [travelPhotos]);
+
+  const handleToggleVisitedCountry = (countryCode: string) => {
+    setVisitedCountries(prev => prev.map(c => {
+      if (c.code === countryCode) {
+        const nextVisited = !c.visited;
+        if (nextVisited) {
+          triggerToast(`🚩 ¡Banderita fijada en ${c.name} ("Ya estuve aquí")!`);
+        } else {
+          triggerToast(`Banderita retirada de ${c.name}`);
+        }
+        return {
+          ...c,
+          visited: nextVisited,
+          visitedDate: nextVisited ? (c.visitedDate || new Date().toISOString().split('T')[0]) : undefined,
+        };
+      }
+      return c;
+    }));
+  };
+
+  const handleSavePhoto = (newPhotoData: Omit<TravelPhoto, 'id' | 'createdAt'>) => {
+    const photoId = `photo-${Date.now()}`;
+    const newPhoto: TravelPhoto = {
+      ...newPhotoData,
+      id: photoId,
+      tripId: activeTripId,
+      createdAt: new Date().toISOString(),
+    };
+
+    setTravelPhotos(prev => [newPhoto, ...prev]);
+
+    // Automatically mark the country as visited with flag
+    setVisitedCountries(prev => prev.map(c => {
+      if (c.code === newPhotoData.countryCode) {
+        return {
+          ...c,
+          visited: true,
+          visitedDate: c.visitedDate || newPhotoData.date,
+        };
+      }
+      return c;
+    }));
+
+    triggerToast(`📸 ¡Foto guardada y banderita fijada en ${newPhotoData.countryName}!`);
+  };
+
+  const handleDeletePhoto = (photoId: string) => {
+    setTravelPhotos(prev => prev.filter(p => p.id !== photoId));
+    triggerToast('Foto eliminada del álbum.');
+  };
+
+  const handleMovePhoto = (photoId: string, newCountryCode: string) => {
+    const targetCountry = visitedCountries.find(c => c.code === newCountryCode);
+    if (!targetCountry) return;
+
+    setTravelPhotos(prev => prev.map(p => {
+      if (p.id === photoId) {
+        return {
+          ...p,
+          countryCode: newCountryCode,
+          countryName: targetCountry.name,
+        };
+      }
+      return p;
+    }));
+
+    // Ensure the new country is marked visited so its flag shows on the map
+    setVisitedCountries(prev => prev.map(c => {
+      if (c.code === newCountryCode) {
+        return {
+          ...c,
+          visited: true,
+          visitedDate: c.visitedDate || new Date().toISOString().split('T')[0],
+        };
+      }
+      return c;
+    }));
+
+    triggerToast(`📸 Foto trasladada exitosamente a ${targetCountry.flagEmoji} ${targetCountry.name}`);
+  };
+
+  const handleOpenUploadForCountry = (countryCode?: string) => {
+    setPreselectedUploadCountry(countryCode);
+    setIsPhotoUploadOpen(true);
+  };
+
+  const handleAddCustomCountry = (newCountry: VisitedCountry) => {
+    setVisitedCountries(prev => {
+      const existing = prev.find(c => c.code === newCountry.code || c.name.toLowerCase() === newCountry.name.toLowerCase());
+      if (existing) {
+        return prev.map(c => c.code === existing.code ? { ...c, ...newCountry, visited: true } : c);
+      }
+      return [newCountry, ...prev];
+    });
+    triggerToast(`🚩 ¡Destino "${newCountry.name}" agregado y banderita fijada en el mapa!`);
+  };
+
+  // Sync state to local storage
+  useEffect(() => {
     localStorage.setItem('viajeflow_trips_v1', JSON.stringify(trips));
   }, [trips]);
 
   useEffect(() => {
+    localStorage.setItem('viajeflow_flights_v3', JSON.stringify(flights));
     localStorage.setItem('viajeflow_flights_v2', JSON.stringify(flights));
   }, [flights]);
 
   useEffect(() => {
+    localStorage.setItem('viajeflow_reservations_v2', JSON.stringify(reservations));
     localStorage.setItem('viajeflow_reservations_v1', JSON.stringify(reservations));
   }, [reservations]);
 
@@ -201,36 +466,69 @@ export default function App() {
   }, [expenses]);
 
   useEffect(() => {
+    localStorage.setItem('viajeflow_checklist_v6', JSON.stringify(checklistItems));
     localStorage.setItem('viajeflow_checklist_v5', JSON.stringify(checklistItems));
   }, [checklistItems]);
 
   const handleToggleChecklistItem = (id: string) => {
+    let nextStatus = false;
+    let targetTitle = '';
+    
     setChecklistItems((prev) => {
       const target = prev.find((item) => item.id === id);
-      const nextStatus = target ? !target.completed : true;
+      nextStatus = target ? !target.completed : true;
+      targetTitle = target ? target.title : '';
       const updated = prev.map((item) =>
         item.id === id ? { ...item, completed: nextStatus } : item
       );
       try {
+        localStorage.setItem('viajeflow_checklist_v6', JSON.stringify(updated));
         localStorage.setItem('viajeflow_checklist_v5', JSON.stringify(updated));
       } catch (err) {
         console.error('Error saving checklist:', err);
       }
-      if (target) {
-        triggerToast(
-          nextStatus
-            ? `✅ Tarea "${target.title}" marcada como completada.`
-            : `⏳ Tarea "${target.title}" marcada como pendiente.`
-        );
-      }
       return updated;
     });
+
+    if (targetTitle) {
+      triggerToast(
+        nextStatus
+          ? `✅ Tarea "${targetTitle}" marcada como completada.`
+          : `⏳ Tarea "${targetTitle}" marcada como pendiente.`
+      );
+    }
+
+    // 2-Way Sync: If this is a hotel check-in task, also sync the corresponding hotel reservation
+    const correspondingResId = CHECKLIST_TO_HOTEL_RES_MAP[id];
+    if (correspondingResId) {
+      setReservations((prevRes) => {
+        const updatedRes = prevRes.map((r) => {
+          if (r.id === correspondingResId) {
+            return {
+              ...r,
+              status: (nextStatus ? 'checked_in' : 'confirmed') as ReservationStatus,
+              completed: nextStatus,
+              checkedIn: nextStatus,
+            };
+          }
+          return r;
+        });
+        try {
+          localStorage.setItem('viajeflow_reservations_v2', JSON.stringify(updatedRes));
+          localStorage.setItem('viajeflow_reservations_v1', JSON.stringify(updatedRes));
+        } catch (err) {
+          console.error('Error saving synced reservation:', err);
+        }
+        return updatedRes;
+      });
+    }
   };
 
   const handleAddChecklistItem = (newItem: ChecklistItem) => {
     setChecklistItems((prev) => {
       const updated = [newItem, ...prev];
       try {
+        localStorage.setItem('viajeflow_checklist_v6', JSON.stringify(updated));
         localStorage.setItem('viajeflow_checklist_v5', JSON.stringify(updated));
       } catch (err) {
         console.error('Error saving checklist:', err);
@@ -244,6 +542,7 @@ export default function App() {
     setChecklistItems((prev) => {
       const updated = prev.filter((item) => item.id !== id);
       try {
+        localStorage.setItem('viajeflow_checklist_v6', JSON.stringify(updated));
         localStorage.setItem('viajeflow_checklist_v5', JSON.stringify(updated));
       } catch (err) {
         console.error('Error saving checklist:', err);
@@ -261,6 +560,7 @@ export default function App() {
         ...defaultForTrip
       ];
       try {
+        localStorage.setItem('viajeflow_checklist_v6', JSON.stringify(updated));
         localStorage.setItem('viajeflow_checklist_v5', JSON.stringify(updated));
       } catch (err) {
         console.error('Error saving checklist:', err);
@@ -401,6 +701,82 @@ export default function App() {
 
   const handleDeleteReservation = (id: string) => {
     setReservations((prev) => prev.filter((r) => r.id !== id));
+  };
+
+  const handleToggleReservationStatus = (id: string, newStatus?: ReservationStatus) => {
+    let isDone = false;
+    let targetTitle = '';
+
+    setReservations((prev) => {
+      const target = prev.find((r) => r.id === id);
+      const nextStatus = newStatus || (target && (target.status === 'checked_in' || target.status === 'completed' || target.completed) ? 'confirmed' : 'checked_in');
+      isDone = nextStatus === 'checked_in' || nextStatus === 'completed';
+      targetTitle = target ? target.title : '';
+
+      const updated = prev.map((r) => {
+        if (r.id === id) {
+          return {
+            ...r,
+            status: nextStatus,
+            completed: isDone,
+            checkedIn: isDone,
+          };
+        }
+        return r;
+      });
+      try {
+        localStorage.setItem('viajeflow_reservations_v2', JSON.stringify(updated));
+        localStorage.setItem('viajeflow_reservations_v1', JSON.stringify(updated));
+      } catch (err) {
+        console.error('Error saving reservations:', err);
+      }
+      return updated;
+    });
+
+    if (targetTitle) {
+      triggerToast(
+        isDone
+          ? `🏨 ¡Check-in en "${targetTitle}" marcado como REALIZADO / HOSPEDADO! ✅`
+          : `🏨 Reserva "${targetTitle}" marcada como pendiente de check-in.`
+      );
+    }
+
+    // 2-Way Sync: If this is a hotel with a corresponding checklist item, also sync the checklist state
+    const correspondingChkId = HOTEL_RES_TO_CHECKLIST_MAP[id];
+    if (correspondingChkId) {
+      setChecklistItems((prevChk) => {
+        const updatedChk = prevChk.map((chk) => {
+          if (chk.id === correspondingChkId) {
+            return {
+              ...chk,
+              completed: isDone,
+            };
+          }
+          return chk;
+        });
+        try {
+          localStorage.setItem('viajeflow_checklist_v6', JSON.stringify(updatedChk));
+          localStorage.setItem('viajeflow_checklist_v5', JSON.stringify(updatedChk));
+        } catch (err) {
+          console.error('Error saving synced checklist item:', err);
+        }
+        return updatedChk;
+      });
+    }
+  };
+
+  const handleUpdateReservation = (updatedRes: Reservation) => {
+    setReservations((prev) => {
+      const updated = prev.map((r) => (r.id === updatedRes.id ? updatedRes : r));
+      try {
+        localStorage.setItem('viajeflow_reservations_v2', JSON.stringify(updated));
+        localStorage.setItem('viajeflow_reservations_v1', JSON.stringify(updated));
+      } catch (err) {
+        console.error('Error saving reservations:', err);
+      }
+      return updated;
+    });
+    triggerToast(`🏨 Reserva "${updatedRes.title}" actualizada.`);
   };
 
   const handleAddActivity = (newAct: Activity) => {
@@ -552,15 +928,94 @@ export default function App() {
         onOpenNewTripModal={() => setIsNewTripOpen(true)}
         onOpenAiPlanner={() => setIsAiPlannerOpen(true)}
         onOpenCurrencyConverter={() => setIsCurrencyConverterOpen(true)}
+        onOpenPhotoUpload={() => handleOpenUploadForCountry()}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         isSupabaseConnected={supabaseConfig.isConnected}
-        whatsAppLogsCount={whatsAppLogs.length}
+        visitedCountriesCount={visitedCountries.filter(c => c.visited).length}
       />
 
       {/* Main Container */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         
+        {/* World Travel Map & Photos Bitácora (Hero View) */}
+        {activeTab === 'world_map' && (
+          <WorldTravelMap
+            countries={visitedCountries}
+            photos={travelPhotos}
+            onToggleVisited={handleToggleVisitedCountry}
+            onOpenUpload={handleOpenUploadForCountry}
+            onSelectCountry={(country) => setSelectedCountryForDetail(country)}
+            onAddCustomCountry={handleAddCustomCountry}
+          />
+        )}
+
+        {/* Clean Trip Plan Container (Itinerary, Flights, Hotels, Transfers, Checklist, Route Map) */}
+        {['trip_plan', 'itinerary', 'flights', 'reservations', 'checklist', 'transfers', 'activities', 'route_map'].includes(activeTab) && activeTrip && (
+          <div className="space-y-6">
+            {/* Active Trip Header */}
+            <TripHeader
+              trip={activeTrip}
+              flights={flights}
+              reservations={reservations}
+              activities={activities}
+              onAddFlight={() => setIsAddFlightOpen(true)}
+              onAddReservation={() => setIsAddReservationOpen(true)}
+              onAddActivity={() => setIsAddActivityOpen(true)}
+              onOpenAiPlanner={() => setIsAiPlannerOpen(true)}
+              onSendDailyBriefingWhatsApp={handleSendDailyBriefingWhatsApp}
+              onBackToMenu={() => setActiveTab('trips_menu')}
+            />
+
+            <TripPlanContainer
+              trip={activeTrip}
+              flights={flights}
+              reservations={reservations}
+              activities={activities}
+              groundTransfers={groundTransfers}
+              checklistItems={checklistItems}
+              onToggleActivity={handleToggleActivity}
+              onDeleteActivity={handleDeleteActivity}
+              onAddActivity={() => setIsAddActivityOpen(true)}
+              onNotifyActivity={handleNotifyActivity}
+              onUpdateFlightStatus={handleUpdateFlightStatus}
+              onDeleteFlight={handleDeleteFlight}
+              onAddFlight={() => setIsAddFlightOpen(true)}
+              onNotifyGateChange={handleNotifyGateChange}
+              onNotifyDelay={handleNotifyDelay}
+              onUploadBoardingPass={handleUploadBoardingPass}
+              onDeleteBoardingPass={handleDeleteBoardingPass}
+              onAddTransfer={handleAddTransfer}
+              onDeleteTransfer={handleDeleteTransfer}
+              onDeleteReservation={handleDeleteReservation}
+              onAddReservation={() => setIsAddReservationOpen(true)}
+              onToggleReservationStatus={handleToggleReservationStatus}
+              onUpdateReservation={handleUpdateReservation}
+              onNotifyReservation={(res) => {
+                const msg = formatReservationConfirmationAlert(res.type, res.title, res.confirmationCode, res.checkIn, res.address);
+                dispatchWhatsAppMessage(msg, 'booking_confirmation');
+              }}
+              onToggleChecklistItem={handleToggleChecklistItem}
+              onAddChecklistItem={handleAddChecklistItem}
+              onDeleteChecklistItem={handleDeleteChecklistItem}
+              onResetChecklistItems={handleResetChecklistItems}
+              onDispatchWhatsApp={dispatchWhatsAppMessage}
+            />
+          </div>
+        )}
+
+        {/* Clean Finances & Currency Converter View */}
+        {['finances', 'expenses'].includes(activeTab) && activeTrip && (
+          <FinancesContainer
+            trip={activeTrip}
+            expenses={expenses}
+            onAddExpense={handleAddExpense}
+            onDeleteExpense={handleDeleteExpense}
+            onUpdateTripBudget={handleUpdateTripBudget}
+            onNotifyWhatsApp={(msg) => dispatchWhatsAppMessage(msg, 'custom')}
+          />
+        )}
+
         {/* Trips Menu Catalog View */}
         {activeTab === 'trips_menu' && (
           <TripsMenuView
@@ -569,7 +1024,7 @@ export default function App() {
             flights={flights}
             reservations={reservations}
             activities={activities}
-            onSelectTrip={(t, tab = 'itinerary') => {
+            onSelectTrip={(t, tab = 'trip_plan') => {
               setActiveTripId(t.id);
               setActiveTab(tab);
             }}
@@ -597,138 +1052,35 @@ export default function App() {
           />
         )}
 
-        {/* Trip Management Tabs (Itinerary, Flights, Reservations, Activities, WhatsApp) */}
-        {activeTab !== 'trips_menu' && activeTab !== 'settings' && (
-          <>
-            {/* Active Trip Header */}
-            {activeTrip && (
-              <TripHeader
-                trip={activeTrip}
-                flights={flights}
-                reservations={reservations}
-                activities={activities}
-                onAddFlight={() => setIsAddFlightOpen(true)}
-                onAddReservation={() => setIsAddReservationOpen(true)}
-                onAddActivity={() => setIsAddActivityOpen(true)}
-                onOpenAiPlanner={() => setIsAiPlannerOpen(true)}
-                onSendDailyBriefingWhatsApp={handleSendDailyBriefingWhatsApp}
-                onBackToMenu={() => setActiveTab('trips_menu')}
-              />
-            )}
-
-            {/* View Tabs */}
-            {activeTab === 'itinerary' && (
-              <ItineraryView
-                trip={activeTrip}
-                activities={activities}
-                onToggleActivity={handleToggleActivity}
-                onDeleteActivity={handleDeleteActivity}
-                onAddActivity={() => setIsAddActivityOpen(true)}
-                onNotifyWhatsApp={handleNotifyActivity}
-              />
-            )}
-
-            {activeTab === 'flights' && (
-              <FlightsView
-                trip={activeTrip}
-                flights={flights}
-                onUpdateFlightStatus={handleUpdateFlightStatus}
-                onDeleteFlight={handleDeleteFlight}
-                onAddFlight={() => setIsAddFlightOpen(true)}
-                onNotifyGateChangeWhatsApp={handleNotifyGateChange}
-                onNotifyDelayWhatsApp={handleNotifyDelay}
-                onUploadBoardingPass={handleUploadBoardingPass}
-                onDeleteBoardingPass={handleDeleteBoardingPass}
-              />
-            )}
-
-            {activeTab === 'transfers' && (
-              <TransfersView
-                trip={activeTrip}
-                groundTransfers={groundTransfers}
-                onAddTransfer={handleAddTransfer}
-                onDeleteTransfer={handleDeleteTransfer}
-                onNotifyWhatsAppMessage={(msg) => dispatchWhatsAppMessage(msg, 'custom')}
-              />
-            )}
-
-            {activeTab === 'expenses' && (
-              <ExpensesView
-                trip={activeTrip}
-                expenses={expenses}
-                onAddExpense={handleAddExpense}
-                onDeleteExpense={handleDeleteExpense}
-                onUpdateTripBudget={handleUpdateTripBudget}
-                onNotifyWhatsAppMessage={(msg) => dispatchWhatsAppMessage(msg, 'custom')}
-              />
-            )}
-
-            {activeTab === 'checklist' && (
-              <ChecklistView
-                trip={activeTrip}
-                checklistItems={checklistItems}
-                onToggleItem={handleToggleChecklistItem}
-                onAddItem={handleAddChecklistItem}
-                onDeleteItem={handleDeleteChecklistItem}
-                onResetItems={handleResetChecklistItems}
-                onNotifyWhatsAppMessage={(msg) => dispatchWhatsAppMessage(msg, 'custom')}
-              />
-            )}
-
-            {activeTab === 'route_map' && (
-              <RouteMapView
-                trip={activeTrip}
-                flights={flights}
-                activities={activities}
-                reservations={reservations}
-                onUpdateFlightStatus={handleUpdateFlightStatus}
-                onToggleActivity={handleToggleActivity}
-                onNotifyWhatsAppMessage={(msg) => dispatchWhatsAppMessage(msg, 'itinerary_update')}
-              />
-            )}
-
-            {activeTab === 'reservations' && (
-              <ReservationsView
-                trip={activeTrip}
-                reservations={reservations}
-                onDeleteReservation={handleDeleteReservation}
-                onAddReservation={() => setIsAddReservationOpen(true)}
-                onNotifyWhatsApp={(res) => {
-                  const msg = formatReservationConfirmationAlert(res.type, res.title, res.confirmationCode, res.checkIn, res.address);
-                  dispatchWhatsAppMessage(msg, 'booking_confirmation');
-                }}
-              />
-            )}
-
-            {activeTab === 'activities' && (
-              <ActivitiesView
-                trip={activeTrip}
-                activities={activities}
-                onToggleActivity={handleToggleActivity}
-                onDeleteActivity={handleDeleteActivity}
-                onAddActivity={() => setIsAddActivityOpen(true)}
-                onNotifyWhatsApp={handleNotifyActivity}
-              />
-            )}
-
-            {activeTab === 'whatsapp' && (
-              <WhatsAppCenter
-                trip={activeTrip}
-                logs={whatsAppLogs}
-                config={whatsAppConfig}
-                onSaveConfig={(cfg) => {
-                  setWhatsAppConfig(cfg);
-                  saveWhatsAppConfig(cfg);
-                }}
-                onSendCustomMessage={(msg, rec) => dispatchWhatsAppMessage(msg, 'custom')}
-                onClearLogs={() => setWhatsAppLogs([])}
-                onTriggerQuickAlert={handleTriggerQuickAlert}
-              />
-            )}
-          </>
-        )}
-
       </main>
+
+      {/* Modals */}
+      {isPhotoUploadOpen && (
+        <PhotoUploadModal
+          countries={visitedCountries}
+          preselectedCountryCode={preselectedUploadCountry}
+          onSavePhoto={handleSavePhoto}
+          onClose={() => {
+            setIsPhotoUploadOpen(false);
+            setPreselectedUploadCountry(undefined);
+          }}
+        />
+      )}
+
+      {selectedCountryForDetail && (
+        <CountryDetailModal
+          country={visitedCountries.find(c => c.code === selectedCountryForDetail.code) || selectedCountryForDetail}
+          allCountries={visitedCountries}
+          photos={travelPhotos}
+          onToggleVisited={handleToggleVisitedCountry}
+          onOpenUpload={(code) => {
+            handleOpenUploadForCountry(code);
+          }}
+          onDeletePhoto={handleDeletePhoto}
+          onMovePhoto={handleMovePhoto}
+          onClose={() => setSelectedCountryForDetail(null)}
+        />
+      )}
 
       {/* Modals */}
       {isNewTripOpen && (

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Trip } from '../types';
-import { Plane, Sparkles, Plus, MapPin, Calendar, LayoutGrid, Settings, Smartphone, Globe, Bus, DollarSign, Calculator, CheckSquare } from 'lucide-react';
+import { Plane, Globe, Calendar, DollarSign, FolderKanban, Settings, Upload, Plus, ChevronDown } from 'lucide-react';
 
 interface NavbarProps {
   trips: Trip[];
@@ -9,10 +9,11 @@ interface NavbarProps {
   onOpenNewTripModal: () => void;
   onOpenAiPlanner: () => void;
   onOpenCurrencyConverter?: () => void;
+  onOpenPhotoUpload?: () => void;
   activeTab: string;
   setActiveTab: (tab: string) => void;
   isSupabaseConnected: boolean;
-  whatsAppLogsCount: number;
+  visitedCountriesCount: number;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -20,193 +21,185 @@ export const Navbar: React.FC<NavbarProps> = ({
   activeTrip,
   onSelectTrip,
   onOpenNewTripModal,
-  onOpenAiPlanner,
-  onOpenCurrencyConverter,
+  onOpenPhotoUpload,
   activeTab,
   setActiveTab,
   isSupabaseConnected,
-  whatsAppLogsCount,
+  visitedCountriesCount,
 }) => {
+  const mainNavItems = [
+    {
+      id: 'world_map',
+      label: 'Mapa & Recuerdos',
+      badge: `${visitedCountriesCount} 🚩`,
+      icon: Globe,
+      description: 'Mapamundi y fotos'
+    },
+    {
+      id: 'trip_plan',
+      label: 'Plan de Viaje',
+      icon: Calendar,
+      description: 'Itinerario, vuelos y reservas'
+    },
+    {
+      id: 'finances',
+      label: 'Gastos & Divisas',
+      icon: DollarSign,
+      description: 'Presupuesto y monedas'
+    },
+    {
+      id: 'trips_menu',
+      label: 'Mis Viajes',
+      icon: FolderKanban,
+      description: 'Lista de viajes y nuevo'
+    },
+  ];
+
   return (
-    <header className="bg-slate-900 border-b border-slate-800 text-white sticky top-0 z-40 shadow-xl">
+    <header className="bg-slate-900/95 backdrop-blur-md border-b border-slate-800 text-white sticky top-0 z-40 shadow-xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        
+        {/* Main Clean Row */}
+        <div className="flex items-center justify-between h-16 gap-4">
           
           {/* Logo & Brand */}
           <div
-            onClick={() => setActiveTab('trips_menu')}
-            className="flex items-center space-x-3 cursor-pointer group"
+            onClick={() => setActiveTab('world_map')}
+            className="flex items-center space-x-3 cursor-pointer group shrink-0"
           >
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 via-teal-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform">
-              <Plane className="w-5 h-5 text-white transform -rotate-45" />
+              <Globe className="w-5 h-5 text-white" />
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <span className="font-bold text-lg tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
+                <span className="font-black text-lg tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
                   ViajeFlow
                 </span>
-                <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 font-mono">
-                  {activeTrip?.code || 'VAC-001'}
+                <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-mono">
+                  {visitedCountriesCount} países 🚩
                 </span>
               </div>
-              <p className="text-xs text-slate-400 font-medium hidden sm:block">
-                Gestor de Viajes con Nomenclatura y Notificaciones
+              <p className="text-[11px] text-slate-400 font-medium hidden sm:block">
+                Bitácora de Viajes & Mapa Mundial
               </p>
             </div>
           </div>
 
-          {/* Active Trip Selector Dropdown */}
-          <div className="hidden md:flex items-center bg-slate-800/80 rounded-xl p-1 border border-slate-700/60">
-            <MapPin className="w-4 h-4 text-emerald-400 ml-2" />
-            <select
-              value={activeTrip?.id || ''}
-              onChange={(e) => {
-                const selected = trips.find((t) => t.id === e.target.value);
-                if (selected) {
-                  onSelectTrip(selected);
-                  if (activeTab === 'trips_menu') setActiveTab('itinerary');
-                }
-              }}
-              className="bg-transparent text-sm font-medium text-slate-200 focus:outline-none px-2 py-1 pr-6 cursor-pointer"
-            >
-              {trips.map((t) => (
-                <option key={t.id} value={t.id} className="bg-slate-900 text-white">
-                  [{t.code || 'VAC'}] {t.title}
-                </option>
-              ))}
-            </select>
-            <button
-              onClick={onOpenNewTripModal}
-              title="Crear nuevo viaje"
-              className="p-1.5 hover:bg-slate-700 rounded-lg text-slate-300 hover:text-white transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-            </button>
-          </div>
+          {/* Clean Main Navigation Tabs (Desktop) */}
+          <nav className="hidden md:flex items-center space-x-1 bg-slate-950/60 p-1.5 rounded-2xl border border-slate-800">
+            {mainNavItems.map((item) => {
+              const Icon = item.icon;
+              // If activeTab is any sub-tab of trip_plan (itinerary, flights, reservations, checklist, transfers), highlight trip_plan
+              const isTripPlanSubtab = ['trip_plan', 'itinerary', 'flights', 'reservations', 'checklist', 'transfers', 'activities'].includes(activeTab);
+              const isFinancesSubtab = ['finances', 'expenses'].includes(activeTab);
+              
+              let isActive = false;
+              if (item.id === 'trip_plan' && isTripPlanSubtab) isActive = true;
+              else if (item.id === 'finances' && isFinancesSubtab) isActive = true;
+              else if (item.id === activeTab) isActive = true;
 
-          {/* Quick Action Buttons */}
-          <div className="flex items-center space-x-2">
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id)}
+                  className={`flex items-center space-x-2 px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+                    isActive
+                      ? 'bg-emerald-500 text-slate-950 shadow-md font-extrabold'
+                      : 'text-slate-300 hover:text-white hover:bg-slate-800/80'
+                  }`}
+                >
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-slate-950' : 'text-slate-400'}`} />
+                  <span>{item.label}</span>
+                  {item.badge && !isActive && (
+                    <span className="text-[10px] bg-slate-800 text-emerald-400 px-1.5 py-0.2 rounded-full border border-slate-700">
+                      {item.badge}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </nav>
+
+          {/* Right Action Controls */}
+          <div className="flex items-center space-x-2 shrink-0">
             
-            {/* Currency Converter Quick Button */}
-            {onOpenCurrencyConverter && (
+            {/* Quick Upload Photos Button */}
+            {onOpenPhotoUpload && (
               <button
-                onClick={onOpenCurrencyConverter}
-                className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-emerald-950/70 hover:bg-emerald-900/80 text-emerald-300 border border-emerald-500/40 shadow-sm transition-all transform hover:scale-[1.02]"
-                title="Calculadora y Conversor de Divisas en vivo (USD, JPY, KRW, THB)"
+                onClick={onOpenPhotoUpload}
+                className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 shadow-md shadow-emerald-500/20 transition-all transform hover:scale-[1.02]"
+                title="Subir fotos a tus países visitados"
               >
-                <Calculator className="w-3.5 h-3.5 text-emerald-400" />
-                <span className="hidden sm:inline">Conversor Divisas 💱</span>
+                <Upload className="w-3.5 h-3.5 stroke-[2.5]" />
+                <span className="hidden sm:inline">Subir Fotos</span>
               </button>
             )}
 
-            {/* AI Generator Button */}
-            <button
-              onClick={onOpenAiPlanner}
-              className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-md shadow-cyan-600/20 transition-all transform hover:scale-[1.02]"
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Generar con IA</span>
-            </button>
+            {/* Active Trip Selector Pill */}
+            {activeTrip && (
+              <div className="hidden lg:flex items-center bg-slate-800/70 border border-slate-700/60 rounded-xl px-2.5 py-1 text-xs">
+                <span className="text-slate-400 mr-1.5">Viaje:</span>
+                <select
+                  value={activeTrip.id}
+                  onChange={(e) => {
+                    const sel = trips.find(t => t.id === e.target.value);
+                    if (sel) onSelectTrip(sel);
+                  }}
+                  className="bg-transparent font-bold text-slate-200 focus:outline-none cursor-pointer pr-1 truncate max-w-[130px]"
+                >
+                  {trips.map(t => (
+                    <option key={t.id} value={t.id} className="bg-slate-900 text-white">
+                      {t.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
-            {/* Unified Settings Button */}
+            {/* Settings Icon Button */}
             <button
               onClick={() => setActiveTab('settings')}
-              className={`flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all ${
+              title="Configuración y Sincronización"
+              className={`p-2 rounded-xl border transition-all ${
                 activeTab === 'settings'
-                  ? 'bg-purple-600 text-white border-purple-500 shadow-md shadow-purple-600/30'
-                  : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-200'
+                  ? 'bg-purple-600 text-white border-purple-500 shadow-md'
+                  : 'bg-slate-800/80 hover:bg-slate-700 text-slate-300 border-slate-700'
               }`}
-              title="Configuración de WhatsApp, Supabase y Vercel"
             >
-              <Settings className="w-3.5 h-3.5 text-purple-400" />
-              <span className="hidden sm:inline">Configuración</span>
-              <span
-                className={`w-2 h-2 rounded-full ${
-                  isSupabaseConnected ? 'bg-emerald-400' : 'bg-amber-400'
-                }`}
-              />
+              <Settings className="w-4 h-4 text-purple-400" />
             </button>
 
           </div>
         </div>
 
-        {/* Main Navigation Tabs */}
-        <nav className="flex items-center justify-between overflow-x-auto py-2 border-t border-slate-800 scrollbar-none text-xs sm:text-sm font-medium text-slate-400">
-          <div className="flex items-center space-x-1 sm:space-x-3">
-            {/* Always available: Trips Menu */}
-            <button
-              onClick={() => setActiveTab('trips_menu')}
-              className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg whitespace-nowrap transition-all ${
-                activeTab === 'trips_menu'
-                  ? 'bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/40 shadow-sm'
-                  : 'hover:text-slate-200 hover:bg-slate-800/50'
-              }`}
-            >
-              <LayoutGrid className={`w-4 h-4 ${activeTab === 'trips_menu' ? 'text-emerald-400' : 'text-slate-400'}`} />
-              <span>Menú de Viajes</span>
-            </button>
+        {/* Mobile Sub-Navigation Bar (Only for mobile viewports) */}
+        <div className="flex md:hidden items-center justify-around py-2 border-t border-slate-800 overflow-x-auto text-xs">
+          {mainNavItems.map((item) => {
+            const Icon = item.icon;
+            const isTripPlanSubtab = ['trip_plan', 'itinerary', 'flights', 'reservations', 'checklist', 'transfers', 'activities'].includes(activeTab);
+            const isFinancesSubtab = ['finances', 'expenses'].includes(activeTab);
 
-            {/* Trip Specific Tabs: Only shown when an active trip exists */}
-            {activeTrip && (
-              <>
-                <span className="text-slate-700 hidden sm:inline">|</span>
-                {[
-                  { id: 'itinerary', label: 'Itinerario Diario', icon: Calendar },
-                  { id: 'flights', label: 'Vuelos y Puertas', icon: Plane },
-                  { id: 'transfers', label: 'Trayectos y Conexiones 🚌', icon: Bus },
-                  { id: 'expenses', label: 'Control de Gastos 💵', icon: DollarSign },
-                  { id: 'checklist', label: 'Checklist y Tareas 📋', icon: CheckSquare },
-                  { id: 'route_map', label: 'Mapa de Ruta Live 🗺️', icon: Globe },
-                  { id: 'reservations', label: 'Reservas e HOTELES', icon: MapPin },
-                  { id: 'activities', label: 'Actividades y Equipaje', icon: Sparkles },
-                ].map((tab) => {
-                  const Icon = tab.icon;
-                  const isActive = activeTab === tab.id;
-                  return (
-                    <button
-                      key={tab.id}
-                      onClick={() => setActiveTab(tab.id)}
-                      className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg whitespace-nowrap transition-all ${
-                        isActive
-                          ? 'bg-emerald-500/15 text-emerald-400 font-semibold border border-emerald-500/30'
-                          : 'hover:text-slate-200 hover:bg-slate-800/50'
-                      }`}
-                    >
-                      <Icon className={`w-4 h-4 ${isActive ? 'text-emerald-400' : 'text-slate-400'}`} />
-                      <span>{tab.label}</span>
-                    </button>
-                  );
-                })}
-              </>
-            )}
+            let isActive = false;
+            if (item.id === 'trip_plan' && isTripPlanSubtab) isActive = true;
+            else if (item.id === 'finances' && isFinancesSubtab) isActive = true;
+            else if (item.id === activeTab) isActive = true;
 
-            <span className="text-slate-700 hidden sm:inline">|</span>
-
-            {/* Settings Tab */}
-            <button
-              onClick={() => setActiveTab('settings')}
-              className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg whitespace-nowrap transition-all ${
-                activeTab === 'settings'
-                  ? 'bg-purple-500/20 text-purple-300 font-bold border border-purple-500/40 shadow-sm'
-                  : 'hover:text-slate-200 hover:bg-slate-800/50'
-              }`}
-            >
-              <Settings className={`w-4 h-4 ${activeTab === 'settings' ? 'text-purple-400' : 'text-slate-400'}`} />
-              <span>Configuración</span>
-            </button>
-          </div>
-
-          {/* Helper hint when on Trips Menu */}
-          {activeTab === 'trips_menu' && activeTrip && (
-            <div className="hidden lg:flex items-center space-x-2 text-xs text-slate-400 bg-slate-950/60 px-3 py-1 rounded-full border border-slate-800">
-              <span className="w-2 h-2 rounded-full bg-emerald-400" />
-              <span>Viaje activo: <strong className="text-slate-200 font-mono">[{activeTrip.code}] {activeTrip.title}</strong></span>
-            </div>
-          )}
-        </nav>
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`flex flex-col items-center py-1 px-2 rounded-lg font-medium transition-all ${
+                  isActive ? 'text-emerald-400 font-bold' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <Icon className="w-4 h-4 mb-0.5" />
+                <span className="text-[10px]">{item.label}</span>
+              </button>
+            );
+          })}
+        </div>
 
       </div>
     </header>
   );
 };
-

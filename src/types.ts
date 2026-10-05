@@ -61,7 +61,7 @@ export interface Flight {
 }
 
 export type ReservationType = 'hotel' | 'car_rental' | 'restaurant' | 'train' | 'activity_pass' | 'other';
-export type ReservationStatus = 'confirmed' | 'pending' | 'cancelled';
+export type ReservationStatus = 'confirmed' | 'pending' | 'cancelled' | 'checked_in' | 'completed';
 
 export interface Reservation {
   id: string;
@@ -74,6 +74,8 @@ export interface Reservation {
   checkOut?: string;
   confirmationCode: string;
   status: ReservationStatus;
+  completed?: boolean;
+  checkedIn?: boolean;
   price?: number;
   phone?: string;
   link?: string;
@@ -170,6 +172,7 @@ export type ChecklistCategory =
   | 'electronics'
   | 'clothing'
   | 'hygiene'
+  | 'lodging'
   | 'other';
 
 export type ChecklistImportance = 'imprescindible' | 'recomendable';
@@ -186,5 +189,42 @@ export interface ChecklistItem {
   dueDate?: string;
   notes?: string;
   isCustom?: boolean;
+}
+
+export type ContinentName =
+  | 'North America'
+  | 'South America'
+  | 'Europe'
+  | 'Africa'
+  | 'Asia'
+  | 'Oceania'
+  | 'Antarctica';
+
+export interface VisitedCountry {
+  code: string; // ISO 2 code: JP, KR, TH, US, HN, etc.
+  name: string; // Nombre en español
+  continent: ContinentName;
+  flagEmoji: string; // 🇯🇵
+  coordinates: [number, number]; // [lat, lng]
+  svgCoords?: { x: number; y: number }; // Relative coordinates for Illustrated Map
+  visited: boolean;
+  visitedDate?: string;
+  tripName?: string;
+  notes?: string;
+  capital?: string;
+  aliases?: string[];
+}
+
+export interface TravelPhoto {
+  id: string;
+  countryCode: string;
+  countryName: string;
+  city?: string;
+  title: string;
+  dataUrl: string; // Base64 data URL or photo URL
+  date: string;
+  notes?: string;
+  tripId?: string;
+  createdAt: string;
 }
 

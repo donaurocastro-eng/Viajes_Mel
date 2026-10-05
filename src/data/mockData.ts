@@ -40,7 +40,7 @@ export const initialFlights: Flight[] = [
     terminal: 'Internacional',
     gate: 'Por asignar',
     seat: 'Donauro: 28A | Nohemy: 28C',
-    status: 'programado',
+    status: 'aterrizado',
     confirmationCode: 'O7TX21',
     price: 552,
     transportType: 'flight',
@@ -94,7 +94,7 @@ export const initialFlights: Flight[] = [
     terminal: 'Internacional / Doméstica',
     gate: 'Por asignar',
     seat: 'Donauro: 27D | Nohemy: 26D',
-    status: 'programado',
+    status: 'aterrizado',
     confirmationCode: 'O7TX21',
     price: 553,
     transportType: 'flight',
@@ -148,7 +148,7 @@ export const initialFlights: Flight[] = [
     terminal: 'Terminal B',
     gate: 'F12',
     seat: '18A, 18B, 18C, 18D',
-    status: 'programado',
+    status: 'aterrizado',
     confirmationCode: 'OZL5K3',
     price: 320,
     transportType: 'flight',
@@ -174,11 +174,11 @@ export const initialFlights: Flight[] = [
     terminal: 'Terminal I',
     gate: 'G92',
     seat: '35A, 35B, 35C, 35D',
-    status: 'programado',
+    status: 'aterrizado',
     confirmationCode: 'OZL5K3',
     price: 980,
     transportType: 'flight',
-    notes: 'Vuelo transpacífico a Osaka (KIX). Llega lunes 24 de agosto a las 2:50 p.m.',
+    notes: 'Vuelo transpacífico a Osaka (KIX). Llega lunes 24 de agosto a las 2:50 p.m. y traslado al Hotel voco Osaka.',
     qrTickets: [
       { passengerName: 'Donauro Emmanuel Castro', seat: '35A', car: 'Economy', qrCodeData: 'UA0035-SFO-KIX-0167443186390' },
       { passengerName: 'Robinson Josue Castro', seat: '35B', car: 'Economy', qrCodeData: 'UA0035-SFO-KIX-0167443186386' },
@@ -453,7 +453,9 @@ export const initialReservations: Reservation[] = [
     checkIn: '2026-08-24T15:00',
     checkOut: '2026-08-28T11:00',
     confirmationCode: '284-6876330',
-    status: 'confirmed',
+    status: 'checked_in',
+    completed: true,
+    checkedIn: true,
     price: 520,
     phone: '+81 6 6445 1100',
     notes: 'Habitación: 2 Twin Premium. Impuesto de ciudad JPY 100-10,000 por noche directo en recepción.'
@@ -469,6 +471,8 @@ export const initialReservations: Reservation[] = [
     checkOut: '2026-09-01T11:00',
     confirmationCode: '9092829717666',
     status: 'confirmed',
+    completed: false,
+    checkedIn: false,
     price: 880,
     phone: '+81 3 6253 11',
     notes: 'Habitación: Standard Twin Room Non-Smoking (Prosecco, Beds in L-Shape). WiFi gratis.'
@@ -484,6 +488,8 @@ export const initialReservations: Reservation[] = [
     checkOut: '2026-09-04T11:00',
     confirmationCode: '9092829717436',
     status: 'confirmed',
+    completed: false,
+    checkedIn: false,
     price: 420,
     phone: '+82 2 6917 3100',
     notes: 'Habitación Standard Twin Room. Depósito reembolsable de KRW 100,000 a la llegada.'
@@ -499,6 +505,8 @@ export const initialReservations: Reservation[] = [
     checkOut: '2026-09-08T11:00',
     confirmationCode: '9101153796495',
     status: 'confirmed',
+    completed: false,
+    checkedIn: false,
     price: 390,
     phone: '+66 2 340 5499',
     notes: 'The Innside Twin Room Non-Refundable. Estacionamiento propio y WiFi gratis.'
@@ -2257,6 +2265,74 @@ export const initialChecklistItems: ChecklistItem[] = [
     completed: true,
     assignedTo: 'Todos',
     notes: 'En Japón y Corea cobran las bolsas de plástico.'
+  },
+
+  // --- HOTELES Y ALOJAMIENTO: Imprescindible ---
+  {
+    id: 'chk-hotel-1-voco',
+    tripId: 'trip-asia-2026',
+    category: 'lodging',
+    importance: 'imprescindible',
+    title: '🏨 Check-in Hotel voco Osaka Central (Osaka)',
+    description: '1-7-1 Kyomachibori, Nishi-ku, Osaka | Voucher #9008994/9008995 | Código: 284-6876330 | Habitación: 2 Twin Premium (24 al 28 Ago).',
+    completed: true,
+    assignedTo: 'Todos',
+    notes: '¡Ya en Osaka! Pagado 100% por adelantado. Impuesto de ciudad JPY 100-10,000 directo en recepción.'
+  },
+  {
+    id: 'chk-hotel-2-ginza',
+    tripId: 'trip-asia-2026',
+    category: 'lodging',
+    importance: 'imprescindible',
+    title: '🏨 Check-in The Royal Park Canvas Ginza Corridor (Tokio)',
+    description: 'Chuo City Ginza 6-2-11, Tokio | Voucher #9008997/9008998 | Código: 9092829717666 | Habitación Standard Twin Room Non-Smoking (28 Ago al 01 Sep).',
+    completed: false,
+    assignedTo: 'Todos',
+    notes: 'A 5 min de Estación Ginza y Yurakucho. Llegada en Tren Shinkansen Nozomi desde Shin-Osaka.'
+  },
+  {
+    id: 'chk-hotel-3-insadong',
+    tripId: 'trip-asia-2026',
+    category: 'lodging',
+    importance: 'imprescindible',
+    title: '🏨 Check-in Nine Tree Premier Hotel Insadong (Seúl)',
+    description: '49, Insadong-gil, Jongno-gu, Seúl | Voucher #9009000/9009001 | Código: 9092829717436 | Habitación Standard Twin (01 al 04 Sep).',
+    completed: false,
+    assignedTo: 'Todos',
+    notes: 'Depósito reembolsable de seguridad KRW 100,000 a la llegada (tarjeta o efectivo).'
+  },
+  {
+    id: 'chk-hotel-4-bangkok',
+    tripId: 'trip-asia-2026',
+    category: 'lodging',
+    importance: 'imprescindible',
+    title: '🏨 Check-in INNSiDE Bangkok Sukhumvit (Bangkok)',
+    description: '1472 Sukhumvit Road, Phrakanong Klongtoey, Bangkok | Voucher #9009003/9009004 | Código: 9101153796495 | The Innside Twin (04 al 08 Sep).',
+    completed: false,
+    assignedTo: 'Todos',
+    notes: 'Check-in 15:00 hrs. Check-out 11:00 hrs antes del traslado a BKK para el vuelo de regreso a SFO.'
+  },
+  {
+    id: 'chk-hotel-vouchers-saved',
+    tripId: 'trip-asia-2026',
+    category: 'lodging',
+    importance: 'imprescindible',
+    title: '📄 Vouchers y Códigos de Hoteles TripMasters guardados sin conexión',
+    description: 'Descargar o guardar capturas de los 4 vouchers de hotel en el móvil para mostrarlos en recepción.',
+    completed: true,
+    assignedTo: 'Todos',
+    notes: 'Disponibles siempre en la sección de Reservas e HOTELES de ViajeFlow.'
+  },
+  {
+    id: 'chk-hotel-city-tax-osaka',
+    tripId: 'trip-asia-2026',
+    category: 'lodging',
+    importance: 'recomendable',
+    title: '💴 Pago de Impuesto Hotelero local en Osaka y Tokio',
+    description: 'Tener efectivo JPY o tarjeta para tasa turística municipal en recepción al momento del check-in o check-out.',
+    completed: true,
+    assignedTo: 'Donauro Emmanuel Castro',
+    notes: 'Tasa fija por persona/noche aplicable en prefecturas de Osaka y Tokio.'
   }
 ];
 

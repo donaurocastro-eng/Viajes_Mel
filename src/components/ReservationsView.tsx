@@ -1,12 +1,35 @@
 import React from 'react';
-import { Trip, Reservation } from '../types';
-import { Hotel, Car, Utensils, Train, MapPin, Calendar, Clock, Phone, ExternalLink, Plus, Trash2, MessageSquare, Copy, Check } from 'lucide-react';
+import { Trip, Reservation, ReservationStatus } from '../types';
+import {
+  Hotel,
+  Car,
+  Utensils,
+  Train,
+  MapPin,
+  Calendar,
+  Clock,
+  Phone,
+  ExternalLink,
+  Plus,
+  Trash2,
+  MessageSquare,
+  Copy,
+  Check,
+  CheckCircle2,
+  AlertCircle,
+  ShieldCheck,
+  Building2,
+  BookmarkCheck,
+  FileText
+} from 'lucide-react';
 
 interface ReservationsViewProps {
   trip: Trip;
   reservations: Reservation[];
   onDeleteReservation: (id: string) => void;
   onAddReservation: () => void;
+  onToggleReservationStatus?: (id: string, newStatus?: ReservationStatus) => void;
+  onUpdateReservation?: (res: Reservation) => void;
   onNotifyWhatsApp: (reservation: Reservation) => void;
 }
 
@@ -15,12 +38,35 @@ export const ReservationsView: React.FC<ReservationsViewProps> = ({
   reservations,
   onDeleteReservation,
   onAddReservation,
+  onToggleReservationStatus,
+  onUpdateReservation,
   onNotifyWhatsApp,
 }) => {
   const [copiedId, setCopiedId] = React.useState<string | null>(null);
-  const [selectedResIds, setSelectedResIds] = React.useState<string[]>([]);
+  
+  // Persisted checkbox selection for WhatsApp & management
+  const [selectedResIds, setSelectedResIds] = React.useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('viajeflow_selected_reservations_v2');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  React.useEffect(() => {
+    try {
+      localStorage.setItem('viajeflow_selected_reservations_v2', JSON.stringify(selectedResIds));
+    } catch (e) {
+      console.error('Error saving selected reservations', e);
+    }
+  }, [selectedResIds]);
 
   const tripReservations = reservations.filter((r) => r.tripId === trip.id);
+  const hotelReservations = tripReservations.filter((r) => r.type === 'hotel');
+  const checkedInHotelsCount = hotelReservations.filter(
+    (r) => r.status === 'checked_in' || r.status === 'completed' || r.completed
+  ).length;
 
   const toggleResSelection = (id: string) => {
     setSelectedResIds((prev) =>
@@ -46,13 +92,21 @@ export const ReservationsView: React.FC<ReservationsViewProps> = ({
         ? '🍽️ RESTAURANTE'
         : '🚅 TREN / TRANSPORTE';
 
+    const statusText =
+      res.status === 'checked_in' || res.completed
+        ? '✅ Check-in Realizado / Hospedado'
+        : res.status === 'completed'
+        ? '🧳 Estancia Finalizada'
+        : '📋 Confirmado (100% Pagado de antemano)';
+
     return `${typeLabel}
 📌 Viaje: ${trip.title} [${trip.code || 'VAC'}]
 🏨 *${res.title}* (${res.provider})
+📍 Estado: ${statusText}
 
 🔑 *Código de Reserva:* ${res.confirmationCode}
 🗓️ *Check-In:* ${res.checkIn}
-${res.checkOut ? `📅 *Check-Out:* ${res.checkOut}\n` : ''}${res.address ? `📍 *Dirección:* ${res.address}\n` : ''}${res.price ? `💰 *Precio:* ${res.price} ${trip.currency}\n` : ''}${res.notes ? `📝 *Notas:* ${res.notes}\n` : ''}
+${res.checkOut ? `📅 *Check-Out:* ${res.checkOut}\n` : ''}${res.address ? `📍 *Dirección:* ${res.address}\n` : ''}${res.price ? `💰 *Precio:* $${res.price} ${trip.currency} (Pagado)\n` : ''}${res.notes ? `📝 *Notas:* ${res.notes}\n` : ''}
 📲 Compartido con ViajeFlow`;
   };
 
@@ -73,11 +127,14 @@ ${res.checkOut ? `📅 *Check-Out:* ${res.checkOut}\n` : ''}${res.address ? `�
     let summary = `🏨 *RESERVAS Y HOTELES (${itemsToShare.length} ${itemsToShare.length === 1 ? 'reserva' : 'reservas'})*
 📌 *${trip.title}* [Código: ${trip.code || 'VAC'}]
 👥 *Viajeros:* ${trip.travelersNames?.join(', ') || 'Grupo de Viaje'}
+🏨 *Progreso Hoteles:* ${checkedInHotelsCount}/${hotelReservations.length} Check-in Realizados
 
 `;
 
     itemsToShare.forEach((r, idx) => {
+      const isDone = r.status === 'checked_in' || r.status === 'completed' || r.completed;
       summary += `*#${idx + 1} ${r.title}* (${r.provider})
+• Estado: ${isDone ? '✅ Check-in Realizado / Hospedado' : '⏳ Confirmado (100% Pagado)'}
 • Código: ${r.confirmationCode}
 • Entrada: ${r.checkIn}${r.checkOut ? ` | Salida: ${r.checkOut}` : ''}
 ${r.address ? `• Ubicación: ${r.address}\n` : ''}
@@ -113,17 +170,17 @@ ${r.address ? `• Ubicación: ${r.address}\n` : ''}
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-slate-900/80 p-5 rounded-2xl border border-slate-800 shadow-xl">
         <div>
           <h2 className="text-xl font-bold text-white flex items-center space-x-2">
-            <Hotel className="w-5 h-5 text-amber-400" />
-            <span>Reservas y Alojamiento</span>
+            <Hotel className="w-6 h-6 text-amber-400" />
+            <span>Reservas y Alojamientos</span>
             <span className="text-[11px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2.5 py-0.5 rounded-full">
               ✅ 100% PAGADOS
             </span>
           </h2>
-          <p className="text-xs text-slate-400">
-            Todos los hoteles y alojamientos ya están 100% pagados y confirmados
+          <p className="text-xs text-slate-400 mt-1">
+            Gestiona y marca el check-in de tus hoteles de forma persistente. Guarda tus códigos y vouchers sin conexión.
           </p>
         </div>
 
@@ -162,6 +219,102 @@ ${r.address ? `• Ubicación: ${r.address}\n` : ''}
         </div>
       </div>
 
+      {/* Hotel Checklist & Quick Check-in Tracker Banner */}
+      {hotelReservations.length > 0 && (
+        <div className="bg-gradient-to-r from-slate-900 via-amber-950/20 to-slate-900 border border-amber-500/30 rounded-2xl p-5 shadow-xl space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
+            <div className="flex items-center space-x-2.5">
+              <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/30">
+                <BookmarkCheck className="w-5 h-5 text-amber-400" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-white flex items-center space-x-2">
+                  <span>Checklist Rápido de Hoteles y Check-in</span>
+                  <span className="text-xs font-black px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                    {checkedInHotelsCount} de {hotelReservations.length} Realizados
+                  </span>
+                </h3>
+                <p className="text-[11px] text-slate-400">
+                  Toca cualquier hotel para marcar check-in realizado o pendiente. El estado se guarda automáticamente en tu dispositivo.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <span className="text-[11px] text-emerald-400 font-semibold flex items-center space-x-1 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Guardado Permanente Activo</span>
+              </span>
+            </div>
+          </div>
+
+          {/* Quick Check-in items list */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {hotelReservations.map((hotel, index) => {
+              const isDone = hotel.status === 'checked_in' || hotel.status === 'completed' || hotel.completed;
+              const isVocoOsaka = hotel.id === 'res-jp-1' || hotel.title.toLowerCase().includes('voco');
+              return (
+                <div
+                  key={hotel.id}
+                  onClick={() => {
+                    const nextStatus: ReservationStatus = isDone ? 'confirmed' : 'checked_in';
+                    onToggleReservationStatus?.(hotel.id, nextStatus);
+                  }}
+                  className={`p-3 rounded-xl border transition-all cursor-pointer select-none flex flex-col justify-between space-y-2.5 ${
+                    isDone
+                      ? 'bg-emerald-950/30 border-emerald-500/50 hover:border-emerald-400'
+                      : 'bg-slate-950/60 border-slate-800 hover:border-amber-500/50'
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center space-x-2">
+                      <div
+                        className={`w-5 h-5 rounded-md flex items-center justify-center border transition-all ${
+                          isDone
+                            ? 'bg-emerald-500 border-emerald-400 text-slate-950'
+                            : 'border-slate-600 bg-slate-900'
+                        }`}
+                      >
+                        {isDone && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                      </div>
+                      <span className="text-[11px] font-bold text-slate-300">
+                        Paso {index + 1}
+                      </span>
+                    </div>
+
+                    {isVocoOsaka && (
+                      <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                        📍 EN ESTANCIA
+                      </span>
+                    )}
+                  </div>
+
+                  <div>
+                    <h4 className={`text-xs font-bold ${isDone ? 'text-emerald-200 line-through decoration-emerald-500/60' : 'text-white'}`}>
+                      {hotel.title}
+                    </h4>
+                    <p className="text-[10px] text-slate-400">
+                      {hotel.checkIn.split('T')[0]} • Cód: {hotel.confirmationCode}
+                    </p>
+                  </div>
+
+                  <div className="pt-1 border-t border-slate-800/80 flex items-center justify-between">
+                    <span
+                      className={`text-[10px] font-extrabold ${
+                        isDone ? 'text-emerald-400' : 'text-amber-400'
+                      }`}
+                    >
+                      {isDone ? '✅ Check-in Realizado' : '⏳ Pendiente Check-in'}
+                    </span>
+                    <span className="text-[10px] text-slate-500">Tocar para cambiar</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Empty State */}
       {tripReservations.length === 0 && (
         <div className="text-center py-16 bg-slate-900/50 rounded-2xl border border-dashed border-slate-800 space-y-3">
@@ -184,41 +337,101 @@ ${r.address ? `• Ubicación: ${r.address}\n` : ''}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {tripReservations.map((res) => {
           const isSelected = selectedResIds.includes(res.id);
+          const isDone = res.status === 'checked_in' || res.status === 'completed' || res.completed;
+          const isVocoOsaka = res.id === 'res-jp-1' || res.title.toLowerCase().includes('voco');
+
           return (
             <div
               key={res.id}
               className={`bg-slate-900 rounded-2xl border p-6 space-y-4 shadow-xl transition-all flex flex-col justify-between ${
                 isSelected
                   ? 'border-emerald-500/80 ring-2 ring-emerald-500/30'
+                  : isDone
+                  ? 'border-emerald-500/40 bg-slate-900/95'
                   : 'border-slate-800 hover:border-slate-700'
               }`}
             >
               <div className="space-y-3">
                 {/* Type & Status Bar */}
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between flex-wrap gap-2">
                   <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      onChange={() => toggleResSelection(res.id)}
-                      className="w-4 h-4 rounded border-slate-700 text-emerald-500 focus:ring-emerald-500 cursor-pointer accent-emerald-500 mr-1"
-                      title="Seleccionar para enviar por WhatsApp"
-                    />
+                    <label className="flex items-center cursor-pointer mr-1" title="Seleccionar para enviar por WhatsApp">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleResSelection(res.id)}
+                        className="w-4 h-4 rounded border-slate-700 text-emerald-500 focus:ring-emerald-500 cursor-pointer accent-emerald-500"
+                      />
+                    </label>
                     <div className="p-2 rounded-xl bg-slate-800 border border-slate-700">
                       {getTypeIcon(res.type)}
                     </div>
-                    <span className="text-xs uppercase font-extrabold text-slate-400 tracking-wider">
-                      {res.type === 'hotel' ? 'Hotel / Alojamiento' : res.type === 'car_rental' ? 'Renta de Auto' : res.type === 'restaurant' ? 'Restaurante' : 'Tren / Transporte'}
-                    </span>
+                    <div>
+                      <span className="text-xs uppercase font-extrabold text-slate-400 tracking-wider block">
+                        {res.type === 'hotel' ? 'Hotel / Alojamiento' : res.type === 'car_rental' ? 'Renta de Auto' : res.type === 'restaurant' ? 'Restaurante' : 'Tren / Transporte'}
+                      </span>
+                      {isVocoOsaka && (
+                        <span className="text-[10px] font-bold text-cyan-400 flex items-center space-x-1">
+                          <span>📍 Hotel Actual en Osaka</span>
+                        </span>
+                      )}
+                    </div>
                   </div>
 
-                  <span className="text-xs font-black px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center space-x-1">
-                    <span>✅ 100% PAGADO</span>
-                  </span>
+                  <div className="flex items-center space-x-1.5">
+                    <span className="text-xs font-black px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center space-x-1">
+                      <span>✅ 100% PAGADO</span>
+                    </span>
+                  </div>
                 </div>
 
-                <h3 className="text-lg font-bold text-white">{res.title}</h3>
-                <p className="text-xs text-slate-400 font-medium">Proveedor: {res.provider}</p>
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <h3 className="text-lg font-bold text-white">{res.title}</h3>
+                    <p className="text-xs text-slate-400 font-medium">Proveedor: {res.provider}</p>
+                  </div>
+
+                  {/* Interactive Toggle Button for Hotel Check-in */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const nextStatus: ReservationStatus = isDone ? 'confirmed' : 'checked_in';
+                      onToggleReservationStatus?.(res.id, nextStatus);
+                    }}
+                    className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border shrink-0 ${
+                      isDone
+                        ? 'bg-emerald-500 text-slate-950 border-emerald-400 font-black shadow-lg shadow-emerald-500/20'
+                        : 'bg-slate-950 text-slate-300 border-slate-700 hover:border-amber-500 hover:text-amber-300'
+                    }`}
+                  >
+                    {isDone ? (
+                      <>
+                        <CheckCircle2 className="w-4 h-4 text-slate-950 fill-emerald-300" />
+                        <span>¡Check-in Realizado! 🏨</span>
+                      </>
+                    ) : (
+                      <>
+                        <div className="w-3.5 h-3.5 rounded-full border-2 border-slate-500" />
+                        <span>Marcar Check-in</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* Status Selector Dropdown */}
+                <div className="flex items-center justify-between bg-slate-950/60 px-3 py-2 rounded-xl border border-slate-800 text-xs">
+                  <span className="text-slate-400 font-medium">Estado del Alojamiento:</span>
+                  <select
+                    value={res.status || (isDone ? 'checked_in' : 'confirmed')}
+                    onChange={(e) => onToggleReservationStatus?.(res.id, e.target.value as ReservationStatus)}
+                    className="bg-slate-900 text-slate-200 text-xs font-bold rounded-lg px-2.5 py-1 border border-slate-700 focus:outline-none focus:border-amber-500 cursor-pointer"
+                  >
+                    <option value="confirmed">📋 Confirmado (Pendiente Check-in)</option>
+                    <option value="checked_in">🏨 Check-in Realizado / Hospedado</option>
+                    <option value="completed">🧳 Estancia Finalizada / Salida</option>
+                    <option value="pending">⏳ Pendiente</option>
+                  </select>
+                </div>
 
                 {/* Confirmation Code Copy Box */}
                 <div className="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-slate-800">
@@ -234,7 +447,7 @@ ${r.address ? `• Ubicación: ${r.address}\n` : ''}
                     {copiedId === res.id ? (
                       <>
                         <Check className="w-3.5 h-3.5 text-emerald-400" />
-                        <span className="text-[10px] text-emerald-400">Copiado</span>
+                        <span className="text-[10px] text-emerald-400 font-bold">Copiado</span>
                       </>
                     ) : (
                       <>
@@ -257,6 +470,12 @@ ${r.address ? `• Ubicación: ${r.address}\n` : ''}
                       <span>Salida / Check-Out: <strong className="text-white">{res.checkOut}</strong></span>
                     </div>
                   )}
+                  {res.phone && (
+                    <div className="flex items-center space-x-2">
+                      <Phone className="w-4 h-4 text-amber-400 shrink-0" />
+                      <span>Teléfono: <strong className="text-white">{res.phone}</strong></span>
+                    </div>
+                  )}
                   {res.address && (
                     <div className="flex items-start space-x-2">
                       <MapPin className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
@@ -272,7 +491,7 @@ ${r.address ? `• Ubicación: ${r.address}\n` : ''}
                     </div>
                   )}
                   {res.notes && (
-                    <p className="text-xs text-slate-400 italic bg-slate-950/40 p-2 rounded border border-slate-800/80">
+                    <p className="text-xs text-slate-400 italic bg-slate-950/40 p-2.5 rounded-xl border border-slate-800/80">
                       "{res.notes}"
                     </p>
                   )}
@@ -280,7 +499,7 @@ ${r.address ? `• Ubicación: ${r.address}\n` : ''}
               </div>
 
               {/* Bottom Actions */}
-              <div className="pt-3 border-t border-slate-800 flex items-center justify-between">
+              <div className="pt-3 border-t border-slate-800 flex items-center justify-between flex-wrap gap-2">
                 <div>
                   <span className="text-xs font-black text-emerald-400 block">
                     {res.price ? `$${res.price} ${trip.currency}` : 'Precio Incluido'}

@@ -32,7 +32,8 @@ import {
   QrCode,
   ExternalLink,
   ShieldCheck,
-  Plane
+  Plane,
+  Hotel
 } from 'lucide-react';
 
 interface ChecklistViewProps {
@@ -46,6 +47,13 @@ interface ChecklistViewProps {
 }
 
 const CATEGORY_META: Record<ChecklistCategory, { label: string; icon: React.FC<{ className?: string }>; color: string; bg: string; border: string }> = {
+  lodging: {
+    label: 'Hoteles y Alojamientos',
+    icon: Hotel,
+    color: 'text-amber-400',
+    bg: 'bg-amber-500/10',
+    border: 'border-amber-500/30'
+  },
   documentation: {
     label: 'Documentación',
     icon: FileText,

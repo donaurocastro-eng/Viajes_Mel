@@ -349,18 +349,41 @@ ${item.confirmationCode ? `🔑 *Reserva/PNR:* ${item.confirmationCode}\n` : ''}
             >
               {/* Card Header Banner */}
               <div
-                className={`px-6 py-3 border-b flex items-center justify-between flex-wrap gap-2 ${
-                  isTrain ? 'bg-purple-950/40 border-purple-800/40' : 'bg-slate-800/80 border-slate-800'
+                className={`px-6 py-3.5 border-b flex items-center justify-between flex-wrap gap-2 ${
+                  item.status === 'aterrizado'
+                    ? 'bg-emerald-950/40 border-emerald-800/40'
+                    : isTrain
+                    ? 'bg-purple-950/40 border-purple-800/40'
+                    : 'bg-slate-800/80 border-slate-800'
                 }`}
               >
                 <div className="flex items-center space-x-3">
-                  <input
-                    type="checkbox"
-                    checked={selectedFlightIds.includes(item.id)}
-                    onChange={() => toggleFlightSelection(item.id)}
-                    className="w-4 h-4 rounded border-slate-700 text-emerald-500 focus:ring-emerald-500 cursor-pointer accent-emerald-500"
-                    title="Seleccionar para enviar por WhatsApp"
-                  />
+                  {/* Dedicated Completed / Realizado Checkbox Button */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const nextStatus: FlightStatus = item.status === 'aterrizado' ? 'programado' : 'aterrizado';
+                      onUpdateFlightStatus(item.id, nextStatus);
+                    }}
+                    className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition-all border ${
+                      item.status === 'aterrizado'
+                        ? 'bg-emerald-500 text-slate-950 border-emerald-400 font-extrabold shadow-sm'
+                        : 'bg-slate-900/90 text-slate-300 border-slate-700 hover:border-emerald-500 hover:text-emerald-300'
+                    }`}
+                    title={item.status === 'aterrizado' ? 'Marcar como pendiente / no completado' : 'Marcar este vuelo como YA REALIZADO / COMPLETADO'}
+                  >
+                    {item.status === 'aterrizado' ? (
+                      <>
+                        <CheckCircle2 className="w-4 h-4 text-slate-950 fill-emerald-400" />
+                        <span>¡Realizado! 🛬</span>
+                      </>
+                    ) : (
+                      <>
+                        <div className="w-3.5 h-3.5 rounded-full border-2 border-slate-500" />
+                        <span>Marcar Realizado</span>
+                      </>
+                    )}
+                  </button>
 
                   <div className={`p-1.5 rounded-lg ${isTrain ? 'bg-purple-500/20 text-purple-300' : 'bg-cyan-500/20 text-cyan-300'}`}>
                     {isTrain ? <Train className="w-4 h-4" /> : <Plane className="w-4 h-4" />}
@@ -368,7 +391,13 @@ ${item.confirmationCode ? `🔑 *Reserva/PNR:* ${item.confirmationCode}\n` : ''}
 
                   <div>
                     <span className="text-xs text-slate-400 font-mono mr-2">#{index + 1}</span>
-                    <span className={`font-extrabold text-base tracking-wider ${isTrain ? 'text-purple-300' : 'text-cyan-400'}`}>
+                    <span className={`font-extrabold text-base tracking-wider ${
+                      item.status === 'aterrizado'
+                        ? 'text-emerald-300 line-through opacity-90'
+                        : isTrain
+                        ? 'text-purple-300'
+                        : 'text-cyan-400'
+                    }`}>
                       {item.airline} {item.flightNumber}
                     </span>
                   </div>
@@ -381,9 +410,34 @@ ${item.confirmationCode ? `🔑 *Reserva/PNR:* ${item.confirmationCode}\n` : ''}
                 </div>
 
                 <div className="flex items-center space-x-2">
-                  <span className={`text-xs font-semibold px-3 py-1 rounded-full border ${statusBadge.bg}`}>
-                    {statusBadge.label}
-                  </span>
+                  {/* Quick Status Dropdown in Header */}
+                  <select
+                    value={item.status}
+                    onChange={(e) => onUpdateFlightStatus(item.id, e.target.value as FlightStatus)}
+                    className={`text-xs font-bold rounded-lg px-2.5 py-1 border transition-all cursor-pointer focus:outline-none ${statusBadge.bg}`}
+                    title="Cambiar estado del vuelo"
+                  >
+                    <option value="programado" className="bg-slate-900 text-white font-normal">🗓️ Programado</option>
+                    <option value="embarcando" className="bg-slate-900 text-white font-normal">🚪 Embarcando</option>
+                    <option value="en_vuelo" className="bg-slate-900 text-white font-normal">✈️ En Vuelo / En Trayecto</option>
+                    <option value="retrasado" className="bg-slate-900 text-white font-normal">⏱️ Retrasado</option>
+                    <option value="aterrizado" className="bg-slate-900 text-white font-normal">✅ Completado / Realizado</option>
+                  </select>
+
+                  {/* Selection Checkbox for WhatsApp sharing */}
+                  <label
+                    className="flex items-center space-x-1.5 px-2 py-1 bg-slate-950/80 hover:bg-slate-800 border border-slate-700 rounded-lg text-[11px] text-slate-300 cursor-pointer"
+                    title="Seleccionar para enviar resumen por WhatsApp"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedFlightIds.includes(item.id)}
+                      onChange={() => toggleFlightSelection(item.id)}
+                      className="w-3.5 h-3.5 rounded border-slate-700 text-emerald-500 focus:ring-emerald-500 cursor-pointer accent-emerald-500"
+                    />
+                    <span className="hidden sm:inline">WhatsApp</span>
+                  </label>
+
                   <button
                     onClick={() => onDeleteFlight(item.id)}
                     className="p-1.5 text-slate-500 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition-colors"

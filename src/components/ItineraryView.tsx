@@ -1,34 +1,38 @@
 import React, { useState } from 'react';
-import { Trip, Activity } from '../types';
+import { Trip, Activity, Flight, FlightStatus } from '../types';
 import pacificMapImage from '../assets/images/pacific_route_map_illustrated_1787185092847.jpg';
 import { Calendar, Clock, MapPin, DollarSign, CheckCircle2, Circle, MessageSquare, Plus, Trash2, Tag, ArrowRight, Compass, Plane, Train, Car, Layers, ChevronDown, ChevronUp, ExternalLink, Globe } from 'lucide-react';
 
 interface ItineraryViewProps {
   trip: Trip;
   activities: Activity[];
+  flights?: Flight[];
   onToggleActivity: (id: string) => void;
   onDeleteActivity: (id: string) => void;
   onAddActivity: () => void;
   onNotifyWhatsApp: (activity: Activity) => void;
+  onUpdateFlightStatus?: (flightId: string, newStatus: FlightStatus) => void;
 }
 
 const ITINERARY_STAGES_QUICK = [
-  { step: 1, from: 'Comayagua 🇭🇳', to: 'Houston 🇺🇸', type: 'flight', code: 'UA 527', date: '18-Ago', status: 'Listo' },
-  { step: 2, from: 'Houston 🇺🇸', to: 'San Antonio 🇺🇸', type: 'ground', code: 'I-10 W', date: '19-Ago', status: 'Listo' },
-  { step: 3, from: 'San Antonio 🇺🇸', to: 'San Francisco 🇺🇸', type: 'flight', code: 'UA 388', date: '21-Ago', status: 'Listo' },
-  { step: 4, from: 'San Francisco 🇺🇸', to: 'Osaka 🇯🇵', type: 'flight', code: 'NH 007', date: '23-Ago', status: 'En Ruta' },
-  { step: 5, from: 'Osaka 🇯🇵', to: 'Tokio 🇯🇵', type: 'train', code: 'Shinkansen', date: '27-Ago', status: 'Programado' },
-  { step: 6, from: 'Tokio 🇯🇵', to: 'Seúl 🇰🇷', type: 'flight', code: 'KE 704', date: '31-Ago', status: 'Programado' },
-  { step: 7, from: 'Seúl 🇰🇷', to: 'Bangkok 🇹🇭', type: 'flight', code: 'TG 659', date: '04-Sep', status: 'Programado' },
+  { step: 1, flightId: 'flight-hn-1', from: 'Comayagua 🇭🇳', to: 'Houston 🇺🇸', type: 'flight', code: 'UA 527', date: '18-Ago', defaultStatus: 'Listo ✅' },
+  { step: 2, flightId: 'flight-hn-2', from: 'Houston 🇺🇸', to: 'San Antonio 🇺🇸', type: 'flight', code: 'UA 1477', date: '18-Ago', defaultStatus: 'Listo ✅' },
+  { step: 3, flightId: 'flight-jp-1', from: 'San Antonio 🇺🇸', to: 'San Francisco 🇺🇸', type: 'flight', code: 'UA 0790', date: '23-Ago', defaultStatus: 'Listo ✅' },
+  { step: 4, flightId: 'flight-jp-2', from: 'San Francisco 🇺🇸', to: 'Osaka 🇯🇵', type: 'flight', code: 'UA 0035', date: '23-24 Ago', defaultStatus: '¡Llegada a Osaka / Hotel voco! 🛬' },
+  { step: 5, flightId: 'flight-jp-3', from: 'Osaka 🇯🇵', to: 'Tokio 🇯🇵', type: 'train', code: 'Shinkansen', date: '28-Ago', defaultStatus: 'Programado 🚄' },
+  { step: 6, flightId: 'flight-kr-1', from: 'Tokio 🇯🇵', to: 'Seúl 🇰🇷', type: 'flight', code: 'H1 9806', date: '01-Sep', defaultStatus: 'Programado ✈️' },
+  { step: 7, flightId: 'flight-th-1', from: 'Seúl 🇰🇷', to: 'Bangkok 🇹🇭', type: 'flight', code: 'VZ 0851', date: '04-Sep', defaultStatus: 'Programado ✈️' },
 ];
 
 export const ItineraryView: React.FC<ItineraryViewProps> = ({
   trip,
   activities,
+  flights = [],
   onToggleActivity,
   onDeleteActivity,
   onAddActivity,
   onNotifyWhatsApp,
+  onUpdateFlightStatus,
 }) => {
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>('all');
   const [showRouteStrip, setShowRouteStrip] = useState<boolean>(true);
@@ -110,6 +114,18 @@ export const ItineraryView: React.FC<ItineraryViewProps> = ({
             <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
               {ITINERARY_STAGES_QUICK.map((stg, i) => {
                 const isSelected = selectedStageIdx === i;
+                const matchFlight = flights.find(f => f.id === stg.flightId);
+                const isCompleted = matchFlight?.status === 'aterrizado' || (!matchFlight && (stg.step <= 4));
+                const isInFlight = matchFlight?.status === 'en_vuelo' || matchFlight?.status === 'embarcando';
+                
+                const statusLabel = isCompleted 
+                  ? 'Realizado ✅' 
+                  : isInFlight 
+                  ? 'En Vuelo 🛫' 
+                  : matchFlight?.status === 'retrasado' 
+                  ? 'Retrasado ⏱️' 
+                  : 'Programado';
+
                 return (
                   <button
                     key={stg.step}
@@ -117,6 +133,8 @@ export const ItineraryView: React.FC<ItineraryViewProps> = ({
                     className={`p-2 rounded-xl text-left transition-all border ${
                       isSelected
                         ? 'bg-cyan-500 text-slate-950 border-cyan-400 font-extrabold shadow-md scale-102'
+                        : isCompleted
+                        ? 'bg-emerald-950/40 text-emerald-300 border-emerald-800/60 hover:bg-emerald-900/40'
                         : 'bg-slate-950/80 text-slate-300 border-slate-800 hover:bg-slate-800/80'
                     }`}
                   >
@@ -127,10 +145,10 @@ export const ItineraryView: React.FC<ItineraryViewProps> = ({
                     <div className="text-xs font-bold truncate">
                       {stg.from.split(' ')[0]} ➔ {stg.to.split(' ')[0]}
                     </div>
-                    <div className="text-[10px] mt-1 flex items-center justify-between opacity-90">
+                    <div className="text-[10px] mt-1 flex items-center justify-between opacity-90 font-mono">
                       <span>{stg.code}</span>
-                      <span className={isSelected ? 'text-slate-950 font-black' : 'text-emerald-400 font-semibold'}>
-                        {stg.status}
+                      <span className={isSelected ? 'text-slate-950 font-black' : isCompleted ? 'text-emerald-400 font-bold' : 'text-slate-400 font-semibold'}>
+                        {statusLabel}
                       </span>
                     </div>
                   </button>
@@ -152,53 +170,83 @@ export const ItineraryView: React.FC<ItineraryViewProps> = ({
               <div className="absolute bottom-3 left-3 right-3 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
                 <div className="flex items-center space-x-2 bg-slate-950/80 backdrop-blur-md px-2.5 py-1 rounded-lg border border-slate-700/80 text-[11px] text-white">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span className="font-bold">Trayectoria Transpacífica Activa</span>
+                  <span className="font-bold">Trayectoria Transpacífica: En Osaka / Hotel voco 🏨🇯🇵</span>
                 </div>
                 <div className="flex items-center space-x-2 bg-slate-950/80 backdrop-blur-md px-2.5 py-1 rounded-lg border border-slate-700/80 text-[10px] text-slate-300 font-mono">
-                  <span>🇭🇳 Comayagua ➔ 🇺🇸 Houston ➔ 🇺🇸 SFO ➔ 🇯🇵 Osaka/Tokio ➔ 🇰🇷 Seúl ➔ 🇹🇭 Bangkok</span>
+                  <span>🇭🇳 Comayagua ➔ 🇺🇸 Houston ➔ 🇺🇸 SFO ➔ 🇯🇵 Osaka (Llegada) ➔ Tokio ➔ Seúl ➔ Bangkok</span>
                 </div>
               </div>
             </div>
 
             {/* Quick Detail Pill of Selected Stage */}
-            {ITINERARY_STAGES_QUICK[selectedStageIdx] && (
-              <div className="p-3 bg-slate-950 rounded-xl border border-slate-800/90 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-                <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-slate-900 rounded-lg text-cyan-400 border border-slate-800">
-                    {ITINERARY_STAGES_QUICK[selectedStageIdx].type === 'train' ? (
-                      <Train className="w-4 h-4 text-amber-400" />
-                    ) : ITINERARY_STAGES_QUICK[selectedStageIdx].type === 'ground' ? (
-                      <Car className="w-4 h-4 text-cyan-400" />
-                    ) : (
-                      <Plane className="w-4 h-4 text-emerald-400" />
-                    )}
-                  </div>
-                  <div>
-                    <div className="font-bold text-white flex items-center space-x-2">
-                      <span>{ITINERARY_STAGES_QUICK[selectedStageIdx].from}</span>
-                      <ArrowRight className="w-3 h-3 text-slate-500" />
-                      <span>{ITINERARY_STAGES_QUICK[selectedStageIdx].to}</span>
-                      <span className="text-cyan-400 font-mono text-[11px]">[{ITINERARY_STAGES_QUICK[selectedStageIdx].code}]</span>
+            {ITINERARY_STAGES_QUICK[selectedStageIdx] && (() => {
+              const currentStg = ITINERARY_STAGES_QUICK[selectedStageIdx];
+              const matchFlight = flights.find(f => f.id === currentStg.flightId);
+              const isDone = matchFlight?.status === 'aterrizado';
+
+              return (
+                <div className="p-3 bg-slate-950 rounded-xl border border-slate-800/90 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-slate-900 rounded-lg text-cyan-400 border border-slate-800">
+                      {currentStg.type === 'train' ? (
+                        <Train className="w-4 h-4 text-amber-400" />
+                      ) : currentStg.type === 'ground' ? (
+                        <Car className="w-4 h-4 text-cyan-400" />
+                      ) : (
+                        <Plane className="w-4 h-4 text-emerald-400" />
+                      )}
                     </div>
-                    <span className="text-[11px] text-slate-400">
-                      Fecha programada: {ITINERARY_STAGES_QUICK[selectedStageIdx].date} 2026 • Estado: {ITINERARY_STAGES_QUICK[selectedStageIdx].status}
-                    </span>
+                    <div>
+                      <div className="font-bold text-white flex items-center space-x-2">
+                        <span>{currentStg.from}</span>
+                        <ArrowRight className="w-3 h-3 text-slate-500" />
+                        <span>{currentStg.to}</span>
+                        <span className="text-cyan-400 font-mono text-[11px]">[{currentStg.code}]</span>
+                      </div>
+                      <div className="flex items-center space-x-2 text-[11px] text-slate-400 mt-0.5">
+                        <span>Fecha: {currentStg.date} 2026</span>
+                        <span>•</span>
+                        <span className={isDone ? 'text-emerald-400 font-bold' : 'text-slate-300'}>
+                          Estado: {isDone ? 'Realizado / Llegada Exitosa 🛬' : (matchFlight?.status || currentStg.defaultStatus)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    {onUpdateFlightStatus && currentStg.flightId && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const nextStatus: FlightStatus = isDone ? 'programado' : 'aterrizado';
+                          onUpdateFlightStatus(currentStg.flightId, nextStatus);
+                        }}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center space-x-1.5 ${
+                          isDone
+                            ? 'bg-emerald-500 text-slate-950 border-emerald-400'
+                            : 'bg-slate-900 hover:bg-emerald-950 text-emerald-300 border-slate-700'
+                        }`}
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>{isDone ? 'Tramo Realizado ✅' : 'Marcar como Realizado'}</span>
+                      </button>
+                    )}
+
+                    <a
+                      href={`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(
+                        currentStg.from
+                      )}&destination=${encodeURIComponent(currentStg.to)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-cyan-300 border border-slate-700 rounded-lg text-xs font-bold flex items-center justify-center space-x-1.5 transition-all"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span>Google Maps</span>
+                    </a>
                   </div>
                 </div>
-
-                <a
-                  href={`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(
-                    ITINERARY_STAGES_QUICK[selectedStageIdx].from
-                  )}&destination=${encodeURIComponent(ITINERARY_STAGES_QUICK[selectedStageIdx].to)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-cyan-300 border border-slate-700 rounded-lg text-xs font-bold flex items-center justify-center space-x-1.5 transition-all"
-                >
-                  <ExternalLink className="w-3.5 h-3.5" />
-                  <span>Ver ruta en Google Maps</span>
-                </a>
-              </div>
-            )}
+              );
+            })()}
           </div>
         )}
       </div>
