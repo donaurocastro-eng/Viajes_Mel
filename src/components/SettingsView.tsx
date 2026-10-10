@@ -58,18 +58,22 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const [supabaseTestResult, setSupabaseTestResult] = useState<{ success: boolean; msg: string } | null>(null);
   const [copiedSchema, setCopiedSchema] = useState(false);
   const [copiedVercel, setCopiedVercel] = useState(false);
+  const [copiedEnvVars, setCopiedEnvVars] = useState(false);
 
   const vercelJsonContent = `{
-  "version": 2,
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
-  "env": {
-    "VITE_SUPABASE_URL": "${supabaseConfig.supabaseUrl || '@supabase_url'}",
-    "VITE_SUPABASE_ANON_KEY": "${supabaseConfig.supabaseKey || '@supabase_anon_key'}",
-    "GEMINI_API_KEY": "@gemini_api_key"
-  }
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
 }`;
+
+  const vercelEnvSnippet = `VITE_SUPABASE_URL=${supabaseConfig.supabaseUrl || 'https://rqmpldlfjzgeiqfdjiua.supabase.co'}
+VITE_SUPABASE_ANON_KEY=${supabaseConfig.supabaseKey || ''}`;
 
   const handleTestAndSaveSupabase = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -324,33 +328,33 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
             <div>
               <h2 className="text-lg font-bold text-white">Despliegue Continuo en Vercel</h2>
-              <p className="text-xs text-slate-400">Publica la aplicación en tu propio dominio en cuestión de segundos.</p>
+              <p className="text-xs text-slate-400">Publica la aplicación en tu propio dominio en cuestión de segundos sin errores.</p>
             </div>
           </div>
 
-          <div className="space-y-4 text-xs text-slate-300">
-            <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
-              <h3 className="font-bold text-cyan-400 text-sm">📋 Pasos para Desplegar en Vercel:</h3>
-              <ol className="list-decimal list-inside space-y-1.5 leading-relaxed text-slate-300">
-                <li>Exporta o sube el código fuente a tu cuenta de GitHub / GitLab.</li>
-                <li>Conecta tu repositorio en <a href="https://vercel.com" target="_blank" rel="noreferrer" className="text-cyan-400 font-bold underline">Vercel.com</a>.</li>
-                <li>En la sección <strong>Environment Variables</strong> de Vercel, agrega:
-                  <ul className="list-disc list-inside pl-4 pt-1 font-mono text-emerald-300 text-[11px] space-y-0.5">
-                    <li>VITE_SUPABASE_URL = {supabaseConfig.supabaseUrl || 'https://tu-proyecto.supabase.co'}</li>
-                    <li>VITE_SUPABASE_ANON_KEY = {supabaseConfig.supabaseKey || 'tu-anon-key'}</li>
-                    <li>GEMINI_API_KEY = (Opcional para el Planificador con IA)</li>
-                  </ul>
-                </li>
-                <li>Haz clic en <strong>Deploy</strong> y ¡listo! Tu app estará en producción.</li>
-              </ol>
+          {/* Solución al Error Común en Vercel */}
+          <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 space-y-2">
+            <div className="flex items-center space-x-2 text-amber-400 font-bold text-xs">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>¿Por qué Vercel dio error con el archivo anterior?</span>
             </div>
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Vercel <strong>ya no permite</strong> definir la clave <code className="bg-slate-950 px-1.5 py-0.5 rounded text-amber-300 font-mono text-[11px]">"env": &#123; ... &#125;</code> ni secretos con <code className="bg-slate-950 px-1.5 py-0.5 rounded text-amber-300 font-mono text-[11px]">@secreto</code> dentro de <code className="text-cyan-300 font-mono">vercel.json</code>.
+              Por seguridad, las variables deben añadirse directamente en el panel de Vercel en <strong>Settings &gt; Environment Variables</strong>.
+            </p>
+          </div>
 
-            <div className="space-y-3 pt-2">
+          <div className="space-y-6 text-xs text-slate-300">
+            {/* Paso 1: Archivo vercel.json corregido */}
+            <div className="space-y-3">
               <div className="flex items-center justify-between text-xs text-slate-300">
-                <span className="font-bold text-cyan-400">📁 Archivo vercel.json Generado:</span>
+                <div>
+                  <span className="font-bold text-cyan-400">1. Archivo vercel.json Corregido (Con soporte SPA):</span>
+                  <p className="text-[11px] text-slate-400">Coloca este archivo en la raíz del proyecto para evitar errores 404 al recargar:</p>
+                </div>
                 <button
                   onClick={() => copyText(vercelJsonContent, setCopiedVercel)}
-                  className="flex items-center space-x-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 text-xs font-semibold transition-colors"
+                  className="flex items-center space-x-1.5 px-3 py-1.5 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 rounded-lg text-xs font-semibold transition-colors"
                 >
                   {copiedVercel ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                   <span>{copiedVercel ? '¡Copiado!' : 'Copiar vercel.json'}</span>
@@ -358,11 +362,49 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               </div>
 
               <textarea
-                rows={9}
+                rows={10}
                 readOnly
                 value={vercelJsonContent}
                 className="w-full bg-slate-950 font-mono text-[11px] text-cyan-300/90 p-4 rounded-2xl border border-slate-800 focus:outline-none"
               />
+            </div>
+
+            {/* Paso 2: Variables de Entorno */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between text-xs text-slate-300">
+                <div>
+                  <span className="font-bold text-emerald-400">2. Variables de Entorno para Vercel:</span>
+                  <p className="text-[11px] text-slate-400">En Vercel.com &gt; Tu Proyecto &gt; <strong>Settings &gt; Environment Variables</strong>:</p>
+                </div>
+                <button
+                  onClick={() => copyText(vercelEnvSnippet, setCopiedEnvVars)}
+                  className="flex items-center space-x-1.5 px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 rounded-lg text-xs font-semibold transition-colors"
+                >
+                  {copiedEnvVars ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>{copiedEnvVars ? '¡Copiado!' : 'Copiar Variables'}</span>
+                </button>
+              </div>
+
+              <textarea
+                rows={3}
+                readOnly
+                value={vercelEnvSnippet}
+                className="w-full bg-slate-950 font-mono text-[11px] text-emerald-300/90 p-4 rounded-2xl border border-slate-800 focus:outline-none"
+              />
+              <p className="text-[11px] text-slate-400">
+                💡 <em>Tip:</em> En el panel de Vercel puedes pegar todo el bloque de texto directamente en la primera casilla y Vercel detectará automáticamente ambas variables clave y valor.
+              </p>
+            </div>
+
+            {/* Pasos de despliegue resumidos */}
+            <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
+              <h3 className="font-bold text-cyan-400 text-sm">🚀 Pasos Rápidos para Desplegar:</h3>
+              <ol className="list-decimal list-inside space-y-1.5 leading-relaxed text-slate-300">
+                <li>Sube tu repositorio a GitHub.</li>
+                <li>Importa el proyecto en <a href="https://vercel.com" target="_blank" rel="noreferrer" className="text-cyan-400 font-bold underline">Vercel.com</a>.</li>
+                <li>Pega las dos variables de entorno en la sección <strong>Environment Variables</strong>.</li>
+                <li>Haz clic en <strong>Deploy</strong> y tu sitio estará en línea en menos de un minuto.</li>
+              </ol>
             </div>
           </div>
         </div>

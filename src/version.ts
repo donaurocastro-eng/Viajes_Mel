@@ -22,13 +22,24 @@ export interface AppVersionInfo {
 }
 
 export const APP_VERSION_INFO: AppVersionInfo = {
-  version: 'v1.3.0',
+  version: 'v1.3.1',
   releaseDate: '10 de Octubre de 2026',
   releaseDateIso: '2026-10-10',
-  buildNumber: 'build-20261010.3',
+  buildNumber: 'build-20261010.4',
   appName: 'ViajeFlow',
   environment: 'Producción / Supabase Ready',
   changelog: [
+    {
+      version: 'v1.3.1',
+      date: '10 de Octubre de 2026',
+      title: 'Corrección de Configuración Vercel y Enrutamiento SPA',
+      items: [
+        'Solución de error de compilación en Vercel eliminando el bloque no soportado "env" de vercel.json.',
+        'Adición de directiva "rewrites" para navegación SPA fluida en Vercel sin errores 404 al recargar.',
+        'Guía y botón de copia con 1 clic para configurar las variables de entorno en Vercel Dashboard > Settings > Environment Variables.',
+        'Actualización del archivo vercel.json raíz del proyecto.'
+      ]
+    },
     {
       version: 'v1.3.0',
       date: '10 de Octubre de 2026',
