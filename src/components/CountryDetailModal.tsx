@@ -33,24 +33,24 @@ export const CountryDetailModal: React.FC<CountryDetailModalProps> = ({
       <div className="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         
         {/* Country Hero Header */}
-        <div className="relative px-6 py-6 bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 border-b border-slate-800 flex items-start justify-between">
-          <div className="flex items-center space-x-4">
-            <span className="text-5xl shadow-sm drop-shadow-md select-none">{country.flagEmoji}</span>
+        <div className="relative px-5 py-4 bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 border-b border-slate-800 flex items-start justify-between">
+          <div className="flex items-center space-x-3">
+            <span className="text-3xl select-none">{country.flagEmoji}</span>
             <div>
               <div className="flex items-center space-x-2">
-                <h2 className="text-2xl font-black text-white tracking-tight">{country.name}</h2>
-                <span className="text-xs px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider bg-slate-800 text-slate-300 border border-slate-700">
+                <h2 className="text-lg font-bold text-white tracking-tight">{country.name}</h2>
+                <span className="text-[10px] px-2 py-0.5 rounded-md font-semibold uppercase tracking-wider bg-slate-800 text-slate-300 border border-slate-700">
                   {country.continent}
                 </span>
               </div>
-              <div className="flex flex-wrap items-center gap-2 mt-1.5 text-xs text-slate-300">
+              <div className="flex flex-wrap items-center gap-1.5 mt-1 text-xs text-slate-300">
                 {country.visited ? (
-                  <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>🚩 ¡Ya estuve aquí!</span>
+                  <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[11px] font-semibold">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                    <span>🚩 Ya estuve aquí</span>
                   </span>
                 ) : (
-                  <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700">
+                  <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md bg-slate-800 text-slate-400 border border-slate-700 text-[11px]">
                     <span>Aún no visitado</span>
                   </span>
                 )}
@@ -103,20 +103,20 @@ export const CountryDetailModal: React.FC<CountryDetailModalProps> = ({
           {/* Photos Header */}
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-base font-bold text-white flex items-center space-x-2">
+              <h3 className="text-sm font-bold text-white flex items-center space-x-2">
                 <span>Álbum de Recuerdos</span>
-                <span className="text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-mono">
+                <span className="text-[11px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-mono">
                   {countryPhotos.length} fotos
                 </span>
               </h3>
-              <p className="text-xs text-slate-400">Fotos tomadas en {country.name}</p>
+              <p className="text-[11px] text-slate-400">Fotos tomadas en {country.name}</p>
             </div>
             <button
               onClick={() => onOpenUpload(country.code)}
-              className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black text-xs rounded-xl shadow-md transition-all flex items-center space-x-1.5 cursor-pointer"
+              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold text-xs rounded-xl shadow-md transition-all flex items-center space-x-1.5 cursor-pointer"
             >
-              <Upload className="w-4 h-4" />
-              <span>Subir Fotos a {country.name}</span>
+              <Upload className="w-3.5 h-3.5" />
+              <span>Subir Fotos</span>
             </button>
           </div>
 
@@ -266,6 +266,8 @@ export const CountryDetailModal: React.FC<CountryDetailModalProps> = ({
                                 className="w-full bg-slate-950 border border-slate-700 text-xs text-white p-1.5 rounded-lg"
                               >
                                 <option value="" disabled>Seleccionar nuevo país...</option>
+                                <option value="AR">🇦🇷 Argentina (Buenos Aires)</option>
+                                <option value="CL">🇨🇱 Chile (Santiago)</option>
                                 <option value="CZ">🇨🇿 República Checa (Checoslovaquia / Praga)</option>
                                 <option value="HU">🇭🇺 Hungría (Budapest)</option>
                                 <option value="PA">🇵🇦 Panamá</option>
@@ -279,7 +281,7 @@ export const CountryDetailModal: React.FC<CountryDetailModalProps> = ({
                                 <option value="CO">🇨🇴 Colombia</option>
                                 <option value="MX">🇲🇽 México</option>
                                 {allCountries
-                                  .filter(c => c.code !== country.code && !['CZ', 'HU', 'PA', 'HN', 'US', 'ES', 'FR', 'IT', 'DE', 'CR', 'CO', 'MX'].includes(c.code))
+                                  .filter(c => c.code !== country.code && !['AR', 'CL', 'CZ', 'HU', 'PA', 'HN', 'US', 'ES', 'FR', 'IT', 'DE', 'CR', 'CO', 'MX'].includes(c.code))
                                   .map(c => (
                                     <option key={c.code} value={c.code}>
                                       {c.flagEmoji} {c.name}

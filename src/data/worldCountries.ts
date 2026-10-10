@@ -190,8 +190,11 @@ export const WORLD_COUNTRIES_CATALOG: VisitedCountry[] = [
     capital: 'Buenos Aires',
     coordinates: [-38.4161, -63.6167],
     svgCoords: { x: 32.8, y: 79.0 },
-    visited: false,
-    aliases: ['Argentina', 'Buenos Aires', 'Bariloche']
+    visited: true,
+    visitedDate: '2026-08-15',
+    tripName: 'Cono Sur: Argentina y Chile',
+    notes: 'Buenos Aires, Obelisco, San Telmo, Mendoza, Bariloche y Patagonia.',
+    aliases: ['Argentina', 'Buenos Aires', 'Bariloche', 'Mendoza', 'Patagonia', 'Cordoba', 'Córdoba', 'Rosario', 'Ushuaia', 'Iguazu', 'Iguazú']
   },
   {
     code: 'CL',
@@ -201,8 +204,11 @@ export const WORLD_COUNTRIES_CATALOG: VisitedCountry[] = [
     capital: 'Santiago',
     coordinates: [-35.6751, -71.543],
     svgCoords: { x: 30.5, y: 78.0 },
-    visited: false,
-    aliases: ['Chile', 'Santiago']
+    visited: true,
+    visitedDate: '2026-08-16',
+    tripName: 'Cono Sur: Argentina y Chile',
+    notes: 'Santiago de Chile, Valparaíso, Viña del Mar y Cordillera de los Andes.',
+    aliases: ['Chile', 'Santiago', 'Santiago de Chile', 'Valparaiso', 'Valparaíso', 'Viña del Mar', 'Vina del Mar', 'Atacama', 'Punta Arenas']
   },
   {
     code: 'PE',
@@ -347,9 +353,9 @@ export const WORLD_COUNTRIES_CATALOG: VisitedCountry[] = [
     flagEmoji: '🇪🇸',
     capital: 'Madrid',
     coordinates: [40.4637, -3.7492],
-    svgCoords: { x: 47.8, y: 28.5 },
+    svgCoords: { x: 47.7, y: 24.8 },
     visited: false,
-    aliases: ['España', 'Espana', 'Spain', 'Madrid', 'Barcelona', 'Sevilla']
+    aliases: ['España', 'Espana', 'Spain', 'Madrid', 'Barcelona', 'Sevilla', 'Valencia', 'Granada', 'Toledo', 'Ibiza', 'Mallorca']
   },
   {
     code: 'FR',
@@ -358,7 +364,7 @@ export const WORLD_COUNTRIES_CATALOG: VisitedCountry[] = [
     flagEmoji: '🇫🇷',
     capital: 'París',
     coordinates: [46.2276, 2.2137],
-    svgCoords: { x: 49.8, y: 23.5 },
+    svgCoords: { x: 49.8, y: 21.8 },
     visited: false,
     aliases: ['Francia', 'France', 'Paris', 'París', 'Niza']
   },
@@ -369,7 +375,7 @@ export const WORLD_COUNTRIES_CATALOG: VisitedCountry[] = [
     flagEmoji: '🇮🇹',
     capital: 'Roma',
     coordinates: [41.8719, 12.5674],
-    svgCoords: { x: 52.8, y: 26.5 },
+    svgCoords: { x: 52.8, y: 25.5 },
     visited: false,
     aliases: ['Italia', 'Italy', 'Roma', 'Milan', 'Milán', 'Venecia', 'Florencia']
   },
@@ -380,7 +386,7 @@ export const WORLD_COUNTRIES_CATALOG: VisitedCountry[] = [
     flagEmoji: '🇩🇪',
     capital: 'Berlín',
     coordinates: [51.1657, 10.4515],
-    svgCoords: { x: 52.0, y: 20.5 },
+    svgCoords: { x: 52.0, y: 19.8 },
     visited: false,
     aliases: ['Alemania', 'Germany', 'Berlin', 'Berlín', 'Munich', 'Múnich', 'Frankfurt']
   },
@@ -391,7 +397,7 @@ export const WORLD_COUNTRIES_CATALOG: VisitedCountry[] = [
     flagEmoji: '🇬🇧',
     capital: 'Londres',
     coordinates: [55.3781, -3.436],
-    svgCoords: { x: 48.0, y: 18.5 },
+    svgCoords: { x: 48.0, y: 18.0 },
     visited: false,
     aliases: ['Reino Unido', 'UK', 'Inglaterra', 'Londres', 'London', 'Escocia']
   },
@@ -402,7 +408,7 @@ export const WORLD_COUNTRIES_CATALOG: VisitedCountry[] = [
     flagEmoji: '🇨🇭',
     capital: 'Berna',
     coordinates: [46.8182, 8.2275],
-    svgCoords: { x: 51.2, y: 23.0 },
+    svgCoords: { x: 51.2, y: 22.2 },
     visited: false,
     aliases: ['Suiza', 'Switzerland', 'Zurich', 'Zúrich', 'Ginebra']
   },
@@ -413,7 +419,7 @@ export const WORLD_COUNTRIES_CATALOG: VisitedCountry[] = [
     flagEmoji: '🇳🇱',
     capital: 'Ámsterdam',
     coordinates: [52.3676, 4.9041],
-    svgCoords: { x: 50.2, y: 19.2 },
+    svgCoords: { x: 50.2, y: 18.8 },
     visited: false,
     aliases: ['Holanda', 'Paises Bajos', 'Países Bajos', 'Netherlands', 'Amsterdam', 'Ámsterdam']
   },
@@ -424,7 +430,7 @@ export const WORLD_COUNTRIES_CATALOG: VisitedCountry[] = [
     flagEmoji: '🇧🇪',
     capital: 'Bruselas',
     coordinates: [50.8503, 4.3517],
-    svgCoords: { x: 49.8, y: 20.2 },
+    svgCoords: { x: 49.8, y: 19.6 },
     visited: false,
     aliases: ['Belgica', 'Bélgica', 'Belgium', 'Bruselas', 'Brussels', 'Brujas']
   },
@@ -435,9 +441,9 @@ export const WORLD_COUNTRIES_CATALOG: VisitedCountry[] = [
     flagEmoji: '🇵🇹',
     capital: 'Lisboa',
     coordinates: [38.7223, -9.1393],
-    svgCoords: { x: 45.8, y: 28.5 },
+    svgCoords: { x: 46.1, y: 25.2 },
     visited: false,
-    aliases: ['Portugal', 'Lisboa', 'Lisbon', 'Oporto', 'Porto']
+    aliases: ['Portugal', 'Lisboa', 'Lisbon', 'Oporto', 'Porto', 'Sintra', 'Algarve', 'Faro', 'Madeira']
   },
   {
     code: 'PL',
@@ -798,5 +804,29 @@ export const INITIAL_TRAVEL_PHOTOS: TravelPhoto[] = [
     notes: 'Inicio de la gran aventura familiar desde el Aeropuerto Internacional de Palmerola (XPL).',
     tripId: 'trip-asia-2026',
     createdAt: '2026-08-18T09:30:00Z'
+  },
+  {
+    id: 'photo-ar-1',
+    countryCode: 'AR',
+    countryName: 'Argentina',
+    city: 'Buenos Aires',
+    title: 'Obelisco y Avenida 9 de Julio',
+    dataUrl: 'https://images.unsplash.com/photo-1589553416260-f586c8f1514f?auto=format&fit=crop&w=1000&q=80',
+    date: '2026-08-15',
+    notes: 'Recorrido por la capital argentina, Plaza de Mayo, San Telmo y el icónico Obelisco.',
+    tripId: 'trip-asia-2026',
+    createdAt: '2026-08-15T14:00:00Z'
+  },
+  {
+    id: 'photo-cl-1',
+    countryCode: 'CL',
+    countryName: 'Chile',
+    city: 'Santiago de Chile',
+    title: 'Santiago y Cordillera de los Andes',
+    dataUrl: 'https://images.unsplash.com/photo-1519999482648-25049ddd37b1?auto=format&fit=crop&w=1000&q=80',
+    date: '2026-08-16',
+    notes: 'Vista panorámica de la ciudad de Santiago de Chile con la imponente Cordillera de los Andes de fondo.',
+    tripId: 'trip-asia-2026',
+    createdAt: '2026-08-16T16:30:00Z'
   }
 ];

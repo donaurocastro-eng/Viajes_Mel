@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { VisitedCountry, TravelPhoto } from '../types';
-import { X, Upload, Image as ImageIcon, MapPin, Calendar, Check, AlertCircle, Sparkles, Search, Globe, ChevronDown } from 'lucide-react';
+import { X, Upload, Image as ImageIcon, MapPin, Calendar, Check, AlertCircle, Sparkles, Search, Globe, ChevronDown, Cloud, Database } from 'lucide-react';
 
 interface PhotoUploadModalProps {
   countries: VisitedCountry[];
   preselectedCountryCode?: string;
+  isSupabaseConnected?: boolean;
   onSavePhoto: (photo: Omit<TravelPhoto, 'id' | 'createdAt'>) => void;
   onClose: () => void;
 }
@@ -12,6 +13,7 @@ interface PhotoUploadModalProps {
 export const PhotoUploadModal: React.FC<PhotoUploadModalProps> = ({
   countries,
   preselectedCountryCode,
+  isSupabaseConnected = false,
   onSavePhoto,
   onClose,
 }) => {
@@ -146,8 +148,8 @@ export const PhotoUploadModal: React.FC<PhotoUploadModalProps> = ({
       const img = new Image();
       img.onload = () => {
         const canvas = document.createElement('canvas');
-        const MAX_WIDTH = 1200;
-        const MAX_HEIGHT = 1200;
+        const MAX_WIDTH = 1000;
+        const MAX_HEIGHT = 1000;
         let width = img.width;
         let height = img.height;
 
@@ -163,12 +165,12 @@ export const PhotoUploadModal: React.FC<PhotoUploadModalProps> = ({
           }
         }
 
-        canvas.width = width;
-        canvas.height = height;
+        canvas.width = Math.round(width);
+        canvas.height = Math.round(height);
         const ctx = canvas.getContext('2d');
         if (ctx) {
-          ctx.drawImage(img, 0, 0, width, height);
-          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.82);
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.75);
           setImagePreview(compressedDataUrl);
           if (!title) {
             const cleanName = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
@@ -256,7 +258,7 @@ export const PhotoUploadModal: React.FC<PhotoUploadModalProps> = ({
               <Upload className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-black text-white">Subir Foto de Viaje</h2>
+              <h2 className="text-base font-bold text-white">Subir Foto de Viaje</h2>
               <p className="text-xs text-slate-400">Asigna la foto al país correcto y fijará su banderita en el mapa</p>
             </div>
           </div>
@@ -285,28 +287,28 @@ export const PhotoUploadModal: React.FC<PhotoUploadModalProps> = ({
           )}
 
           {/* Prominent Country Destination Confirmation Box */}
-          <div className="bg-slate-950/90 border-2 border-emerald-500/40 rounded-2xl p-3.5 flex items-center justify-between shadow-inner">
-            <div className="flex items-center space-x-3">
-              <span className="text-3xl select-none">{selectedCountry?.flagEmoji || '🌍'}</span>
+          <div className="bg-slate-950/90 border border-emerald-500/40 rounded-xl p-3 flex items-center justify-between shadow-inner">
+            <div className="flex items-center space-x-2.5">
+              <span className="text-2xl select-none">{selectedCountry?.flagEmoji || '🌍'}</span>
               <div>
-                <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
                   Esta foto se archivará en:
                 </div>
-                <div className="text-base font-black text-white flex items-center gap-2">
+                <div className="text-sm font-bold text-white flex items-center gap-1.5">
                   <span>{selectedCountry?.name || 'Selecciona país'}</span>
-                  <span className="text-xs font-semibold text-emerald-400 bg-emerald-500/15 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                  <span className="text-[10px] font-medium text-emerald-400 bg-emerald-500/15 px-1.5 py-0.2 rounded border border-emerald-500/30">
                     {selectedCountry?.continent}
                   </span>
                 </div>
                 {selectedCountry?.capital && (
-                  <div className="text-xs text-slate-400 mt-0.5">
-                    🏛️ Capital / Ciudad: <strong>{selectedCountry.capital}</strong>
+                  <div className="text-[11px] text-slate-400 mt-0.5">
+                    🏛️ Capital: <strong>{selectedCountry.capital}</strong>
                   </div>
                 )}
               </div>
             </div>
             <div className="text-right">
-              <span className="inline-flex items-center space-x-1 text-xs px-2.5 py-1 bg-emerald-500 text-slate-950 font-black rounded-lg shadow-sm">
+              <span className="inline-flex items-center space-x-1 text-xs px-2 py-0.5 bg-emerald-500 text-slate-950 font-bold rounded-lg shadow-sm">
                 <span>🚩 {selectedCountry?.code}</span>
               </span>
             </div>
@@ -390,6 +392,30 @@ export const PhotoUploadModal: React.FC<PhotoUploadModalProps> = ({
 
               {/* Quick direct buttons */}
               <div className="flex items-center gap-1 overflow-x-auto pb-1 max-w-sm">
+                <button
+                  type="button"
+                  onClick={() => setSelectedCountryCode('AR')}
+                  className={`text-[11px] font-bold px-2 py-0.5 rounded-lg border transition-all shrink-0 cursor-pointer ${
+                    selectedCountryCode === 'AR'
+                      ? 'bg-emerald-500 text-slate-950 border-emerald-400 font-black'
+                      : 'bg-slate-800 text-slate-300 border-slate-700 hover:border-emerald-500'
+                  }`}
+                  title="Argentina (Buenos Aires)"
+                >
+                  🇦🇷 Argentina
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedCountryCode('CL')}
+                  className={`text-[11px] font-bold px-2 py-0.5 rounded-lg border transition-all shrink-0 cursor-pointer ${
+                    selectedCountryCode === 'CL'
+                      ? 'bg-emerald-500 text-slate-950 border-emerald-400 font-black'
+                      : 'bg-slate-800 text-slate-300 border-slate-700 hover:border-emerald-500'
+                  }`}
+                  title="Chile (Santiago)"
+                >
+                  🇨🇱 Chile
+                </button>
                 <button
                   type="button"
                   onClick={() => setSelectedCountryCode('CZ')}
@@ -570,6 +596,27 @@ export const PhotoUploadModal: React.FC<PhotoUploadModalProps> = ({
               rows={3}
               className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 resize-none shadow-inner"
             />
+          </div>
+
+          {/* Supabase Storage Status Banner */}
+          <div className="flex items-center justify-between p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs">
+            <div className="flex items-center space-x-2">
+              {isSupabaseConnected ? (
+                <>
+                  <Database className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span className="text-emerald-300 font-semibold">
+                    ⚡ Supabase conectado: Esta foto se registrará directamente en tu base de datos Supabase.
+                  </span>
+                </>
+              ) : (
+                <>
+                  <Database className="w-4 h-4 text-cyan-400 shrink-0" />
+                  <span className="text-slate-300">
+                    💾 Guardado en memoria local. Puedes conectar tu base de datos en <strong>Configuración &gt; Supabase</strong> para guardar todo directamente en Supabase.
+                  </span>
+                </>
+              )}
+            </div>
           </div>
 
           {/* Submit & Cancel Buttons */}

@@ -79,7 +79,7 @@ export const TripHeader: React.FC<TripHeaderProps> = ({
               <MapPin className="w-4 h-4" />
               <span>{trip.destination}</span>
             </div>
-            <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white drop-shadow-md">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white drop-shadow-md">
               {trip.title}
             </h1>
             <p className="text-slate-300 text-xs sm:text-sm line-clamp-2">

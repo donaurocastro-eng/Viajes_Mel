@@ -81,8 +81,8 @@ export const SupabaseVercelConfig: React.FC<SupabaseVercelConfigProps> = ({
               <Database className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-xl font-bold">Integración Supabase & Vercel</h2>
-              <p className="text-xs text-slate-400">Base de datos PostgreSQL en la nube y despliegue continuo</p>
+              <h2 className="text-xl font-bold">Base de Datos Supabase & Despliegue</h2>
+              <p className="text-xs text-slate-400">Persistencia directa en tablas PostgreSQL de Supabase</p>
             </div>
           </div>
 

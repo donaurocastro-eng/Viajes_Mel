@@ -98,10 +98,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-              Centro de Conexiones: WhatsApp, Supabase y Vercel
+              Centro de Conexiones: WhatsApp, Supabase y Despliegue
             </h1>
             <p className="text-xs sm:text-sm text-slate-300">
-              Administra las credenciales de mensajería, la base de datos PostgreSQL en la nube y el despliegue automático.
+              Administra las credenciales de mensajería, la base de datos PostgreSQL en Supabase y el despliegue automático.
             </p>
           </div>
         </div>
@@ -129,7 +129,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             }`}
           >
             <Database className="w-4 h-4" />
-            <span>2. Supabase (PostgreSQL Cloud)</span>
+            <span>2. Base de Datos Supabase</span>
           </button>
 
           <button

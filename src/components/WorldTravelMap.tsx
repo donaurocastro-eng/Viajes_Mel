@@ -19,13 +19,17 @@ import {
   RotateCcw,
   Check,
   Eye,
-  Compass
+  Compass,
+  Cloud,
+  Database
 } from 'lucide-react';
 import fixedMapImage from '../assets/images/world_map_continents_1791216231996.jpg';
 
 interface WorldTravelMapProps {
   countries: VisitedCountry[];
   photos: TravelPhoto[];
+  isSupabaseConnected?: boolean;
+  onOpenSettings?: () => void;
   onToggleVisited: (countryCode: string) => void;
   onOpenUpload: (countryCode?: string) => void;
   onSelectCountry: (country: VisitedCountry) => void;
@@ -53,6 +57,8 @@ const getFlagCoords = (country: VisitedCountry): { x: number; y: number } => {
 export const WorldTravelMap: React.FC<WorldTravelMapProps> = ({
   countries,
   photos,
+  isSupabaseConnected = false,
+  onOpenSettings,
   onToggleVisited,
   onOpenUpload,
   onSelectCountry,
@@ -141,10 +147,30 @@ export const WorldTravelMap: React.FC<WorldTravelMapProps> = ({
   const handleFocusCountry = (country: VisitedCountry) => {
     setActivePopupCountry(country);
     const coords = getFlagCoords(country);
-    setZoomLevel(1.85);
-    const offsetX = (50 - coords.x) * 9;
-    const offsetY = (50 - coords.y) * 6;
-    setPanPosition({ x: offsetX, y: offsetY });
+    const targetZoom = 2.0;
+    setZoomLevel(targetZoom);
+
+    // Calculate exact pixel offset relative to center of map container
+    if (mapViewportRef.current) {
+      const containerWidth = mapViewportRef.current.clientWidth || 1000;
+      const containerHeight = mapViewportRef.current.clientHeight || 650;
+      // Map base width is min(containerWidth - 32, 1200)
+      const mapWidth = Math.min(containerWidth - 32, 1200);
+      const mapHeight = mapWidth * (9 / 16);
+
+      // Flag position in map container coordinates (from center):
+      const flagX = ((coords.x - 50) / 100) * mapWidth;
+      const flagY = ((coords.y - 50) / 100) * mapHeight;
+
+      // To bring this flag to center at targetZoom:
+      const offsetX = -flagX * targetZoom;
+      const offsetY = -flagY * targetZoom;
+      setPanPosition({ x: Math.round(offsetX), y: Math.round(offsetY) });
+    } else {
+      const offsetX = (50 - coords.x) * 11;
+      const offsetY = (50 - coords.y) * 8;
+      setPanPosition({ x: Math.round(offsetX), y: Math.round(offsetY) });
+    }
   };
 
   // Add country and focus on it
@@ -206,69 +232,92 @@ export const WorldTravelMap: React.FC<WorldTravelMapProps> = ({
       <div className="relative rounded-3xl bg-slate-900 border border-slate-800 p-5 sm:p-6 shadow-xl overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="space-y-1.5">
-            <div className="inline-flex items-center space-x-2 text-emerald-400 text-xs font-bold uppercase tracking-wider">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Mapa Mundial Ilustrado Fijo & Bitácora de Viajes</span>
+        <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="inline-flex items-center space-x-1.5 text-emerald-400 text-[11px] font-semibold uppercase tracking-wider">
+              <Sparkles className="w-3 h-3" />
+              <span>Mapa Mundial & Bitácora de Viajes</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight flex items-center gap-2">
-              <span>Mapamundi:</span>
-              <span className="text-emerald-400">¡Tus Banderitas Clavadas! 🚩</span>
+            <h1 className="text-lg sm:text-xl font-bold text-white tracking-tight flex items-center gap-2">
+              <span>Mapamundi</span>
+              <span className="text-emerald-400 font-semibold text-sm sm:text-base">· Banderas de Viaje 🚩</span>
             </h1>
-            <p className="text-slate-400 text-sm max-w-xl">
-              Tus banderas interactivas fijadas en el mapa. Haz clic en cualquier banderita para abrir su álbum, ver recuerdos o clavar nuevas banderas.
+            <p className="text-slate-400 text-xs max-w-xl">
+              Banderas interactivas en el mapa. Haz clic en cualquier país para ver recuerdos o registrar fotos.
             </p>
           </div>
 
           {/* Quick Metrics & Upload Button */}
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="bg-slate-950/80 border border-emerald-500/30 rounded-2xl px-4 py-2.5 text-center min-w-[110px] shadow-lg">
-              <span className="block text-2xl font-black text-emerald-400 font-mono">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="bg-slate-950/80 border border-emerald-500/30 rounded-xl px-3 py-1.5 text-center min-w-[80px] shadow-sm">
+              <span className="block text-lg font-bold text-emerald-400 font-mono">
                 {visitedCount}
               </span>
-              <span className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider">
-                🚩 Países Visitados
+              <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">
+                🚩 Países
               </span>
             </div>
 
-            <div className="bg-slate-950/80 border border-slate-800 rounded-2xl px-4 py-2.5 text-center min-w-[110px] shadow-lg">
-              <span className="block text-2xl font-black text-sky-400 font-mono">
+            <div className="bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-1.5 text-center min-w-[80px] shadow-sm">
+              <span className="block text-lg font-bold text-sky-400 font-mono">
                 {photos.length}
               </span>
-              <span className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider">
-                📸 Fotos Subidas
+              <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">
+                📸 Fotos
               </span>
             </div>
 
-            <div className="bg-slate-950/80 border border-slate-800 rounded-2xl px-4 py-2.5 text-center min-w-[110px] shadow-lg">
-              <span className="block text-2xl font-black text-amber-400 font-mono">
+            <div className="bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-1.5 text-center min-w-[80px] shadow-sm">
+              <span className="block text-lg font-bold text-amber-400 font-mono">
                 {worldPercentage}%
               </span>
-              <span className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider">
-                🌍 Del Mundo
+              <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">
+                🌍 Mundo
               </span>
             </div>
+
+            {/* Supabase Status Indicator */}
+            {isSupabaseConnected ? (
+              <div className="bg-slate-950/80 border border-emerald-500/40 rounded-xl px-3 py-1.5 text-center min-w-[80px] shadow-sm flex flex-col items-center justify-center">
+                <span className="flex items-center text-[11px] font-bold text-emerald-400 gap-1">
+                  <Database className="w-3 h-3" /> Supabase
+                </span>
+                <span className="text-[9px] text-emerald-300/80 font-medium mt-0.5">
+                  ✓ Conectado
+                </span>
+              </div>
+            ) : (
+              onOpenSettings && (
+                <button
+                  onClick={onOpenSettings}
+                  className="bg-slate-950/80 hover:bg-slate-900 border border-emerald-500/30 rounded-xl px-3 py-1.5 text-center text-xs font-semibold text-emerald-300 transition-colors flex items-center gap-1 cursor-pointer shadow-sm"
+                  title="Conectar tu base de datos Supabase para registrar y guardar tus fotos y viajes"
+                >
+                  <Database className="w-3 h-3 text-emerald-400" />
+                  <span>Conectar Supabase</span>
+                </button>
+              )
+            )}
 
             <button
               onClick={() => onOpenUpload()}
-              className="px-5 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-sm rounded-2xl shadow-xl shadow-emerald-500/25 transition-all transform hover:scale-[1.02] active:scale-[0.98] flex items-center space-x-2 shrink-0 cursor-pointer"
+              className="px-3.5 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold text-xs rounded-xl shadow-md transition-all flex items-center space-x-1.5 shrink-0 cursor-pointer"
             >
-              <Upload className="w-4 h-4 stroke-[2.5]" />
-              <span>Subir Foto a País</span>
+              <Upload className="w-3.5 h-3.5" />
+              <span>Subir Foto</span>
             </button>
           </div>
         </div>
 
         {/* Visited Country Flag Chips Quick Row */}
-        <div className="mt-5 pt-4 border-t border-slate-800/80 flex items-center flex-wrap gap-2">
-          <span className="text-xs font-bold text-slate-400 flex items-center gap-1.5 mr-1">
-            <Flag className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Tus Banderitas fijadas ({visitedCount}):</span>
+        <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center flex-wrap gap-1.5">
+          <span className="text-[11px] font-semibold text-slate-400 flex items-center gap-1 mr-1">
+            <Flag className="w-3 h-3 text-emerald-400" />
+            <span>Banderas fijadas ({visitedCount}):</span>
           </span>
 
           {visitedCountries.length === 0 ? (
-            <span className="text-xs text-slate-500 italic">
+            <span className="text-[11px] text-slate-500 italic">
               Aún no tienes banderitas fijadas. Usa el buscador o los accesos rápidos abajo para clavar tu primera bandera.
             </span>
           ) : (
@@ -279,20 +328,20 @@ export const WorldTravelMap: React.FC<WorldTravelMapProps> = ({
                 <button
                   key={vc.code}
                   onClick={() => handleFocusCountry(vc)}
-                  className={`group flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-bold shadow-md transition-all transform hover:scale-105 cursor-pointer border ${
+                  className={`group flex items-center space-x-1 px-2 py-1 rounded-lg text-xs font-medium transition-all cursor-pointer border ${
                     isSelected
-                      ? 'bg-emerald-500 text-slate-950 border-emerald-400 font-black scale-105 ring-2 ring-emerald-300/50'
-                      : 'bg-slate-950 hover:bg-slate-800 text-slate-200 border-emerald-500/40 hover:border-emerald-400'
+                      ? 'bg-emerald-500 text-slate-950 border-emerald-400 font-bold shadow-sm'
+                      : 'bg-slate-950/80 hover:bg-slate-800 text-slate-200 border-slate-800 hover:border-slate-700'
                   }`}
                   title={`Centrar ${vc.name} en el mapa`}
                 >
-                  <span className="text-lg leading-none">{vc.flagEmoji}</span>
+                  <span className="text-xs leading-none">{vc.flagEmoji}</span>
                   <span>{vc.name}</span>
-                  <span className={`text-[10px] ${isSelected ? 'text-slate-950' : 'text-emerald-400'}`}>
+                  <span className={`text-[9px] ${isSelected ? 'text-slate-950' : 'text-emerald-400'}`}>
                     🚩
                   </span>
                   {count > 0 && (
-                    <span className={`text-[10px] font-mono px-1 rounded ${
+                    <span className={`text-[9px] font-mono px-1 rounded ${
                       isSelected ? 'bg-slate-900/30 text-slate-950' : 'bg-amber-400/15 text-amber-300'
                     }`}>
                       📸{count}
@@ -305,8 +354,8 @@ export const WorldTravelMap: React.FC<WorldTravelMapProps> = ({
         </div>
 
         {/* Featured Suggestions: Directly plant flags on requested places (Praga / Checoslovaquia, Hungría, etc.) */}
-        <div className="mt-3 flex items-center flex-wrap gap-2 text-xs text-slate-400">
-          <span className="font-semibold text-slate-400">💡 Clavar banderita directa:</span>
+        <div className="mt-2.5 flex items-center flex-wrap gap-1.5 text-[11px] text-slate-400">
+          <span className="font-medium text-slate-400">💡 Acceso rápido:</span>
           
           {/* Praga / Checoslovaquia shortcut */}
           {(() => {
@@ -315,14 +364,14 @@ export const WorldTravelMap: React.FC<WorldTravelMapProps> = ({
             return (
               <button
                 onClick={() => cz.visited ? handleFocusCountry(cz) : handleAddCountry(cz)}
-                className={`px-2.5 py-1 rounded-lg border text-xs font-bold flex items-center space-x-1.5 transition-all cursor-pointer ${
+                className={`px-2 py-0.5 rounded-md border text-[11px] font-medium flex items-center space-x-1 transition-all cursor-pointer ${
                   cz.visited 
                     ? 'bg-emerald-950/60 border-emerald-500/60 text-emerald-300' 
-                    : 'bg-slate-950 hover:bg-emerald-600 hover:text-slate-950 border-slate-700 hover:border-emerald-400 text-slate-300'
+                    : 'bg-slate-950 hover:bg-slate-800 border-slate-800 text-slate-300'
                 }`}
               >
                 <span>🇨🇿</span>
-                <span>Praga (Checoslovaquia)</span>
+                <span>Praga</span>
                 <span>{cz.visited ? '🚩' : '➕'}</span>
               </button>
             );
@@ -335,15 +384,55 @@ export const WorldTravelMap: React.FC<WorldTravelMapProps> = ({
             return (
               <button
                 onClick={() => hu.visited ? handleFocusCountry(hu) : handleAddCountry(hu)}
-                className={`px-2.5 py-1 rounded-lg border text-xs font-bold flex items-center space-x-1.5 transition-all cursor-pointer ${
+                className={`px-2 py-0.5 rounded-md border text-[11px] font-medium flex items-center space-x-1 transition-all cursor-pointer ${
                   hu.visited 
                     ? 'bg-emerald-950/60 border-emerald-500/60 text-emerald-300' 
-                    : 'bg-slate-950 hover:bg-emerald-600 hover:text-slate-950 border-slate-700 hover:border-emerald-400 text-slate-300'
+                    : 'bg-slate-950 hover:bg-slate-800 border-slate-800 text-slate-300'
                 }`}
               >
                 <span>🇭🇺</span>
-                <span>Hungría (Budapest)</span>
+                <span>Hungría</span>
                 <span>{hu.visited ? '🚩' : '➕'}</span>
+              </button>
+            );
+          })()}
+
+          {/* Argentina */}
+          {(() => {
+            const ar = countries.find(c => c.code === 'AR');
+            if (!ar) return null;
+            return (
+              <button
+                onClick={() => ar.visited ? handleFocusCountry(ar) : handleAddCountry(ar)}
+                className={`px-2 py-0.5 rounded-md border text-[11px] font-medium flex items-center space-x-1 transition-all cursor-pointer ${
+                  ar.visited 
+                    ? 'bg-emerald-950/60 border-emerald-500/60 text-emerald-300' 
+                    : 'bg-slate-950 hover:bg-slate-800 border-slate-800 text-slate-300'
+                }`}
+              >
+                <span>🇦🇷</span>
+                <span>Argentina</span>
+                <span>{ar.visited ? '🚩' : '➕'}</span>
+              </button>
+            );
+          })()}
+
+          {/* Chile */}
+          {(() => {
+            const cl = countries.find(c => c.code === 'CL');
+            if (!cl) return null;
+            return (
+              <button
+                onClick={() => cl.visited ? handleFocusCountry(cl) : handleAddCountry(cl)}
+                className={`px-2 py-0.5 rounded-md border text-[11px] font-medium flex items-center space-x-1 transition-all cursor-pointer ${
+                  cl.visited 
+                    ? 'bg-emerald-950/60 border-emerald-500/60 text-emerald-300' 
+                    : 'bg-slate-950 hover:bg-slate-800 border-slate-800 text-slate-300'
+                }`}
+              >
+                <span>🇨🇱</span>
+                <span>Chile</span>
+                <span>{cl.visited ? '🚩' : '➕'}</span>
               </button>
             );
           })()}
@@ -355,15 +444,35 @@ export const WorldTravelMap: React.FC<WorldTravelMapProps> = ({
             return (
               <button
                 onClick={() => es.visited ? handleFocusCountry(es) : handleAddCountry(es)}
-                className={`px-2.5 py-1 rounded-lg border text-xs font-bold flex items-center space-x-1.5 transition-all cursor-pointer ${
+                className={`px-2 py-0.5 rounded-md border text-[11px] font-medium flex items-center space-x-1 transition-all cursor-pointer ${
                   es.visited 
                     ? 'bg-emerald-950/60 border-emerald-500/60 text-emerald-300' 
-                    : 'bg-slate-950 hover:bg-emerald-600 hover:text-slate-950 border-slate-700 hover:border-emerald-400 text-slate-300'
+                    : 'bg-slate-950 hover:bg-slate-800 border-slate-800 text-slate-300'
                 }`}
               >
                 <span>🇪🇸</span>
                 <span>España</span>
                 <span>{es.visited ? '🚩' : '➕'}</span>
+              </button>
+            );
+          })()}
+
+          {/* Portugal */}
+          {(() => {
+            const pt = countries.find(c => c.code === 'PT');
+            if (!pt) return null;
+            return (
+              <button
+                onClick={() => pt.visited ? handleFocusCountry(pt) : handleAddCountry(pt)}
+                className={`px-2 py-0.5 rounded-md border text-[11px] font-medium flex items-center space-x-1 transition-all cursor-pointer ${
+                  pt.visited 
+                    ? 'bg-emerald-950/60 border-emerald-500/60 text-emerald-300' 
+                    : 'bg-slate-950 hover:bg-slate-800 border-slate-800 text-slate-300'
+                }`}
+              >
+                <span>🇵🇹</span>
+                <span>Portugal</span>
+                <span>{pt.visited ? '🚩' : '➕'}</span>
               </button>
             );
           })()}
@@ -375,10 +484,10 @@ export const WorldTravelMap: React.FC<WorldTravelMapProps> = ({
             return (
               <button
                 onClick={() => fr.visited ? handleFocusCountry(fr) : handleAddCountry(fr)}
-                className={`px-2.5 py-1 rounded-lg border text-xs font-bold flex items-center space-x-1.5 transition-all cursor-pointer ${
+                className={`px-2 py-0.5 rounded-md border text-[11px] font-medium flex items-center space-x-1 transition-all cursor-pointer ${
                   fr.visited 
                     ? 'bg-emerald-950/60 border-emerald-500/60 text-emerald-300' 
-                    : 'bg-slate-950 hover:bg-emerald-600 hover:text-slate-950 border-slate-700 hover:border-emerald-400 text-slate-300'
+                    : 'bg-slate-950 hover:bg-slate-800 border-slate-800 text-slate-300'
                 }`}
               >
                 <span>🇫🇷</span>
@@ -395,10 +504,10 @@ export const WorldTravelMap: React.FC<WorldTravelMapProps> = ({
             return (
               <button
                 onClick={() => it.visited ? handleFocusCountry(it) : handleAddCountry(it)}
-                className={`px-2.5 py-1 rounded-lg border text-xs font-bold flex items-center space-x-1.5 transition-all cursor-pointer ${
+                className={`px-2 py-0.5 rounded-md border text-[11px] font-medium flex items-center space-x-1 transition-all cursor-pointer ${
                   it.visited 
                     ? 'bg-emerald-950/60 border-emerald-500/60 text-emerald-300' 
-                    : 'bg-slate-950 hover:bg-emerald-600 hover:text-slate-950 border-slate-700 hover:border-emerald-400 text-slate-300'
+                    : 'bg-slate-950 hover:bg-slate-800 border-slate-800 text-slate-300'
                 }`}
               >
                 <span>🇮🇹</span>
@@ -678,54 +787,54 @@ export const WorldTravelMap: React.FC<WorldTravelMapProps> = ({
                     setActivePopupCountry(country);
                   }}
                 >
-                  {/* Flag Card / Banner with High Contrast Styling */}
+                  {/* Scaled & Refined Flag Pin */}
                   <div
                     style={{
-                      transform: isSelected ? 'scale(1.15)' : undefined,
-                      transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                      transform: isSelected ? 'scale(1.1)' : undefined,
+                      transition: 'all 0.15s ease-out',
                     }}
-                    className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-full shadow-2xl border-2 backdrop-blur-md transition-all ${
+                    className={`flex items-center space-x-1 px-2 py-0.5 rounded-md shadow-lg border backdrop-blur-md transition-all ${
                       isSelected
-                        ? 'bg-emerald-500 text-slate-950 border-white ring-4 ring-emerald-300/60 shadow-emerald-500/60 scale-110'
+                        ? 'bg-emerald-500 text-slate-950 border-white ring-2 ring-emerald-300/70 shadow-emerald-500/40'
                         : isVisited
-                        ? 'bg-slate-950/95 hover:bg-slate-900 text-white border-emerald-400 hover:border-white shadow-black/90 hover:scale-105 ring-1 ring-emerald-400/40'
-                        : 'bg-slate-900/80 hover:bg-slate-900 text-slate-300 border-slate-600 hover:border-emerald-400 shadow-md opacity-80 hover:opacity-100 hover:scale-105'
+                        ? 'bg-slate-950/90 hover:bg-slate-900 text-white border-emerald-500/60 hover:border-emerald-400'
+                        : 'bg-slate-900/80 hover:bg-slate-900 text-slate-300 border-slate-700 hover:border-slate-500'
                     }`}
                   >
-                    <span className="text-xl leading-none">{country.flagEmoji}</span>
-                    <span className="text-xs font-black tracking-tight whitespace-nowrap">
+                    <span className="text-xs leading-none select-none">{country.flagEmoji}</span>
+                    <span className="text-[10px] font-semibold tracking-tight whitespace-nowrap">
                       {country.name}
                     </span>
                     {isVisited && (
-                      <span className={`text-[10px] ${isSelected ? 'text-slate-950 font-black' : 'text-emerald-400'}`}>
+                      <span className={`text-[8px] ${isSelected ? 'text-slate-950' : 'text-emerald-400'}`}>
                         🚩
                       </span>
                     )}
                     {countryPhotos.length > 0 && (
-                      <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${
-                        isSelected ? 'bg-slate-900/30 text-slate-950' : 'bg-amber-400/25 text-amber-300 border border-amber-400/40'
+                      <span className={`text-[8px] font-mono px-1 py-0.2 rounded font-semibold ${
+                        isSelected ? 'bg-slate-900/30 text-slate-950' : 'bg-amber-400/20 text-amber-300'
                       }`}>
                         📸{countryPhotos.length}
                       </span>
                     )}
                   </div>
 
-                  {/* Flag Needle / Pole */}
-                  <div className={`w-[3px] h-4 shadow-md ${
+                  {/* Slender Needle / Pole */}
+                  <div className={`w-[1.5px] h-2.5 ${
                     isVisited 
-                      ? 'bg-gradient-to-b from-emerald-400 to-emerald-600' 
-                      : 'bg-gradient-to-b from-slate-400 to-slate-600'
+                      ? 'bg-emerald-500' 
+                      : 'bg-slate-500'
                   }`} />
 
-                  {/* Pulsing Base Coordinate Anchor */}
+                  {/* Compact Anchor Dot */}
                   <div className="relative flex items-center justify-center -mt-0.5">
                     {isVisited ? (
                       <>
-                        <span className="absolute w-5 h-5 rounded-full bg-emerald-400/70 animate-ping" />
-                        <span className="w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white shadow-lg" />
+                        <span className="absolute w-3 h-3 rounded-full bg-emerald-400/50 animate-ping" />
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 border border-white shadow-sm" />
                       </>
                     ) : (
-                      <span className="w-2.5 h-2.5 rounded-full bg-slate-400 border border-white shadow" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-slate-400 border border-white" />
                     )}
                   </div>
                 </div>
@@ -738,22 +847,22 @@ export const WorldTravelMap: React.FC<WorldTravelMapProps> = ({
             ACTIVE COUNTRY POPUP MODAL / CARD OVERLAY
             ========================================================================= */}
         {activePopupCountry && (
-          <div className="absolute bottom-4 right-4 z-40 max-w-xs sm:w-84 bg-slate-900/95 backdrop-blur-xl border border-emerald-500/40 rounded-3xl shadow-2xl p-4 text-white animate-in fade-in slide-in-from-bottom-4 duration-200">
+          <div className="absolute bottom-3 right-3 z-40 max-w-xs sm:w-80 bg-slate-900/95 backdrop-blur-xl border border-emerald-500/30 rounded-2xl shadow-xl p-3.5 text-white animate-in fade-in slide-in-from-bottom-2 duration-150">
             {/* Header */}
-            <div className="flex items-start justify-between gap-2 mb-3">
-              <div className="flex items-center space-x-2.5">
-                <span className="text-3xl select-none">{activePopupCountry.flagEmoji}</span>
+            <div className="flex items-start justify-between gap-2 mb-2.5">
+              <div className="flex items-center space-x-2">
+                <span className="text-2xl select-none">{activePopupCountry.flagEmoji}</span>
                 <div>
-                  <h3 className="font-black text-white text-base leading-tight">
+                  <h3 className="font-bold text-white text-sm leading-tight">
                     {activePopupCountry.name}
                   </h3>
                   <div className="flex items-center space-x-1.5 mt-0.5">
                     {activePopupCountry.visited ? (
-                      <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">
+                      <span className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider">
                         🚩 Ya estuve aquí
                       </span>
                     ) : (
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                      <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
                         🗺️ No visitado aún
                       </span>
                     )}
@@ -762,7 +871,7 @@ export const WorldTravelMap: React.FC<WorldTravelMapProps> = ({
                     </span>
                   </div>
                   {activePopupCountry.capital && (
-                    <div className="text-[11px] text-slate-300 mt-0.5">
+                    <div className="text-[10px] text-slate-300 mt-0.5">
                       Capital: <strong>{activePopupCountry.capital}</strong>
                     </div>
                   )}
@@ -772,7 +881,7 @@ export const WorldTravelMap: React.FC<WorldTravelMapProps> = ({
                 onClick={() => setActivePopupCountry(null)}
                 className="p-1 hover:bg-slate-800 rounded-full text-slate-400 hover:text-white transition-colors cursor-pointer"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3.5 h-3.5" />
               </button>
             </div>
 
@@ -810,22 +919,22 @@ export const WorldTravelMap: React.FC<WorldTravelMapProps> = ({
             })()}
 
             {/* Action buttons */}
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-1.5">
               {activePopupCountry.visited ? (
                 <>
                   <button
                     onClick={() => onSelectCountry(activePopupCountry)}
-                    className="w-full py-2 px-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs rounded-xl shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center space-x-1.5 cursor-pointer"
+                    className="w-full py-1.5 px-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-xl shadow-md shadow-emerald-500/20 transition-all flex items-center justify-center space-x-1.5 cursor-pointer"
                   >
-                    <span>📸 Ver Álbum de Recuerdos ({photos.filter(p => p.countryCode === activePopupCountry.code).length})</span>
+                    <span>📸 Ver Álbum ({photos.filter(p => p.countryCode === activePopupCountry.code).length})</span>
                   </button>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5">
                     <button
                       onClick={() => onOpenUpload(activePopupCountry.code)}
-                      className="flex-1 py-1.5 px-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl transition-colors flex items-center justify-center space-x-1 cursor-pointer border border-slate-700"
+                      className="flex-1 py-1.5 px-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl transition-colors flex items-center justify-center space-x-1 cursor-pointer border border-slate-700"
                     >
-                      <Upload className="w-3.5 h-3.5" />
+                      <Upload className="w-3 h-3" />
                       <span>Subir Foto</span>
                     </button>
                     <button
@@ -833,7 +942,7 @@ export const WorldTravelMap: React.FC<WorldTravelMapProps> = ({
                         onToggleVisited(activePopupCountry.code);
                         setActivePopupCountry(null);
                       }}
-                      className="py-1.5 px-2.5 bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 text-xs font-bold rounded-xl transition-colors border border-rose-500/30 cursor-pointer"
+                      className="py-1.5 px-2.5 bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 text-xs font-semibold rounded-xl transition-colors border border-rose-500/30 cursor-pointer"
                       title="Quitar banderita de este país"
                     >
                       Quitar
@@ -841,22 +950,22 @@ export const WorldTravelMap: React.FC<WorldTravelMapProps> = ({
                   </div>
                 </>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   <button
                     onClick={() => {
                       onToggleVisited(activePopupCountry.code);
                       handleFocusCountry({ ...activePopupCountry, visited: true });
                     }}
-                    className="w-full py-2.5 px-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs rounded-xl shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center space-x-1.5 cursor-pointer"
+                    className="w-full py-2 px-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-xl shadow-md shadow-emerald-500/20 transition-all flex items-center justify-center space-x-1.5 cursor-pointer"
                   >
                     <Flag className="w-3.5 h-3.5" />
-                    <span>¡Clavar Banderita Aquí! 🚩</span>
+                    <span>¡Clavar Banderita! 🚩</span>
                   </button>
                   <button
                     onClick={() => onOpenUpload(activePopupCountry.code)}
-                    className="w-full py-1.5 px-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl transition-colors flex items-center justify-center space-x-1 cursor-pointer border border-slate-700"
+                    className="w-full py-1.5 px-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl transition-colors flex items-center justify-center space-x-1 cursor-pointer border border-slate-700"
                   >
-                    <Upload className="w-3.5 h-3.5" />
+                    <Upload className="w-3 h-3" />
                     <span>Subir Foto a este Destino</span>
                   </button>
                 </div>
@@ -869,11 +978,11 @@ export const WorldTravelMap: React.FC<WorldTravelMapProps> = ({
       {/* =========================================================================
           ALBUMS GALLERY GRID BY VISITED COUNTRY
           ========================================================================= */}
-      <div className="space-y-4 pt-2">
+      <div className="space-y-3 pt-2">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <span className="text-xl">📸</span>
-            <h2 className="text-lg font-black text-white">
+          <div className="flex items-center space-x-1.5">
+            <span className="text-base">📸</span>
+            <h2 className="text-sm sm:text-base font-bold text-white">
               Tus Álbumes por País Visitado ({visitedCount})
             </h2>
           </div>
@@ -903,7 +1012,7 @@ export const WorldTravelMap: React.FC<WorldTravelMapProps> = ({
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5">
             {visitedCountries.map((c) => {
               const countryPhotos = photos.filter(p => p.countryCode === c.code);
               const coverPhoto = countryPhotos[0];
@@ -911,12 +1020,12 @@ export const WorldTravelMap: React.FC<WorldTravelMapProps> = ({
               return (
                 <div
                   key={c.code}
-                  className="group relative rounded-2xl bg-slate-900 border border-slate-800 hover:border-emerald-500/50 shadow-lg overflow-hidden transition-all duration-300 hover:shadow-emerald-500/10 hover:-translate-y-1 flex flex-col"
+                  className="group relative rounded-2xl bg-slate-900 border border-slate-800 hover:border-emerald-500/50 shadow-md overflow-hidden transition-all duration-300 hover:shadow-emerald-500/10 hover:-translate-y-0.5 flex flex-col"
                 >
                   {/* Card Cover */}
                   <div
                     onClick={() => onSelectCountry(c)}
-                    className="relative h-44 bg-slate-950 cursor-pointer overflow-hidden"
+                    className="relative h-36 bg-slate-950 cursor-pointer overflow-hidden"
                   >
                     {coverPhoto ? (
                       <img
@@ -929,9 +1038,9 @@ export const WorldTravelMap: React.FC<WorldTravelMapProps> = ({
                       />
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center text-slate-600 bg-gradient-to-br from-slate-950 to-slate-900 p-4 text-center">
-                        <ImageIcon className="w-8 h-8 mb-2 opacity-40 text-emerald-400" />
-                        <span className="text-xs font-semibold text-slate-400">Sin fotos subidas aún</span>
-                        <span className="text-[10px] text-slate-500 mt-1">Haz clic para añadir</span>
+                        <ImageIcon className="w-7 h-7 mb-1.5 opacity-40 text-emerald-400" />
+                        <span className="text-xs font-medium text-slate-400">Sin fotos aún</span>
+                        <span className="text-[10px] text-slate-500 mt-0.5">Haz clic para añadir</span>
                       </div>
                     )}
 
@@ -939,23 +1048,23 @@ export const WorldTravelMap: React.FC<WorldTravelMapProps> = ({
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
 
                     {/* Badge Flag & Code */}
-                    <div className="absolute top-3 left-3 flex items-center space-x-1.5 bg-slate-950/90 backdrop-blur-md px-2.5 py-1 rounded-xl border border-slate-800 shadow">
-                      <span className="text-lg leading-none">{c.flagEmoji}</span>
-                      <span className="text-xs font-black text-white">{c.code}</span>
+                    <div className="absolute top-2.5 left-2.5 flex items-center space-x-1 bg-slate-950/90 backdrop-blur-md px-2 py-0.5 rounded-lg border border-slate-800 shadow">
+                      <span className="text-sm leading-none">{c.flagEmoji}</span>
+                      <span className="text-[11px] font-bold text-white">{c.code}</span>
                     </div>
 
                     {/* Photo count pill */}
-                    <div className="absolute top-3 right-3 bg-emerald-500 text-slate-950 text-[11px] font-black px-2 py-0.5 rounded-lg shadow flex items-center space-x-1">
+                    <div className="absolute top-2.5 right-2.5 bg-emerald-500 text-slate-950 text-[10px] font-bold px-1.5 py-0.5 rounded-md shadow flex items-center space-x-1">
                       <span>📸 {countryPhotos.length}</span>
                     </div>
 
                     {/* Country Name on bottom */}
-                    <div className="absolute bottom-2.5 left-3 right-3">
-                      <h3 className="text-base font-black text-white truncate drop-shadow-md">
+                    <div className="absolute bottom-2 left-2.5 right-2.5">
+                      <h3 className="text-sm font-bold text-white truncate drop-shadow-md">
                         {c.name}
                       </h3>
                       {c.capital && (
-                        <p className="text-[11px] text-slate-300 drop-shadow">
+                        <p className="text-[10px] text-slate-300 drop-shadow">
                           {c.capital}
                         </p>
                       )}

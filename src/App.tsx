@@ -43,7 +43,17 @@ import {
   formatReservationConfirmationAlert,
   formatDailySummaryAlert,
 } from './services/whatsappClient';
-import { getSavedSupabaseConfig, saveSupabaseConfig, getSupabaseInstance } from './services/supabaseService';
+import {
+  getSavedSupabaseConfig,
+  saveSupabaseConfig,
+  getSupabaseInstance,
+  savePhotoToSupabase,
+  deletePhotoFromSupabase,
+  fetchPhotosFromSupabase,
+  syncAllPhotosToSupabase,
+  saveVisitedCountryToSupabase,
+  fetchVisitedCountriesFromSupabase,
+} from './services/supabaseService';
 
 // Hotel IDs mapping to Checklist Item IDs for seamless 2-way synchronization
 const HOTEL_RES_TO_CHECKLIST_MAP: Record<string, string> = {
@@ -202,17 +212,80 @@ export default function App() {
   const [supabaseConfig, setSupabaseConfig] = useState<SupabaseConfig>(getSavedSupabaseConfig);
 
   // Travel photos state with persistence and automatic Panama fix
+  // Universal recovery and persistence of travel photos across all storage keys
   const [travelPhotos, setTravelPhotos] = useState<TravelPhoto[]>(() => {
     try {
-      const saved = localStorage.getItem('viajeflow_travel_photos_v2');
-      let photosList: TravelPhoto[] = saved ? JSON.parse(saved) : INITIAL_TRAVEL_PHOTOS;
-      
-      // Auto-reconciliation: If any photo mentions Panama, Prague/Czechoslovakia, or Hungary
-      let autoFixed = false;
+      const keysToCheck = [
+        'viajeflow_travel_photos_v2',
+        'viajeflow_travel_photos_v1',
+        'viajeflow_travel_photos',
+        'viajeflow_photos',
+        'travel_photos',
+        'travelPhotos'
+      ];
+
+      const photosMap = new Map<string, TravelPhoto>();
+
+      // 1. First seed with INITIAL_TRAVEL_PHOTOS
+      INITIAL_TRAVEL_PHOTOS.forEach(p => photosMap.set(p.id, p));
+
+      // 2. Scan known storage keys in priority order (older keys first, newer keys overwrite)
+      const reversedKeys = [...keysToCheck].reverse();
+      for (const key of reversedKeys) {
+        const raw = localStorage.getItem(key);
+        if (raw) {
+          try {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) {
+              parsed.forEach((item: any) => {
+                if (item && (item.dataUrl || item.imageUrl || item.url)) {
+                  const id = item.id || `photo-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+                  photosMap.set(id, {
+                    ...item,
+                    id,
+                    dataUrl: item.dataUrl || item.imageUrl || item.url,
+                    countryCode: item.countryCode || 'PA',
+                  });
+                }
+              });
+            }
+          } catch (e) {
+            console.warn(`Error reading photo key ${key}:`, e);
+          }
+        }
+      }
+
+      // 3. Scan ALL other localStorage keys in case user photos are under an unexpected key
+      try {
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (k && !keysToCheck.includes(k) && (k.includes('photo') || k.includes('viaje') || k.includes('travel'))) {
+            const raw = localStorage.getItem(k);
+            if (raw && (raw.includes('dataUrl') || raw.includes('image/'))) {
+              try {
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed)) {
+                  parsed.forEach((item: any) => {
+                    if (item && (item.dataUrl || item.imageUrl)) {
+                      const id = item.id || `photo-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+                      if (!photosMap.has(id)) {
+                        photosMap.set(id, item);
+                      }
+                    }
+                  });
+                }
+              } catch {}
+            }
+          }
+        }
+      } catch {}
+
+      let photosList = Array.from(photosMap.values());
+
+      // Auto-reconciliation: If any photo mentions Panama, Prague/Czechoslovakia, Hungary, Argentina or Chile
       photosList = photosList.map(p => {
         const text = `${p.city || ''} ${p.title || ''} ${p.notes || ''}`.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
         if (p.countryCode === 'HN' && (text.includes('panama') || text.includes('pty') || text.includes('canal de panama'))) {
-          autoFixed = true;
           return {
             ...p,
             countryCode: 'PA',
@@ -221,7 +294,6 @@ export default function App() {
         }
         if (text.includes('praga') || text.includes('checoslovaqui') || text.includes('czech') || text.includes('chequia')) {
           if (p.countryCode !== 'CZ') {
-            autoFixed = true;
             return {
               ...p,
               countryCode: 'CZ',
@@ -232,7 +304,6 @@ export default function App() {
         }
         if (text.includes('hungri') || text.includes('budapest')) {
           if (p.countryCode !== 'HU') {
-            autoFixed = true;
             return {
               ...p,
               countryCode: 'HU',
@@ -241,12 +312,37 @@ export default function App() {
             };
           }
         }
+        if (text.includes('argentin') || text.includes('buenos aires') || text.includes('bariloche') || text.includes('mendoza') || text.includes('obelisco')) {
+          if (p.countryCode !== 'AR') {
+            return {
+              ...p,
+              countryCode: 'AR',
+              countryName: 'Argentina',
+              city: p.city || 'Buenos Aires',
+            };
+          }
+        }
+        if (text.includes('chile') || text.includes('santiago') || text.includes('valparaiso') || text.includes('cordillera de los andes')) {
+          if (p.countryCode !== 'CL') {
+            return {
+              ...p,
+              countryCode: 'CL',
+              countryName: 'Chile',
+              city: p.city || 'Santiago de Chile',
+            };
+          }
+        }
         return p;
       });
 
-      if (autoFixed) {
+      // Synchronize safely to current and legacy keys so they are resilient across reloads
+      try {
         localStorage.setItem('viajeflow_travel_photos_v2', JSON.stringify(photosList));
+        localStorage.setItem('viajeflow_travel_photos_v1', JSON.stringify(photosList));
+      } catch (err) {
+        console.warn('LocalStorage save failed:', err);
       }
+
       return photosList;
     } catch {
       return INITIAL_TRAVEL_PHOTOS;
@@ -259,9 +355,9 @@ export default function App() {
       const saved = localStorage.getItem('viajeflow_visited_countries_v2');
       const savedList: VisitedCountry[] = saved ? JSON.parse(saved) : [];
 
-      // Check if Panama, Prague or Hungary has photos
+      // Check photos to see which countries have user photos
       const savedPhotosStr = localStorage.getItem('viajeflow_travel_photos_v2');
-      const currentPhotos: TravelPhoto[] = savedPhotosStr ? JSON.parse(savedPhotosStr) : [];
+      const currentPhotos: TravelPhoto[] = savedPhotosStr ? JSON.parse(savedPhotosStr) : INITIAL_TRAVEL_PHOTOS;
       const hasPanamaPhotos = currentPhotos.some(p => {
         const text = `${p.city || ''} ${p.title || ''} ${p.notes || ''}`.toLowerCase();
         return p.countryCode === 'PA' || text.includes('panam');
@@ -273,6 +369,14 @@ export default function App() {
       const hasHungaryPhotos = currentPhotos.some(p => {
         const text = `${p.city || ''} ${p.title || ''} ${p.notes || ''}`.toLowerCase();
         return p.countryCode === 'HU' || text.includes('hungri') || text.includes('budapest');
+      });
+      const hasArgentinaPhotos = currentPhotos.some(p => {
+        const text = `${p.city || ''} ${p.title || ''} ${p.notes || ''}`.toLowerCase();
+        return p.countryCode === 'AR' || text.includes('argentin') || text.includes('buenos aires');
+      });
+      const hasChilePhotos = currentPhotos.some(p => {
+        const text = `${p.city || ''} ${p.title || ''} ${p.notes || ''}`.toLowerCase();
+        return p.countryCode === 'CL' || text.includes('chile') || text.includes('santiago');
       });
 
       // Merge saved visit status into the latest WORLD_COUNTRIES_CATALOG
@@ -290,6 +394,12 @@ export default function App() {
           isVisited = true;
         }
         if (catalogCountry.code === 'HU' && (hasHungaryPhotos || isVisited)) {
+          isVisited = true;
+        }
+        if (catalogCountry.code === 'AR' && (hasArgentinaPhotos || isVisited || catalogCountry.visited)) {
+          isVisited = true;
+        }
+        if (catalogCountry.code === 'CL' && (hasChilePhotos || isVisited || catalogCountry.visited)) {
           isVisited = true;
         }
         return {
@@ -339,8 +449,55 @@ export default function App() {
   }, [visitedCountries]);
 
   useEffect(() => {
-    localStorage.setItem('viajeflow_travel_photos_v2', JSON.stringify(travelPhotos));
+    try {
+      localStorage.setItem('viajeflow_travel_photos_v2', JSON.stringify(travelPhotos));
+      localStorage.setItem('viajeflow_travel_photos_v1', JSON.stringify(travelPhotos));
+    } catch (err) {
+      console.warn('LocalStorage quota limit reached while saving photos:', err);
+    }
   }, [travelPhotos]);
+
+  // Auto-fetch photos and visited countries from Supabase if configured
+  useEffect(() => {
+    if (supabaseConfig.supabaseUrl && supabaseConfig.supabaseKey) {
+      fetchPhotosFromSupabase(supabaseConfig).then((remotePhotos) => {
+        if (remotePhotos && remotePhotos.length > 0) {
+          setTravelPhotos((prev) => {
+            const map = new Map<string, TravelPhoto>();
+            // Remote photos take priority, merge with local
+            remotePhotos.forEach((p) => map.set(p.id, p));
+            prev.forEach((p) => {
+              if (!map.has(p.id)) map.set(p.id, p);
+            });
+            const merged = Array.from(map.values());
+            try {
+              localStorage.setItem('viajeflow_travel_photos_v2', JSON.stringify(merged));
+              localStorage.setItem('viajeflow_travel_photos_v1', JSON.stringify(merged));
+            } catch {}
+            return merged;
+          });
+        }
+      });
+
+      fetchVisitedCountriesFromSupabase(supabaseConfig).then((remoteCountries) => {
+        if (remoteCountries && remoteCountries.length > 0) {
+          setVisitedCountries((prev) => {
+            return prev.map((c) => {
+              const remote = remoteCountries.find((rc) => rc.code === c.code);
+              if (remote && remote.visited) {
+                return {
+                  ...c,
+                  visited: true,
+                  visitedDate: remote.visitedDate || c.visitedDate,
+                };
+              }
+              return c;
+            });
+          });
+        }
+      });
+    }
+  }, [supabaseConfig.supabaseUrl, supabaseConfig.supabaseKey]);
 
   const handleToggleVisitedCountry = (countryCode: string) => {
     setVisitedCountries(prev => prev.map(c => {
@@ -351,11 +508,18 @@ export default function App() {
         } else {
           triggerToast(`Banderita retirada de ${c.name}`);
         }
-        return {
+        const updated = {
           ...c,
           visited: nextVisited,
           visitedDate: nextVisited ? (c.visitedDate || new Date().toISOString().split('T')[0]) : undefined,
         };
+
+        // Sync visited country state to Supabase
+        if (supabaseConfig.supabaseUrl && supabaseConfig.supabaseKey) {
+          saveVisitedCountryToSupabase(updated, supabaseConfig);
+        }
+
+        return updated;
       }
       return c;
     }));
@@ -375,20 +539,39 @@ export default function App() {
     // Automatically mark the country as visited with flag
     setVisitedCountries(prev => prev.map(c => {
       if (c.code === newPhotoData.countryCode) {
-        return {
+        const updatedCountry = {
           ...c,
           visited: true,
           visitedDate: c.visitedDate || newPhotoData.date,
         };
+        // Save to Supabase
+        if (supabaseConfig.supabaseUrl && supabaseConfig.supabaseKey) {
+          saveVisitedCountryToSupabase(updatedCountry, supabaseConfig);
+        }
+        return updatedCountry;
       }
       return c;
     }));
 
-    triggerToast(`📸 ¡Foto guardada y banderita fijada en ${newPhotoData.countryName}!`);
+    // If Supabase is connected, automatically persist photo directly to Supabase cloud
+    if (supabaseConfig.supabaseUrl && supabaseConfig.supabaseKey) {
+      savePhotoToSupabase(newPhoto, supabaseConfig).then((success) => {
+        if (success) {
+          triggerToast(`☁️ ¡Foto registrada y guardada en Supabase con éxito!`);
+        } else {
+          triggerToast(`📸 Foto guardada localmente.`);
+        }
+      });
+    } else {
+      triggerToast(`📸 ¡Foto guardada y banderita fijada en ${newPhotoData.countryName}!`);
+    }
   };
 
   const handleDeletePhoto = (photoId: string) => {
     setTravelPhotos(prev => prev.filter(p => p.id !== photoId));
+    if (supabaseConfig.supabaseUrl && supabaseConfig.supabaseKey) {
+      deletePhotoFromSupabase(photoId, supabaseConfig);
+    }
     triggerToast('Foto eliminada del álbum.');
   };
 
@@ -396,25 +579,37 @@ export default function App() {
     const targetCountry = visitedCountries.find(c => c.code === newCountryCode);
     if (!targetCountry) return;
 
+    let updatedTargetPhoto: TravelPhoto | null = null;
     setTravelPhotos(prev => prev.map(p => {
       if (p.id === photoId) {
-        return {
+        const updated = {
           ...p,
           countryCode: newCountryCode,
           countryName: targetCountry.name,
         };
+        updatedTargetPhoto = updated;
+        return updated;
       }
       return p;
     }));
 
+    // Sync moved photo to Supabase
+    if (updatedTargetPhoto && supabaseConfig.supabaseUrl && supabaseConfig.supabaseKey) {
+      savePhotoToSupabase(updatedTargetPhoto, supabaseConfig);
+    }
+
     // Ensure the new country is marked visited so its flag shows on the map
     setVisitedCountries(prev => prev.map(c => {
       if (c.code === newCountryCode) {
-        return {
+        const updated = {
           ...c,
           visited: true,
           visitedDate: c.visitedDate || new Date().toISOString().split('T')[0],
         };
+        if (supabaseConfig.supabaseUrl && supabaseConfig.supabaseKey) {
+          saveVisitedCountryToSupabase(updated, supabaseConfig);
+        }
+        return updated;
       }
       return c;
     }));
@@ -886,7 +1081,7 @@ export default function App() {
     }
 
     try {
-      // Upsert trips
+      // 1. Upsert trips
       const formattedTrips = trips.map((t) => ({
         id: t.id,
         title: t.title,
@@ -899,11 +1094,86 @@ export default function App() {
         currency: t.currency,
         description: t.description,
       }));
+      const { error: tripsError } = await supabase.from('trips').upsert(formattedTrips);
+      if (tripsError) throw new Error('Error al sincronizar viajes: ' + tripsError.message);
 
-      const { error } = await supabase.from('trips').upsert(formattedTrips);
-      if (error) throw error;
+      // 2. Upsert travel_photos
+      const formattedPhotos = travelPhotos.map((p) => ({
+        id: p.id,
+        trip_id: p.tripId || null,
+        country_code: p.countryCode,
+        country_name: p.countryName || '',
+        city: p.city || '',
+        title: p.title || 'Foto de viaje',
+        data_url: p.dataUrl,
+        date: p.date || new Date().toISOString().split('T')[0],
+        notes: p.notes || '',
+        created_at: p.createdAt || new Date().toISOString(),
+      }));
+      const { error: photosError } = await supabase.from('travel_photos').upsert(formattedPhotos);
+      if (photosError) throw new Error('Error al sincronizar fotos: ' + photosError.message);
 
-      alert('¡Sincronización exitosa! Todos tus datos se guardaron en Supabase en la nube.');
+      // 3. Upsert visited_countries
+      const formattedCountries = visitedCountries
+        .filter((c) => c.visited)
+        .map((c) => ({
+          code: c.code,
+          name: c.name,
+          continent: c.continent || '',
+          flag_emoji: c.flagEmoji || '',
+          capital: c.capital || '',
+          visited: true,
+          visited_date: c.visitedDate || null,
+          notes: c.notes || '',
+          trip_name: c.tripName || '',
+        }));
+      if (formattedCountries.length > 0) {
+        const { error: countriesError } = await supabase.from('visited_countries').upsert(formattedCountries);
+        if (countriesError) throw new Error('Error al sincronizar países visitados: ' + countriesError.message);
+      }
+
+      // 4. Upsert flights
+      const formattedFlights = flights.map((f) => ({
+        id: f.id,
+        trip_id: f.tripId,
+        flight_number: f.flightNumber,
+        airline: f.airline,
+        departure_airport: f.departureAirport,
+        arrival_airport: f.arrivalAirport,
+        departure_city: f.departureCity,
+        arrival_city: f.arrivalCity,
+        departure_time: f.departureTime,
+        arrival_time: f.arrivalTime,
+        terminal: f.terminal,
+        gate: f.gate,
+        seat: f.seat,
+        status: f.status,
+        confirmation_code: f.confirmationCode,
+        price: f.price,
+        notes: f.notes,
+      }));
+      await supabase.from('flights').upsert(formattedFlights);
+
+      // 5. Upsert reservations
+      const formattedReservations = reservations.map((r) => ({
+        id: r.id,
+        trip_id: r.tripId,
+        type: r.type,
+        title: r.title,
+        provider: r.provider,
+        address: r.address,
+        check_in: r.checkIn,
+        check_out: r.checkOut,
+        confirmation_code: r.confirmationCode,
+        status: r.status,
+        price: r.price,
+        phone: r.phone,
+        notes: r.notes,
+      }));
+      await supabase.from('reservations').upsert(formattedReservations);
+
+      alert(`¡Sincronización exitosa con Supabase!\n\n⚡ Guardados en tu base de datos Supabase:\n• ${formattedTrips.length} viajes\n• ${formattedPhotos.length} fotos de viaje\n• ${formattedCountries.length} banderas de países visitados\n• ${formattedFlights.length} vuelos y reservas`);
+      triggerToast('⚡ Datos y fotos sincronizados en Supabase.');
     } catch (err: any) {
       alert('Error al sincronizar con Supabase: ' + err.message);
     }
@@ -943,6 +1213,8 @@ export default function App() {
           <WorldTravelMap
             countries={visitedCountries}
             photos={travelPhotos}
+            isSupabaseConnected={supabaseConfig.isConnected}
+            onOpenSettings={() => setActiveTab('settings')}
             onToggleVisited={handleToggleVisitedCountry}
             onOpenUpload={handleOpenUploadForCountry}
             onSelectCountry={(country) => setSelectedCountryForDetail(country)}
@@ -1059,6 +1331,7 @@ export default function App() {
         <PhotoUploadModal
           countries={visitedCountries}
           preselectedCountryCode={preselectedUploadCountry}
+          isSupabaseConnected={supabaseConfig.isConnected}
           onSavePhoto={handleSavePhoto}
           onClose={() => {
             setIsPhotoUploadOpen(false);
