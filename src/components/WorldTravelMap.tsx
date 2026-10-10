@@ -93,7 +93,7 @@ export const WorldTravelMap: React.FC<WorldTravelMapProps> = ({
   // Countries to render on map depending on viewFilter
   const countriesToRender = viewFilter === 'visited_only' ? visitedCountries : countries;
 
-  // Filtered countries for the quick-add search dropdown (checks name, capital, code, continent, aliases)
+  // Filtered countries for the quick-add search dropdown (checks name, capital, code, continent, aliases, visitedCities)
   const searchResults = searchQuery.trim()
     ? countries.filter(c => {
         const q = searchQuery.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -102,7 +102,8 @@ export const WorldTravelMap: React.FC<WorldTravelMapProps> = ({
         const continentMatch = c.continent.toLowerCase().includes(q);
         const capMatch = c.capital ? c.capital.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(q) : false;
         const aliasMatch = c.aliases ? c.aliases.some(a => a.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(q)) : false;
-        return nameMatch || codeMatch || continentMatch || capMatch || aliasMatch;
+        const cityMatch = c.visitedCities ? c.visitedCities.some(city => city.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(q)) : false;
+        return nameMatch || codeMatch || continentMatch || capMatch || aliasMatch || cityMatch;
       }).slice(0, 10)
     : [];
 
@@ -509,10 +510,32 @@ export const WorldTravelMap: React.FC<WorldTravelMapProps> = ({
                     ? 'bg-emerald-950/60 border-emerald-500/60 text-emerald-300' 
                     : 'bg-slate-950 hover:bg-slate-800 border-slate-800 text-slate-300'
                 }`}
+                title="Nápoles, Roma, Pompeya"
               >
                 <span>🇮🇹</span>
-                <span>Italia</span>
+                <span>Italia (Nápoles)</span>
                 <span>{it.visited ? '🚩' : '➕'}</span>
+              </button>
+            );
+          })()}
+
+          {/* Colombia */}
+          {(() => {
+            const co = countries.find(c => c.code === 'CO');
+            if (!co) return null;
+            return (
+              <button
+                onClick={() => co.visited ? handleFocusCountry(co) : handleAddCountry(co)}
+                className={`px-2 py-0.5 rounded-md border text-[11px] font-medium flex items-center space-x-1 transition-all cursor-pointer ${
+                  co.visited 
+                    ? 'bg-emerald-950/60 border-emerald-500/60 text-emerald-300' 
+                    : 'bg-slate-950 hover:bg-slate-800 border-slate-800 text-slate-300'
+                }`}
+                title="Medellín, Cartagena, Guatapé"
+              >
+                <span>🇨🇴</span>
+                <span>Colombia (Medellín, Cartagena, Guatapé)</span>
+                <span>{co.visited ? '🚩' : '➕'}</span>
               </button>
             );
           })()}
@@ -537,7 +560,7 @@ export const WorldTravelMap: React.FC<WorldTravelMapProps> = ({
                   setIsAddMenuOpen(true);
                 }}
                 onFocus={() => setIsAddMenuOpen(true)}
-                placeholder="Buscar país o ciudad... (ej. Praga, Hungría, Checoslovaquia, España...)"
+                placeholder="Buscar país o ciudad... (ej. Nápoles, Medellín, Cartagena, Guatapé, Roma...)"
                 className="w-full bg-slate-950 border border-slate-700 rounded-xl pl-9 pr-8 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors shadow-inner"
               />
               {searchQuery && (
@@ -614,6 +637,11 @@ export const WorldTravelMap: React.FC<WorldTravelMapProps> = ({
                           <div className="text-[10px] text-slate-400">
                             {c.continent} {c.visited ? '• 🚩 Banderita fijada' : ''}
                           </div>
+                          {c.visitedCities && c.visitedCities.length > 0 && (
+                            <div className="text-[10px] text-emerald-400 font-medium mt-0.5">
+                              📍 {c.visitedCities.join(' • ')}
+                            </div>
+                          )}
                         </div>
                       </div>
 
@@ -918,6 +946,33 @@ export const WorldTravelMap: React.FC<WorldTravelMapProps> = ({
               ) : null;
             })()}
 
+            {/* Visited Cities Pills */}
+            {(() => {
+              const countryPhotos = photos.filter(p => p.countryCode === activePopupCountry.code);
+              const cities = Array.from(new Set([
+                ...(activePopupCountry.visitedCities || []),
+                ...countryPhotos.map(p => p.city).filter(Boolean) as string[]
+              ]));
+              if (cities.length === 0) return null;
+              return (
+                <div className="mb-2.5 p-2 rounded-xl bg-slate-950/80 border border-slate-800">
+                  <span className="text-[10px] font-semibold text-slate-400 block mb-1">
+                    📍 Ciudades y Destinos Visitados:
+                  </span>
+                  <div className="flex flex-wrap gap-1">
+                    {cities.map(cityName => (
+                      <span
+                        key={cityName}
+                        className="text-[10px] bg-emerald-950/90 border border-emerald-500/40 text-emerald-300 px-1.5 py-0.5 rounded-md font-medium"
+                      >
+                        📍 {cityName}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+
             {/* Action buttons */}
             <div className="flex flex-col gap-1.5">
               {activePopupCountry.visited ? (
@@ -1070,6 +1125,29 @@ export const WorldTravelMap: React.FC<WorldTravelMapProps> = ({
                       )}
                     </div>
                   </div>
+
+                  {/* Visited Cities Tag Row */}
+                  {(() => {
+                    const cities = Array.from(new Set([
+                      ...(c.visitedCities || []),
+                      ...countryPhotos.map(p => p.city).filter(Boolean) as string[]
+                    ]));
+                    if (cities.length === 0) return null;
+                    return (
+                      <div className="px-3 pt-2 pb-1 flex flex-wrap gap-1 bg-slate-900/60 border-t border-slate-800/50">
+                        {cities.slice(0, 3).map(cityName => (
+                          <span key={cityName} className="text-[10px] bg-slate-950 border border-slate-800 text-emerald-300 px-1.5 py-0.5 rounded font-medium">
+                            📍 {cityName}
+                          </span>
+                        ))}
+                        {cities.length > 3 && (
+                          <span className="text-[9px] text-slate-400 self-center">
+                            +{cities.length - 3}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })()}
 
                   {/* Card Footer Actions */}
                   <div className="p-3 bg-slate-900/90 border-t border-slate-800/80 flex items-center justify-between gap-2 mt-auto">

@@ -168,8 +168,12 @@ export const WORLD_COUNTRIES_CATALOG: VisitedCountry[] = [
     capital: 'Bogotá',
     coordinates: [4.5709, -74.2973],
     svgCoords: { x: 29.8, y: 53.0 },
-    visited: false,
-    aliases: ['Colombia', 'Bogota', 'Bogotá', 'Medellin', 'Medellín', 'Cartagena']
+    visited: true,
+    visitedDate: '2025-11-20',
+    tripName: 'Aventura Colombia: Medellín, Cartagena y Guatapé',
+    notes: 'Recorrido por la vibrante Medellín (Comuna 13 y Metrocable), la impresionante Piedra del Peñol en Guatapé y la histórica Ciudad Amurallada de Cartagena.',
+    visitedCities: ['Medellín', 'Cartagena', 'Guatapé', 'Bogotá'],
+    aliases: ['Colombia', 'Medellin', 'Medellín', 'Cartagena', 'Cartagenta', 'Guatape', 'Guatapé', 'Bogota', 'Bogotá', 'Piedra del Peñol', 'El Poblado', 'Comuna 13']
   },
   {
     code: 'BR',
@@ -376,8 +380,12 @@ export const WORLD_COUNTRIES_CATALOG: VisitedCountry[] = [
     capital: 'Roma',
     coordinates: [41.8719, 12.5674],
     svgCoords: { x: 52.8, y: 25.5 },
-    visited: false,
-    aliases: ['Italia', 'Italy', 'Roma', 'Milan', 'Milán', 'Venecia', 'Florencia']
+    visited: true,
+    visitedDate: '2025-06-15',
+    tripName: 'Recorrido Italia: Nápoles y Bahía Napolitana',
+    notes: 'Visita a Nápoles: centro histórico Spaccanapoli, la cuna de la pizza tradicional napolitana, el paseo marítimo con vistas al Monte Vesubio y Pompeya.',
+    visitedCities: ['Nápoles', 'Roma', 'Pompeya', 'Costa Amalfitana'],
+    aliases: ['Italia', 'Italy', 'Napoles', 'Nápoles', 'Napoli', 'Roma', 'Milan', 'Milán', 'Venecia', 'Florencia', 'Capri', 'Pompeya', 'Costa Amalfitana']
   },
   {
     code: 'DE',
@@ -828,5 +836,53 @@ export const INITIAL_TRAVEL_PHOTOS: TravelPhoto[] = [
     notes: 'Vista panorámica de la ciudad de Santiago de Chile con la imponente Cordillera de los Andes de fondo.',
     tripId: 'trip-asia-2026',
     createdAt: '2026-08-16T16:30:00Z'
+  },
+  {
+    id: 'photo-co-medellin',
+    countryCode: 'CO',
+    countryName: 'Colombia',
+    city: 'Medellín',
+    title: 'Medellín: Comuna 13 y Metrocable',
+    dataUrl: 'https://images.unsplash.com/photo-1583531352515-8884af319dc1?auto=format&fit=crop&w=1000&q=80',
+    date: '2025-11-12',
+    notes: 'Murales y arte urbano de la Comuna 13, vista panorámica de Medellín y el viaje en Metrocable sobre las montañas.',
+    tripId: 'trip-colombia-2025',
+    createdAt: '2025-11-12T14:00:00Z'
+  },
+  {
+    id: 'photo-co-cartagena',
+    countryCode: 'CO',
+    countryName: 'Colombia',
+    city: 'Cartagena',
+    title: 'Cartagena: Ciudad Amurallada y Balcones Floridos',
+    dataUrl: 'https://images.unsplash.com/photo-1583997052103-b4a1fad8e53a?auto=format&fit=crop&w=1000&q=80',
+    date: '2025-11-16',
+    notes: 'Recorrido por la Ciudad Amurallada colonial, calles empedradas, balcones con flores y atardecer en las murallas de Cartagena.',
+    tripId: 'trip-colombia-2025',
+    createdAt: '2025-11-16T17:30:00Z'
+  },
+  {
+    id: 'photo-co-guatape',
+    countryCode: 'CO',
+    countryName: 'Colombia',
+    city: 'Guatapé',
+    title: 'Guatapé: Piedra del Peñol y Calles de los Zócalos',
+    dataUrl: 'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&w=1000&q=80',
+    date: '2025-11-14',
+    notes: 'Ascenso a la cima de la Piedra del Peñol con vista panorámica de 360° al embalse y caminata por el pueblo de zócalos de Guatapé.',
+    tripId: 'trip-colombia-2025',
+    createdAt: '2025-11-14T11:00:00Z'
+  },
+  {
+    id: 'photo-it-napoles',
+    countryCode: 'IT',
+    countryName: 'Italia',
+    city: 'Nápoles',
+    title: 'Nápoles: Bahía Napolitana y Monte Vesubio',
+    dataUrl: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=1000&q=80',
+    date: '2025-06-08',
+    notes: 'Paseo por Spaccanapoli, degustación de la auténtica pizza napolitana y vistas al mar frente al imponente Monte Vesubio.',
+    tripId: 'trip-italia-2025',
+    createdAt: '2025-06-08T15:00:00Z'
   }
 ];

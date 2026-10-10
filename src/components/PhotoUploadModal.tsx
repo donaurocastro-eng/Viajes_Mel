@@ -90,7 +90,28 @@ export const PhotoUploadModal: React.FC<PhotoUploadModalProps> = ({
       return;
     }
 
-    // 4. Direct check for Honduras
+    // 4. Direct check for Colombia (Medellín, Cartagena, Guatapé)
+    if (clean.includes('medellin') || clean.includes('cartagena') || clean.includes('cartagenta') || clean.includes('guatape') || clean.includes('penol')) {
+      setSelectedCountryCode('CO');
+      let detectedCity = 'Medellín';
+      if (clean.includes('cartagen')) detectedCity = 'Cartagena';
+      else if (clean.includes('guatape') || clean.includes('penol')) detectedCity = 'Guatapé';
+      setCity(prev => prev || detectedCity);
+      setAutoDetectNotice(`✨ ¡Detectada ciudad de ${detectedCity}! La foto se archivará en 🇨🇴 Colombia.`);
+      setTimeout(() => setAutoDetectNotice(null), 4000);
+      return;
+    }
+
+    // 5. Direct check for Italy (Nápoles)
+    if (clean.includes('napoles') || clean.includes('napoli') || clean.includes('spaccanapoli') || clean.includes('vesubio')) {
+      setSelectedCountryCode('IT');
+      setCity(prev => prev || 'Nápoles');
+      setAutoDetectNotice('✨ ¡Detectada ciudad de Nápoles! La foto se archivará en 🇮🇹 Italia.');
+      setTimeout(() => setAutoDetectNotice(null), 4000);
+      return;
+    }
+
+    // 6. Direct check for Honduras
     if (clean.includes('honduras') || clean.includes('tegucigalpa') || clean.includes('roatan') || clean.includes('palmerola') || clean.includes('san pedro sula')) {
       setSelectedCountryCode('HN');
       setAutoDetectNotice('¡Detectado Honduras! La foto se guardará en 🇭🇳 Honduras.');

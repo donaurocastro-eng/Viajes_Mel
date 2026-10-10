@@ -25,8 +25,18 @@ export const CountryDetailModal: React.FC<CountryDetailModalProps> = ({
 }) => {
   const [activePhoto, setActivePhoto] = useState<TravelPhoto | null>(null);
   const [movingPhotoId, setMovingPhotoId] = useState<string | null>(null);
+  const [selectedCityFilter, setSelectedCityFilter] = useState<string>('all');
 
   const countryPhotos = photos.filter(p => p.countryCode === country.code);
+
+  const distinctCities = Array.from(new Set([
+    ...(country.visitedCities || []),
+    ...countryPhotos.map(p => p.city).filter(Boolean) as string[]
+  ]));
+
+  const filteredPhotos = selectedCityFilter === 'all'
+    ? countryPhotos
+    : countryPhotos.filter(p => p.city?.toLowerCase() === selectedCityFilter.toLowerCase());
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-in fade-in duration-200">
@@ -100,13 +110,64 @@ export const CountryDetailModal: React.FC<CountryDetailModalProps> = ({
             </div>
           )}
 
+          {/* Visited Cities Pills & City Filter */}
+          {distinctCities.length > 0 && (
+            <div className="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Ciudades y Destinos Visitados:</span>
+                </span>
+                <span className="text-[10px] text-slate-400 font-medium">
+                  {distinctCities.length} {distinctCities.length === 1 ? 'destino' : 'destinos'}
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                <button
+                  onClick={() => setSelectedCityFilter('all')}
+                  className={`px-2.5 py-1 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                    selectedCityFilter === 'all'
+                      ? 'bg-emerald-500 text-slate-950 font-bold shadow-sm'
+                      : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800'
+                  }`}
+                >
+                  Todas las fotos ({countryPhotos.length})
+                </button>
+                {distinctCities.map(cName => {
+                  const count = countryPhotos.filter(p => p.city?.toLowerCase() === cName.toLowerCase()).length;
+                  const isSelected = selectedCityFilter.toLowerCase() === cName.toLowerCase();
+                  return (
+                    <button
+                      key={cName}
+                      onClick={() => setSelectedCityFilter(isSelected ? 'all' : cName)}
+                      className={`px-2.5 py-1 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center space-x-1 border ${
+                        isSelected
+                          ? 'bg-emerald-500 text-slate-950 border-emerald-400 shadow-sm font-bold'
+                          : 'bg-slate-900 hover:bg-slate-800 text-emerald-300 border-slate-800 hover:border-emerald-500/40'
+                      }`}
+                    >
+                      <span>📍 {cName}</span>
+                      {count > 0 && (
+                        <span className={`text-[10px] px-1 rounded font-mono ${
+                          isSelected ? 'bg-slate-950/20 text-slate-950' : 'bg-slate-800 text-slate-400'
+                        }`}>
+                          {count}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* Photos Header */}
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-sm font-bold text-white flex items-center space-x-2">
                 <span>Álbum de Recuerdos</span>
                 <span className="text-[11px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-mono">
-                  {countryPhotos.length} fotos
+                  {filteredPhotos.length} fotos {selectedCityFilter !== 'all' ? `en ${selectedCityFilter}` : ''}
                 </span>
               </h3>
               <p className="text-[11px] text-slate-400">Fotos tomadas en {country.name}</p>
@@ -121,12 +182,16 @@ export const CountryDetailModal: React.FC<CountryDetailModalProps> = ({
           </div>
 
           {/* Photos Grid */}
-          {countryPhotos.length === 0 ? (
+          {filteredPhotos.length === 0 ? (
             <div className="text-center py-12 px-4 rounded-2xl border-2 border-dashed border-slate-800 bg-slate-950/40">
               <div className="w-14 h-14 mx-auto rounded-full bg-slate-800/80 flex items-center justify-center text-slate-500 mb-3">
                 <Upload className="w-6 h-6" />
               </div>
-              <h4 className="text-sm font-bold text-slate-200">No hay fotos de {country.name} todavía</h4>
+              <h4 className="text-sm font-bold text-slate-200">
+                {selectedCityFilter === 'all' 
+                  ? `No hay fotos de ${country.name} todavía`
+                  : `No hay fotos etiquetadas con la ciudad "${selectedCityFilter}" aún`}
+              </h4>
               <p className="text-xs text-slate-400 max-w-sm mx-auto mt-1 mb-4">
                 Sube tus fotos de las ciudades, monumentos, comidas o recuerdos familiares para archivarlos en tu mapa mundial.
               </p>
@@ -134,12 +199,12 @@ export const CountryDetailModal: React.FC<CountryDetailModalProps> = ({
                 onClick={() => onOpenUpload(country.code)}
                 className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black text-xs rounded-xl shadow-lg transition-all cursor-pointer"
               >
-                + Subir la primera foto
+                + Subir foto {selectedCityFilter !== 'all' ? `de ${selectedCityFilter}` : ''}
               </button>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {countryPhotos.map((photo) => {
+              {filteredPhotos.map((photo) => {
                 const textLower = `${photo.city || ''} ${photo.title || ''} ${photo.notes || ''}`.toLowerCase();
                 const looksLikePanama = country.code === 'HN' && (textLower.includes('panam') || textLower.includes('pty'));
                 const looksLikePrague = country.code !== 'CZ' && (textLower.includes('praga') || textLower.includes('checoslovaqui') || textLower.includes('chequia') || textLower.includes('czech'));

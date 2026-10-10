@@ -78,11 +78,9 @@ export default function App() {
       if (saved) {
         const parsed: Trip[] = JSON.parse(saved);
         const cleaned = parsed.filter(t => t.id !== 'trip-1' && !t.title.toLowerCase().includes('aventura europea') && !t.title.toLowerCase().includes('escape tropical'));
-        const hasAsia = cleaned.some(t => t.id === 'trip-asia-2026');
-        if (!hasAsia) {
-          return [...initialTrips.filter(it => it.id === 'trip-asia-2026'), ...cleaned];
-        }
-        return cleaned.length > 0 ? cleaned : initialTrips;
+        const missingInitial = initialTrips.filter(it => !cleaned.some(c => c.id === it.id));
+        const combinedTrips = [...missingInitial, ...cleaned];
+        return combinedTrips.length > 0 ? combinedTrips : initialTrips;
       }
       return initialTrips;
     } catch {
@@ -332,6 +330,32 @@ export default function App() {
             };
           }
         }
+        if (text.includes('colombia') || text.includes('medellin') || text.includes('cartagena') || text.includes('cartagenta') || text.includes('guatape') || text.includes('penol')) {
+          if (p.countryCode !== 'CO') {
+            let cityName = p.city;
+            if (!cityName) {
+              if (text.includes('guatape') || text.includes('penol')) cityName = 'Guatapé';
+              else if (text.includes('cartagen')) cityName = 'Cartagena';
+              else cityName = 'Medellín';
+            }
+            return {
+              ...p,
+              countryCode: 'CO',
+              countryName: 'Colombia',
+              city: cityName,
+            };
+          }
+        }
+        if (text.includes('napoles') || text.includes('napoli') || text.includes('spaccanapoli') || text.includes('vesubio')) {
+          if (p.countryCode !== 'IT') {
+            return {
+              ...p,
+              countryCode: 'IT',
+              countryName: 'Italia',
+              city: p.city || 'Nápoles',
+            };
+          }
+        }
         return p;
       });
 
@@ -378,6 +402,14 @@ export default function App() {
         const text = `${p.city || ''} ${p.title || ''} ${p.notes || ''}`.toLowerCase();
         return p.countryCode === 'CL' || text.includes('chile') || text.includes('santiago');
       });
+      const hasColombiaPhotos = currentPhotos.some(p => {
+        const text = `${p.city || ''} ${p.title || ''} ${p.notes || ''}`.toLowerCase();
+        return p.countryCode === 'CO' || text.includes('colombia') || text.includes('medellin') || text.includes('cartagena') || text.includes('guatape');
+      });
+      const hasItalyPhotos = currentPhotos.some(p => {
+        const text = `${p.city || ''} ${p.title || ''} ${p.notes || ''}`.toLowerCase();
+        return p.countryCode === 'IT' || text.includes('italia') || text.includes('napoles') || text.includes('napoli');
+      });
 
       // Merge saved visit status into the latest WORLD_COUNTRIES_CATALOG
       // This guarantees svgCoords are ALWAYS percentage coordinates (0-100) and never old 800+ px values
@@ -402,12 +434,19 @@ export default function App() {
         if (catalogCountry.code === 'CL' && (hasChilePhotos || isVisited || catalogCountry.visited)) {
           isVisited = true;
         }
+        if (catalogCountry.code === 'CO' && (hasColombiaPhotos || isVisited || catalogCountry.visited)) {
+          isVisited = true;
+        }
+        if (catalogCountry.code === 'IT' && (hasItalyPhotos || isVisited || catalogCountry.visited)) {
+          isVisited = true;
+        }
         return {
           ...catalogCountry,
           visited: isVisited,
           visitedDate: savedCountry?.visitedDate || catalogCountry.visitedDate,
           notes: savedCountry?.notes || catalogCountry.notes,
           tripName: savedCountry?.tripName || catalogCountry.tripName,
+          visitedCities: catalogCountry.visitedCities || savedCountry?.visitedCities,
         };
       });
 

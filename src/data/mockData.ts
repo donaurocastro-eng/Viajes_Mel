@@ -22,6 +22,50 @@ export const initialTrips: Trip[] = [
     currency: 'USD',
     description: 'Viaje transcontinental con salida de Honduras hacia EE.UU. (18-Ago), ruta Japón Osaka y Tokio (23-31 Ago), Seúl y Tailandia, con regreso a Honduras el 10 de Septiembre.',
     createdAt: new Date().toISOString()
+  },
+  {
+    id: 'trip-colombia-2025',
+    code: 'COL-001',
+    title: 'Aventura Colombia: Medellín, Cartagena y Guatapé',
+    destination: 'Colombia (Medellín, Cartagena y Guatapé)',
+    startDate: '2025-11-10',
+    endDate: '2025-11-20',
+    travelersCount: 4,
+    travelersNames: [
+      'Donauro Emmanuel Castro',
+      'Maria Nohemy Israel',
+      'Robinson Josue Castro',
+      'Robinson Castro'
+    ],
+    countries: ['Colombia 🇨🇴'],
+    coverImage: 'https://images.unsplash.com/photo-1583531352515-8884af319dc1?auto=format&fit=crop&w=1200&q=80',
+    status: 'completed',
+    budgetTotal: 3200,
+    currency: 'USD',
+    description: 'Recorrido inolvidable por Colombia conociendo el arte urbano y calidez paisa en Medellín, el ascenso a la Piedra del Peñol en Guatapé y la mágica Ciudad Amurallada colonial de Cartagena.',
+    createdAt: '2025-11-01T10:00:00Z'
+  },
+  {
+    id: 'trip-italia-2025',
+    code: 'ITA-001',
+    title: 'Recorrido Italia: Nápoles y Bahía Napolitana',
+    destination: 'Italia (Nápoles, Pompeya y Costa Amalfitana)',
+    startDate: '2025-06-05',
+    endDate: '2025-06-15',
+    travelersCount: 4,
+    travelersNames: [
+      'Donauro Emmanuel Castro',
+      'Maria Nohemy Israel',
+      'Robinson Josue Castro',
+      'Robinson Castro'
+    ],
+    countries: ['Italia 🇮🇹'],
+    coverImage: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=1200&q=80',
+    status: 'completed',
+    budgetTotal: 3800,
+    currency: 'USD',
+    description: 'Viaje histórico y gastronómico en Nápoles: el centro histórico Spaccanapoli, la cuna de la pizza tradicional, paseo marítimo con vistas al Monte Vesubio y cercanías de Pompeya.',
+    createdAt: '2025-05-20T10:00:00Z'
   }
 ];
 

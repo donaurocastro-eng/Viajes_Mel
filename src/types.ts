@@ -213,6 +213,7 @@ export interface VisitedCountry {
   notes?: string;
   capital?: string;
   aliases?: string[];
+  visitedCities?: string[];
 }
 
 export interface TravelPhoto {
