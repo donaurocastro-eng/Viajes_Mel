@@ -2,7 +2,26 @@ import React, { useState } from 'react';
 import { Trip, WhatsAppLog, WhatsAppConfig, SupabaseConfig } from '../types';
 import { WhatsAppCenter } from './WhatsAppCenter';
 import { SUPABASE_SQL_SCHEMA, testSupabaseConnection, saveSupabaseConfig } from '../services/supabaseService';
-import { Settings, Smartphone, Database, Rocket, CheckCircle2, AlertCircle, Copy, Check, UploadCloud, RefreshCw, ExternalLink } from 'lucide-react';
+import { APP_VERSION_INFO } from '../version';
+import {
+  Settings,
+  Smartphone,
+  Database,
+  Rocket,
+  CheckCircle2,
+  AlertCircle,
+  Copy,
+  Check,
+  UploadCloud,
+  RefreshCw,
+  ExternalLink,
+  Tag,
+  Calendar,
+  Info,
+  Clock,
+  Sparkles,
+  ShieldCheck,
+} from 'lucide-react';
 
 interface SettingsViewProps {
   trip: Trip;
@@ -29,7 +48,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   onUpdateSupabaseConfig,
   onSyncLocalToSupabase,
 }) => {
-  const [activeSection, setActiveSection] = useState<'whatsapp' | 'supabase' | 'vercel'>('whatsapp');
+  const [activeSection, setActiveSection] = useState<'whatsapp' | 'supabase' | 'vercel' | 'version'>('whatsapp');
+  const [copiedVersionInfo, setCopiedVersionInfo] = useState(false);
 
   // Supabase Local State
   const [supabaseUrl, setSupabaseUrl] = useState(supabaseConfig.supabaseUrl);
@@ -91,17 +111,25 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-6 sm:p-8 rounded-3xl border border-slate-800 shadow-2xl text-white">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-2">
-            <div className="flex items-center space-x-2">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center gap-1.5">
                 <Settings className="w-3.5 h-3.5 text-purple-400" />
                 Panel de Integraciones y Configuración
               </span>
+              <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 flex items-center gap-1.5 shadow-sm">
+                <Tag className="w-3.5 h-3.5 text-emerald-400" />
+                Versión: {APP_VERSION_INFO.version}
+              </span>
+              <span className="px-3 py-1 rounded-full text-xs text-slate-300 bg-slate-950/70 border border-slate-800 flex items-center gap-1.5 font-medium">
+                <Calendar className="w-3.5 h-3.5 text-cyan-400" />
+                Actualizado: {APP_VERSION_INFO.releaseDate}
+              </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-              Centro de Conexiones: WhatsApp, Supabase y Despliegue
+              Centro de Conexiones: WhatsApp, Supabase y Versión
             </h1>
             <p className="text-xs sm:text-sm text-slate-300">
-              Administra las credenciales de mensajería, la base de datos PostgreSQL en Supabase y el despliegue automático.
+              Administra las credenciales de mensajería, la base de datos PostgreSQL en Supabase, el despliegue y revisa la versión de la aplicación.
             </p>
           </div>
         </div>
@@ -117,7 +145,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             }`}
           >
             <Smartphone className="w-4 h-4" />
-            <span>1. WhatsApp API & Notificaciones</span>
+            <span>1. WhatsApp API</span>
           </button>
 
           <button
@@ -142,6 +170,18 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           >
             <Rocket className="w-4 h-4" />
             <span>3. Despliegue en Vercel</span>
+          </button>
+
+          <button
+            onClick={() => setActiveSection('version')}
+            className={`flex items-center space-x-2 px-4 py-2.5 rounded-xl transition-all ${
+              activeSection === 'version'
+                ? 'bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20 font-black'
+                : 'bg-slate-950/70 text-slate-300 hover:bg-slate-800 border border-slate-800'
+            }`}
+          >
+            <Info className="w-4 h-4" />
+            <span>4. Versión & Actualizaciones ({APP_VERSION_INFO.version})</span>
           </button>
         </div>
       </div>
@@ -327,6 +367,173 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           </div>
         </div>
       )}
+
+      {/* 4. Versión de la Aplicación y Registro de Actualizaciones */}
+      {activeSection === 'version' && (
+        <div className="space-y-6">
+          {/* Main Version Hero Card */}
+          <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-6 text-white shadow-xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+              <div className="flex items-center space-x-3.5">
+                <div className="p-3.5 rounded-2xl bg-gradient-to-tr from-emerald-500/20 to-teal-500/20 border border-emerald-500/30 text-emerald-400 shadow-inner">
+                  <Tag className="w-7 h-7" />
+                </div>
+                <div>
+                  <div className="flex items-center space-x-2">
+                    <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                      {APP_VERSION_INFO.appName}
+                    </h2>
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-emerald-500 text-slate-950 shadow-md">
+                      {APP_VERSION_INFO.version}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Estado: <span className="text-emerald-300 font-semibold">{APP_VERSION_INFO.environment}</span>
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const sysReport = `App: ${APP_VERSION_INFO.appName}\nVersión: ${APP_VERSION_INFO.version}\nFecha: ${APP_VERSION_INFO.releaseDate}\nBuild: ${APP_VERSION_INFO.buildNumber}\nSupabase Conectado: ${supabaseConfig.isConnected ? 'Sí' : 'No'}`;
+                  copyText(sysReport, setCopiedVersionInfo);
+                }}
+                className="flex items-center space-x-2 px-3.5 py-2 bg-slate-800/80 hover:bg-slate-700 rounded-xl border border-slate-700 text-xs font-bold transition-all text-slate-200 self-start sm:self-auto cursor-pointer"
+              >
+                {copiedVersionInfo ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4 text-slate-400" />}
+                <span>{copiedVersionInfo ? '¡Datos Copiados!' : 'Copiar Diagnóstico'}</span>
+              </button>
+            </div>
+
+            {/* Grid of Key Info Specs */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="bg-slate-950/70 p-4 rounded-2xl border border-slate-800/90 space-y-1">
+                <span className="text-[11px] uppercase font-bold tracking-wider text-slate-400 flex items-center gap-1.5">
+                  <Tag className="w-3.5 h-3.5 text-emerald-400" />
+                  Versión Actual
+                </span>
+                <p className="text-lg font-mono font-black text-emerald-400">{APP_VERSION_INFO.version}</p>
+                <p className="text-[11px] text-slate-400">Versión en ejecución</p>
+              </div>
+
+              <div className="bg-slate-950/70 p-4 rounded-2xl border border-slate-800/90 space-y-1">
+                <span className="text-[11px] uppercase font-bold tracking-wider text-slate-400 flex items-center gap-1.5">
+                  <Calendar className="w-3.5 h-3.5 text-cyan-400" />
+                  Fecha de Actualización
+                </span>
+                <p className="text-lg font-bold text-white">{APP_VERSION_INFO.releaseDate}</p>
+                <p className="text-[11px] text-slate-400 font-mono">{APP_VERSION_INFO.releaseDateIso}</p>
+              </div>
+
+              <div className="bg-slate-950/70 p-4 rounded-2xl border border-slate-800/90 space-y-1">
+                <span className="text-[11px] uppercase font-bold tracking-wider text-slate-400 flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5 text-amber-400" />
+                  Compilación / Build
+                </span>
+                <p className="text-sm font-mono font-bold text-amber-300 pt-1">{APP_VERSION_INFO.buildNumber}</p>
+                <p className="text-[11px] text-slate-400">Compilado y verificado</p>
+              </div>
+
+              <div className="bg-slate-950/70 p-4 rounded-2xl border border-slate-800/90 space-y-1">
+                <span className="text-[11px] uppercase font-bold tracking-wider text-slate-400 flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-purple-400" />
+                  Base de Datos
+                </span>
+                <div className="flex items-center space-x-1.5 pt-1">
+                  <span className={`w-2.5 h-2.5 rounded-full ${supabaseConfig.isConnected ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
+                  <p className="text-sm font-bold text-white">
+                    {supabaseConfig.isConnected ? 'Supabase Activo' : 'Almacenamiento Local'}
+                  </p>
+                </div>
+                <p className="text-[11px] text-slate-400">
+                  {supabaseConfig.isConnected ? 'PostgreSQL sincronizado' : 'Modo local seguro'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Historial de Versiones y Novedades (Changelog) */}
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-6 text-white shadow-xl">
+            <div className="flex items-center space-x-3 pb-4 border-b border-slate-800">
+              <div className="p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
+                <Sparkles className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-white">Registro de Actualizaciones y Cambios</h3>
+                <p className="text-xs text-slate-400">
+                  Historial cronológico de versiones y novedades implementadas en ViajeFlow.
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {APP_VERSION_INFO.changelog.map((entry, idx) => (
+                <div
+                  key={entry.version}
+                  className={`p-5 rounded-2xl border transition-all ${
+                    idx === 0
+                      ? 'bg-slate-950/80 border-emerald-500/40 shadow-lg shadow-emerald-950/20'
+                      : 'bg-slate-950/40 border-slate-800/80'
+                  }`}
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                    <div className="flex items-center space-x-2.5">
+                      <span className={`px-2.5 py-0.5 rounded-lg text-xs font-mono font-bold ${
+                        idx === 0
+                          ? 'bg-emerald-500 text-slate-950'
+                          : 'bg-slate-800 text-slate-300'
+                      }`}>
+                        {entry.version}
+                      </span>
+                      <span className="font-bold text-white text-sm">
+                        {entry.title}
+                      </span>
+                      {idx === 0 && (
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                          Versión Actual
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-xs font-mono text-slate-400 flex items-center gap-1">
+                      <Calendar className="w-3.5 h-3.5 text-slate-500" />
+                      {entry.date}
+                    </span>
+                  </div>
+
+                  <ul className="space-y-1.5 text-xs text-slate-300 pl-1">
+                    {entry.items.map((item, i) => (
+                      <li key={i} className="flex items-start space-x-2">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Persistent Footer: Always visible in Configuración */}
+      <div className="bg-slate-900/70 border border-slate-800/80 rounded-2xl px-5 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
+        <div className="flex items-center space-x-3">
+          <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+          <span>
+            <strong className="text-white">{APP_VERSION_INFO.appName}</strong> • Versión{' '}
+            <span className="font-mono text-emerald-400 font-bold">{APP_VERSION_INFO.version}</span> • Actualizado:{' '}
+            <span className="text-slate-200 font-medium">{APP_VERSION_INFO.releaseDate}</span>
+          </span>
+        </div>
+        <div className="flex items-center space-x-2 font-mono text-[11px] text-slate-400">
+          <span className="px-2.5 py-0.5 rounded-lg bg-slate-950 border border-slate-800 text-slate-300">
+            {APP_VERSION_INFO.buildNumber}
+          </span>
+        </div>
+      </div>
     </div>
   );
 };

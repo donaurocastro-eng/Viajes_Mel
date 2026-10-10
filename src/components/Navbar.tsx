@@ -1,5 +1,6 @@
 import React from 'react';
 import { Trip } from '../types';
+import { APP_VERSION_INFO } from '../version';
 import { Plane, Globe, Calendar, DollarSign, FolderKanban, Settings, Upload, Plus, ChevronDown } from 'lucide-react';
 
 interface NavbarProps {
@@ -159,7 +160,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Settings Icon Button */}
             <button
               onClick={() => setActiveTab('settings')}
-              title="Configuración y Sincronización"
+              title={`Configuración (${APP_VERSION_INFO.version})`}
               className={`p-2 rounded-xl border transition-all ${
                 activeTab === 'settings'
                   ? 'bg-purple-600 text-white border-purple-500 shadow-md'
