@@ -84,6 +84,14 @@ export const WorldTravelMap: React.FC<WorldTravelMapProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const mapViewportRef = useRef<HTMLDivElement>(null);
+  const innerMapRef = useRef<HTMLDivElement>(null);
+
+  // Mobile Touch handling
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+  const touchStartPanRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const touchPinchDistRef = useRef<number | null>(null);
+  const touchStartZoomRef = useRef<number>(1);
+  const isTouchDraggingRef = useRef<boolean>(false);
 
   // Filtered countries
   const visitedCountries = countries.filter(c => c.visited);
@@ -126,6 +134,53 @@ export const WorldTravelMap: React.FC<WorldTravelMapProps> = ({
     setIsDragging(false);
   };
 
+  // Mobile Touch handlers for smooth touch drag and pinch-to-zoom
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (e.touches.length === 1) {
+      setIsDragging(true);
+      isTouchDraggingRef.current = true;
+      touchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      touchStartPanRef.current = { ...panPosition };
+      touchPinchDistRef.current = null;
+    } else if (e.touches.length === 2) {
+      setIsDragging(true);
+      isTouchDraggingRef.current = true;
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      touchPinchDistRef.current = dist;
+      touchStartZoomRef.current = zoomLevel;
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!isTouchDraggingRef.current) return;
+    if (e.touches.length === 1 && touchStartRef.current) {
+      const dx = e.touches[0].clientX - touchStartRef.current.x;
+      const dy = e.touches[0].clientY - touchStartRef.current.y;
+      setPanPosition({
+        x: touchStartPanRef.current.x + dx,
+        y: touchStartPanRef.current.y + dy,
+      });
+    } else if (e.touches.length === 2 && touchPinchDistRef.current) {
+      const currentDist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      const scale = currentDist / touchPinchDistRef.current;
+      const nextZoom = Math.min(Math.max(touchStartZoomRef.current * scale, 1.0), 3.5);
+      setZoomLevel(nextZoom);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+    isTouchDraggingRef.current = false;
+    touchStartRef.current = null;
+    touchPinchDistRef.current = null;
+  };
+
   const handleResetZoom = () => {
     setZoomLevel(1);
     setPanPosition({ x: 0, y: 0 });
@@ -133,7 +188,7 @@ export const WorldTravelMap: React.FC<WorldTravelMapProps> = ({
   };
 
   const handleZoomIn = () => {
-    setZoomLevel(prev => Math.min(prev + 0.35, 3.0));
+    setZoomLevel(prev => Math.min(prev + 0.35, 3.5));
   };
 
   const handleZoomOut = () => {
@@ -144,26 +199,47 @@ export const WorldTravelMap: React.FC<WorldTravelMapProps> = ({
     });
   };
 
-  // Focus and center on a specific country on the fixed map
-  const handleFocusCountry = (country: VisitedCountry) => {
+  // Focus, center and ENLARGE a specific country on the fixed map
+  const handleFocusCountry = (country: VisitedCountry, zoomOverride?: number) => {
     setActivePopupCountry(country);
     const coords = getFlagCoords(country);
-    const targetZoom = 2.0;
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+
+    // If country is already selected and tapped again, zoom in even closer!
+    const isAlreadyActive = activePopupCountry?.code === country.code;
+    let targetZoom = zoomOverride;
+    if (!targetZoom) {
+      if (isAlreadyActive && zoomLevel >= 2.0) {
+        targetZoom = Math.min(zoomLevel + 0.6, 3.2);
+      } else {
+        targetZoom = isMobile ? 2.5 : 2.2;
+      }
+    }
+
     setZoomLevel(targetZoom);
 
-    // Calculate exact pixel offset relative to center of map container
-    if (mapViewportRef.current) {
-      const containerWidth = mapViewportRef.current.clientWidth || 1000;
-      const containerHeight = mapViewportRef.current.clientHeight || 650;
-      // Map base width is min(containerWidth - 32, 1200)
-      const mapWidth = Math.min(containerWidth - 32, 1200);
-      const mapHeight = mapWidth * (9 / 16);
+    // Calculate exact pixel offset relative to center of map container using innerMapRef
+    const innerEl = innerMapRef.current;
+    if (innerEl) {
+      const mapWidth = innerEl.offsetWidth;
+      const mapHeight = innerEl.offsetHeight;
 
       // Flag position in map container coordinates (from center):
       const flagX = ((coords.x - 50) / 100) * mapWidth;
       const flagY = ((coords.y - 50) / 100) * mapHeight;
 
-      // To bring this flag to center at targetZoom:
+      // Bring this flag to center at targetZoom:
+      const offsetX = -flagX * targetZoom;
+      // On mobile, the popup card sits at the bottom, so shift slightly up (-35px) so the place is prominent
+      const mobileOffsetY = isMobile ? -35 : 0;
+      const offsetY = -flagY * targetZoom + mobileOffsetY;
+      setPanPosition({ x: Math.round(offsetX), y: Math.round(offsetY) });
+    } else if (mapViewportRef.current) {
+      const containerWidth = mapViewportRef.current.clientWidth || 1000;
+      const mapWidth = Math.min(containerWidth - 32, 1200);
+      const mapHeight = mapWidth * (9 / 16);
+      const flagX = ((coords.x - 50) / 100) * mapWidth;
+      const flagY = ((coords.y - 50) / 100) * mapHeight;
       const offsetX = -flagX * targetZoom;
       const offsetY = -flagY * targetZoom;
       setPanPosition({ x: Math.round(offsetX), y: Math.round(offsetY) });
@@ -752,20 +828,34 @@ export const WorldTravelMap: React.FC<WorldTravelMapProps> = ({
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
-        className={`relative w-full h-[620px] sm:h-[680px] rounded-3xl overflow-hidden border-2 border-slate-700/80 shadow-2xl bg-[#091b33] select-none ${
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        className={`relative w-full h-[520px] sm:h-[680px] rounded-3xl overflow-hidden border-2 border-slate-700/80 shadow-2xl bg-[#091b33] select-none touch-none ${
           isDragging ? 'cursor-grabbing' : 'cursor-grab'
         }`}
       >
-        {/* Floating Hint Overlay */}
-        <div className="absolute top-4 left-4 z-20 pointer-events-none flex flex-col sm:flex-row items-start sm:items-center gap-2">
-          <div className="bg-slate-950/85 backdrop-blur-md border border-slate-800/80 text-white text-xs px-3.5 py-1.5 rounded-full shadow-lg flex items-center space-x-2">
+        {/* Floating Hint Overlay & Zoom Status */}
+        <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-20 flex flex-wrap items-center gap-2">
+          <div className="bg-slate-950/85 backdrop-blur-md border border-slate-800/80 text-white text-[11px] sm:text-xs px-3 py-1.5 rounded-full shadow-lg flex items-center space-x-2">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
             <span className="font-semibold">
               {viewFilter === 'visited_only' 
-                ? `Mostrando ${visitedCount} banderitas fijadas • Clic en cualquiera para ver álbum`
-                : `Modo exploración mundial: ${countries.length} países disponibles • Clic para clavar banderita`}
+                ? `Mostrando ${visitedCount} banderitas • Toca cualquier lugar para ampliarlo 🔍`
+                : `Modo exploración: ${countries.length} países • Toca para ampliar y clavar banderita`}
             </span>
           </div>
+
+          {(zoomLevel > 1.15 || activePopupCountry !== null) && (
+            <button
+              onClick={handleResetZoom}
+              className="bg-slate-950/90 hover:bg-slate-900 border border-emerald-500/50 text-emerald-300 hover:text-emerald-200 text-xs px-3 py-1.5 rounded-full shadow-xl flex items-center space-x-1.5 transition-all cursor-pointer backdrop-blur-md"
+              title="Restablecer vista a todo el mundo"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span className="font-bold">Ver todo el mapa ({Math.round(zoomLevel * 100)}%)</span>
+            </button>
+          )}
         </div>
 
         {/* Transformable Container for Map & Flags */}
@@ -773,12 +863,15 @@ export const WorldTravelMap: React.FC<WorldTravelMapProps> = ({
           style={{
             transform: `translate(${panPosition.x}px, ${panPosition.y}px) scale(${zoomLevel})`,
             transformOrigin: 'center center',
-            transition: isDragging ? 'none' : 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+            transition: isDragging ? 'none' : 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
           }}
           className="relative w-full h-full flex items-center justify-center p-2 sm:p-4"
         >
           {/* Base Fixed Map Image Container */}
-          <div className="relative w-full max-w-[1200px] aspect-[16/9] shadow-2xl rounded-2xl border border-white/20">
+          <div 
+            ref={innerMapRef}
+            className="relative w-full max-w-[1200px] aspect-[16/9] shadow-2xl rounded-2xl border border-white/20"
+          >
             <img
               src={fixedMapImage}
               alt="Mapa Mundial de Continentes Fijo"
@@ -790,13 +883,14 @@ export const WorldTravelMap: React.FC<WorldTravelMapProps> = ({
             />
 
             {/* =================================================================
-                FLAGS PINNED ON THE FIXED MAP
+                FLAGS PINNED ON THE FIXED MAP (CLICK ENLARGES & FOCUSES)
                 ================================================================= */}
             {countriesToRender.map((country) => {
               const coords = getFlagCoords(country);
               const countryPhotos = photos.filter(p => p.countryCode === country.code);
               const isSelected = activePopupCountry?.code === country.code;
               const isVisited = country.visited;
+              const isZoomedOut = zoomLevel < 1.6;
 
               return (
                 <div
@@ -806,60 +900,84 @@ export const WorldTravelMap: React.FC<WorldTravelMapProps> = ({
                     left: `${coords.x}%`,
                     top: `${coords.y}%`,
                     transform: 'translate(-50%, -100%)',
-                    zIndex: isSelected ? 60 : isVisited ? 40 : 20,
+                    zIndex: isSelected ? 70 : isVisited ? 40 : 20,
                     pointerEvents: 'auto',
                   }}
                   className="group flex flex-col items-center cursor-pointer select-none"
                   onClick={(e) => {
                     e.stopPropagation();
-                    setActivePopupCountry(country);
+                    handleFocusCountry(country);
                   }}
                 >
-                  {/* Scaled & Refined Flag Pin */}
-                  <div
-                    style={{
-                      transform: isSelected ? 'scale(1.1)' : undefined,
-                      transition: 'all 0.15s ease-out',
-                    }}
-                    className={`flex items-center space-x-1 px-2 py-0.5 rounded-md shadow-lg border backdrop-blur-md transition-all ${
-                      isSelected
-                        ? 'bg-emerald-500 text-slate-950 border-white ring-2 ring-emerald-300/70 shadow-emerald-500/40'
-                        : isVisited
-                        ? 'bg-slate-950/90 hover:bg-slate-900 text-white border-emerald-500/60 hover:border-emerald-400'
-                        : 'bg-slate-900/80 hover:bg-slate-900 text-slate-300 border-slate-700 hover:border-slate-500'
-                    }`}
-                  >
-                    <span className="text-xs leading-none select-none">{country.flagEmoji}</span>
-                    <span className="text-[10px] font-semibold tracking-tight whitespace-nowrap">
-                      {country.name}
-                    </span>
-                    {isVisited && (
-                      <span className={`text-[8px] ${isSelected ? 'text-slate-950' : 'text-emerald-400'}`}>
-                        🚩
+                  {/* Pin Badge: Adapts dynamically so zoomed out map is not congested */}
+                  {isZoomedOut && !isSelected ? (
+                    /* Compact Pin (Anti-congestion when zoomed out / on phones) */
+                    <div 
+                      className={`flex items-center space-x-1 px-1.5 py-0.5 rounded-full sm:rounded-md shadow-md border backdrop-blur-md transition-all hover:scale-125 hover:z-50 ${
+                        isVisited
+                          ? 'bg-slate-950/90 hover:bg-slate-900 text-white border-emerald-500/70 hover:border-emerald-400'
+                          : 'bg-slate-900/80 hover:bg-slate-900 text-slate-300 border-slate-700 hover:border-slate-500'
+                      }`}
+                      title={`${country.name} - Toca para ampliar y ver`}
+                    >
+                      <span className="text-xs sm:text-sm leading-none select-none">{country.flagEmoji}</span>
+                      <span className="hidden sm:inline text-[9px] font-semibold tracking-tight whitespace-nowrap">
+                        {country.name}
                       </span>
-                    )}
-                    {countryPhotos.length > 0 && (
-                      <span className={`text-[8px] font-mono px-1 py-0.2 rounded font-semibold ${
-                        isSelected ? 'bg-slate-900/30 text-slate-950' : 'bg-amber-400/20 text-amber-300'
+                      {isVisited && (
+                        <span className="text-[8px] text-emerald-400">🚩</span>
+                      )}
+                      {countryPhotos.length > 0 && (
+                        <span className="text-[8px] font-mono px-1 rounded font-semibold bg-amber-400/20 text-amber-300">
+                          📸{countryPhotos.length}
+                        </span>
+                      )}
+                    </div>
+                  ) : (
+                    /* Full Enlarged / Focused Pin (Zoomed In or Selected) */
+                    <div
+                      style={{
+                        transform: isSelected ? 'scale(1.2)' : undefined,
+                        transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                      }}
+                      className={`flex items-center space-x-1 px-2.5 py-1 rounded-lg shadow-xl border backdrop-blur-md transition-all ${
+                        isSelected
+                          ? 'bg-emerald-500 text-slate-950 border-white ring-4 ring-emerald-300/80 shadow-emerald-500/50 font-bold scale-110 z-50'
+                          : isVisited
+                          ? 'bg-slate-950/95 hover:bg-slate-900 text-white border-emerald-500/80 hover:border-emerald-400'
+                          : 'bg-slate-900/85 hover:bg-slate-900 text-slate-200 border-slate-600 hover:border-slate-400'
+                      }`}
+                    >
+                      <span className="text-sm leading-none select-none">{country.flagEmoji}</span>
+                      <span className={`text-[11px] font-bold tracking-tight whitespace-nowrap ${
+                        isSelected ? 'text-slate-950' : 'text-white'
                       }`}>
-                        📸{countryPhotos.length}
+                        {country.name}
                       </span>
-                    )}
-                  </div>
+                      {isVisited && (
+                        <span className={`text-[9px] ${isSelected ? 'text-slate-950' : 'text-emerald-400'}`}>
+                          🚩
+                        </span>
+                      )}
+                      {countryPhotos.length > 0 && (
+                        <span className={`text-[9px] font-mono px-1 py-0.2 rounded font-bold ${
+                          isSelected ? 'bg-slate-900/30 text-slate-950' : 'bg-amber-400/20 text-amber-300'
+                        }`}>
+                          📸{countryPhotos.length}
+                        </span>
+                      )}
+                    </div>
+                  )}
 
                   {/* Slender Needle / Pole */}
-                  <div className={`w-[1.5px] h-2.5 ${
-                    isVisited 
-                      ? 'bg-emerald-500' 
-                      : 'bg-slate-500'
-                  }`} />
+                  <div className={`w-[2px] ${isSelected ? 'h-3.5 bg-emerald-400' : 'h-2.5 ' + (isVisited ? 'bg-emerald-500' : 'bg-slate-500')}`} />
 
-                  {/* Compact Anchor Dot */}
+                  {/* Anchor Dot */}
                   <div className="relative flex items-center justify-center -mt-0.5">
                     {isVisited ? (
                       <>
-                        <span className="absolute w-3 h-3 rounded-full bg-emerald-400/50 animate-ping" />
-                        <span className="w-2 h-2 rounded-full bg-emerald-500 border border-white shadow-sm" />
+                        <span className={`absolute rounded-full bg-emerald-400/60 animate-ping ${isSelected ? 'w-4 h-4' : 'w-3 h-3'}`} />
+                        <span className={`rounded-full border border-white shadow-sm ${isSelected ? 'w-2.5 h-2.5 bg-white' : 'w-2 h-2 bg-emerald-500'}`} />
                       </>
                     ) : (
                       <span className="w-1.5 h-1.5 rounded-full bg-slate-400 border border-white" />
@@ -872,12 +990,12 @@ export const WorldTravelMap: React.FC<WorldTravelMapProps> = ({
         </div>
 
         {/* =========================================================================
-            ACTIVE COUNTRY POPUP MODAL / CARD OVERLAY
+            ACTIVE COUNTRY POPUP MODAL / CARD OVERLAY (MOBILE FRIENDLY + ZOOM CONTROLS)
             ========================================================================= */}
         {activePopupCountry && (
-          <div className="absolute bottom-3 right-3 z-40 max-w-xs sm:w-80 bg-slate-900/95 backdrop-blur-xl border border-emerald-500/30 rounded-2xl shadow-xl p-3.5 text-white animate-in fade-in slide-in-from-bottom-2 duration-150">
+          <div className="absolute bottom-2 left-2 right-2 sm:left-auto sm:right-3 sm:bottom-3 sm:w-80 max-h-[75vh] overflow-y-auto bg-slate-900/95 backdrop-blur-xl border border-emerald-500/40 rounded-2xl shadow-2xl p-3 sm:p-3.5 text-white z-40 animate-in fade-in slide-in-from-bottom-2 duration-150">
             {/* Header */}
-            <div className="flex items-start justify-between gap-2 mb-2.5">
+            <div className="flex items-start justify-between gap-2 mb-2">
               <div className="flex items-center space-x-2">
                 <span className="text-2xl select-none">{activePopupCountry.flagEmoji}</span>
                 <div>
@@ -909,7 +1027,27 @@ export const WorldTravelMap: React.FC<WorldTravelMapProps> = ({
                 onClick={() => setActivePopupCountry(null)}
                 className="p-1 hover:bg-slate-800 rounded-full text-slate-400 hover:text-white transition-colors cursor-pointer"
               >
-                <X className="w-3.5 h-3.5" />
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Quick Zoom Actions Bar for Mobile and Desktop */}
+            <div className="flex items-center gap-1.5 mb-2.5 bg-slate-950/70 p-1.5 rounded-xl border border-slate-800">
+              <button
+                onClick={() => handleFocusCountry(activePopupCountry, Math.min(zoomLevel + 0.5, 3.5))}
+                className="flex-1 py-1 px-2 bg-emerald-950/70 hover:bg-emerald-900/80 text-emerald-300 border border-emerald-500/40 rounded-lg text-xs font-bold flex items-center justify-center space-x-1 cursor-pointer transition-colors"
+                title="Ampliar este lugar aún más en el mapa"
+              >
+                <ZoomIn className="w-3.5 h-3.5" />
+                <span>Ampliar más (+)</span>
+              </button>
+              <button
+                onClick={handleResetZoom}
+                className="py-1 px-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold flex items-center justify-center space-x-1 cursor-pointer transition-colors"
+                title="Alejar y ver todo el mapamundi"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Alejar</span>
               </button>
             </div>
 
